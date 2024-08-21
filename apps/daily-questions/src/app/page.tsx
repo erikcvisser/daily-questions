@@ -10,8 +10,7 @@ export default function Index() {
         <div className="container">
           <div id="welcome">
             <h1>
-              <span> Hello there, </span>
-              Welcome daily-questions 👋
+              <span> Test 123</span>
             </h1>
           </div>
 
