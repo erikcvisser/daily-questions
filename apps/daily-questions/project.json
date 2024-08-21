@@ -1,0 +1,9 @@
+{
+  "name": "daily-questions",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/daily-questions",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project daily-questions --web",
+  "targets": {}
+}
