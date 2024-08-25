@@ -10,7 +10,7 @@ import { IconBrandGoogleFilled } from '@tabler/icons-react';
 import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 
-export function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -43,7 +43,9 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
       setSubmitting(false);
 
       if (!res?.error) {
-        onLoginSuccess();
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
         notifications.show({
           title: 'Success!',
           message: 'You have successfully signed in! 🌟',
