@@ -7,10 +7,10 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { LoginUserInput, loginUserSchema } from '../../lib/user-schema';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
-import { Button, Group, TextInput } from '@mantine/core';
+import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 
-export const LoginForm = () => {
+export function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -43,6 +43,11 @@ export const LoginForm = () => {
       setSubmitting(false);
 
       if (!res?.error) {
+        onLoginSuccess();
+        notifications.show({
+          title: 'Success!',
+          message: 'You have successfully signed in! 🌟',
+        });
         // toast.success('successfully logged in');
         router.push(callbackUrl);
       } else {
@@ -73,6 +78,7 @@ export const LoginForm = () => {
         label="Email"
         withAsterisk
         placeholder="your@email.com"
+        data-autofocus
         {...register('email')}
       />
       {errors['email'] && (
@@ -106,15 +112,15 @@ export const LoginForm = () => {
         <p className="text-center font-semibold mx-4 mb-0">OR</p>
       </div>
 
-      <a
-        className="px-7 py-2 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out w-full flex justify-center items-center mb-3"
-        style={{ backgroundColor: '#3b5998' }}
+      <Button
+        type="button"
         onClick={() => signIn('google', { callbackUrl })}
-        role="button"
+        variant="outline"
+        leftSection={<IconBrandGoogleFilled />}
+        fullWidth
       >
-        <IconBrandGoogleFilled className="mr-2" />
         Continue with Google
-      </a>
+      </Button>
     </form>
   );
-};
+}

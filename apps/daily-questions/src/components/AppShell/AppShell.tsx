@@ -1,8 +1,28 @@
 'use client';
-import { AppShell, Burger, Group, NavLink, Skeleton } from '@mantine/core';
+import {
+  AppShell,
+  Burger,
+  Group,
+  Modal,
+  NavLink,
+  Stack,
+  ThemeIcon,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Link from 'next/link';
-import { IconHome2 } from '@tabler/icons-react';
+import {
+  IconCalendarMonth,
+  IconHelpHexagonFilled,
+  IconHome2,
+  IconLogin,
+  IconLogout,
+  IconQuestionMark,
+  IconUserCircle,
+  IconUserPlus,
+} from '@tabler/icons-react';
+import { LoginForm } from '../../app/login/login-form';
+import { RegisterForm } from '../../app/register/register-form';
+import { Notifications } from '@mantine/notifications';
 
 export function BasicAppShell({
   user,
@@ -11,17 +31,33 @@ export function BasicAppShell({
   user: any;
   children: any;
 }) {
-  const [opened, { toggle }] = useDisclosure();
+  const [burgerOpened, { toggle }] = useDisclosure();
+  const [loginOpened, { open: openLogin, close: closeLogin }] =
+    useDisclosure(false);
+  const [registerOpened, { open: openRegister, close: closeRegister }] =
+    useDisclosure(false);
 
   return (
     <AppShell
       header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      navbar={{
+        width: 300,
+        breakpoint: 'sm',
+        collapsed: { mobile: !burgerOpened },
+      }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Burger
+            opened={burgerOpened}
+            onClick={toggle}
+            hiddenFrom="sm"
+            size="sm"
+          />
+          <ThemeIcon>
+            <IconHelpHexagonFilled size={48} />
+          </ThemeIcon>
           <h3>Daily Questions</h3>
         </Group>
       </AppShell.Header>
@@ -30,21 +66,23 @@ export function BasicAppShell({
           component={Link}
           label="Home"
           href="/"
-          leftSection={<IconHome2 size="1rem" stroke={1.5} />}
+          leftSection={<IconHome2 stroke={1} />}
         />
         {!user && (
           <>
             <NavLink
               component={Link}
               label="Register"
-              href="/register"
-              className="text-ct-dark-600"
+              href="#"
+              onClick={openRegister}
+              leftSection={<IconUserPlus stroke={1} />}
             />
             <NavLink
               component={Link}
               label="Login"
-              href="/login"
-              className="text-ct-dark-600"
+              href="#"
+              onClick={openLogin}
+              leftSection={<IconLogin stroke={1} />}
             />
           </>
         )}
@@ -54,31 +92,42 @@ export function BasicAppShell({
               component={Link}
               label="Questions"
               href="/questions"
-              className="text-ct-dark-600"
+              leftSection={<IconQuestionMark stroke={1} />}
             />
-            <Group>
+            <NavLink
+              component={Link}
+              label="Overview"
+              href="/overview"
+              leftSection={<IconCalendarMonth stroke={1} />}
+            />
+          </>
+        )}
+        {user && (
+          <>
+            <Stack justify="flex-start">
               <NavLink
                 component={Link}
                 label="Profile"
                 href="/profile"
-                className="text-ct-dark-600"
+                leftSection={<IconUserCircle stroke={1} />}
               />
               <NavLink
                 component={Link}
                 label="Logout"
                 href="/api/auth/signout"
-                className="text-ct-dark-600"
+                leftSection={<IconLogout stroke={1} />}
               />
-            </Group>
+            </Stack>
           </>
         )}
-        {Array(5)
-          .fill(0)
-          .map((_, index) => (
-            <Skeleton key={index} h={32} mt="sm" animate={false} />
-          ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
+      <Modal opened={loginOpened} onClose={closeLogin} title="Log in">
+        <LoginForm onLoginSuccess={closeLogin} />
+      </Modal>
+      <Modal opened={registerOpened} onClose={closeRegister} title="Register">
+        <RegisterForm />
+      </Modal>
     </AppShell>
   );
 }

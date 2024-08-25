@@ -1,11 +1,13 @@
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/charts/styles.css';
+
 import React from 'react';
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { theme } from '../components/theme';
 import { BasicAppShell } from '../components/AppShell/AppShell';
-import HeaderAccount from '../components/Header/HeaderAccount';
-import { auth } from 'apps/daily-questions/auth';
+import { auth } from '../../auth';
 
 export const metadata = {
   title: 'Daily Questions',
