@@ -14,7 +14,7 @@ import {
 import { IconX, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { CreateUserInput, createUserSchema } from '../../lib/user-schema';
+import { CreateUserInput, createUserSchema } from '@/lib/user-schema';
 
 export const RegisterForm = () => {
   const [submitting, setSubmitting] = useState(false);

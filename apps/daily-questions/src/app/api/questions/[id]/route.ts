@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import prisma from "../../../../lib/prisma";
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export async function PATCH(
   req: Request,
@@ -15,7 +15,7 @@ export async function PATCH(
       title: title,
     },
   });
-  return NextResponse.json({ message: "Updated question" }, { status: 200 });
+  return NextResponse.json({ message: 'Updated question' }, { status: 200 });
 }
 
 export async function DELETE(req: Request) {
@@ -26,5 +26,5 @@ export async function DELETE(req: Request) {
       id: id,
     },
   });
-  return NextResponse.json({ message: "Deleted question" }, { status: 200 });
+  return NextResponse.json({ message: 'Deleted question' }, { status: 200 });
 }

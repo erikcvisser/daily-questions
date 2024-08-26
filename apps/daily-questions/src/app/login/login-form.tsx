@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
-import { LoginUserInput, loginUserSchema } from '../../lib/user-schema';
+import { LoginUserInput, loginUserSchema } from '@/lib/user-schema';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
 import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';

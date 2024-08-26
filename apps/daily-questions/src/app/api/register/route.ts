@@ -1,8 +1,8 @@
-import { hash } from "bcryptjs";
-import { NextResponse } from "next/server";
-import prisma from "../../../lib/prisma";
-import { createUserSchema } from "../../../lib/user-schema";
-import { ZodError } from "zod";
+import { hash } from 'bcryptjs';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { createUserSchema } from '@/lib/user-schema';
+import { ZodError } from 'zod';
 
 export async function POST(req: Request) {
   try {
@@ -28,19 +28,19 @@ export async function POST(req: Request) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
-          status: "error",
-          message: "Validation failed",
+          status: 'error',
+          message: 'Validation failed',
           errors: error.errors,
         },
         { status: 400 }
       );
     }
 
-    if (error.code === "P2002") {
+    if (error.code === 'P2002') {
       return NextResponse.json(
         {
-          status: "fail",
-          message: "user with that email already exists",
+          status: 'fail',
+          message: 'user with that email already exists',
         },
         { status: 409 }
       );
@@ -48,8 +48,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        status: "error",
-        message: error.message || "Internal Server Error",
+        status: 'error',
+        message: error.message || 'Internal Server Error',
       },
       { status: 500 }
     );

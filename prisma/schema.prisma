@@ -23,20 +23,7 @@ model User {
   sessions      Session[]
 
   @@map(name: "users")
-}
-
-model Question {
-  id            String    @id @default(cuid())
-  title         String
-  type          QuestionType
-  status        QuestionStatus
-  userId        String    @map("user_id")
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
-
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map(name: "questions")
+  Submission Submission[]
 }
 
 model Account {
@@ -83,6 +70,47 @@ model VerificationRequest {
   @@unique([identifier, token])
 }
 
+model Question {
+  id            String    @id @default(cuid())
+  title         String
+  type          QuestionType
+  status        QuestionStatus
+  userId        String    @map("user_id")
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map(name: "questions")
+  Answer Answer[]
+}
+
+
+model Submission {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  date       DateTime
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers    Answer[]
+  createdAt     DateTime   @default(now()) @map(name: "created_at")
+  updatedAt     DateTime   @updatedAt @map(name: "updated_at")
+
+  @@map("submissions")
+}
+
+model Answer {
+  id            String     @id @default(cuid())
+  questionId    String     @map("question_id")
+  submissionId  String     @map("submission_id")
+  answer        String
+  createdAt     DateTime   @default(now()) @map(name: "created_at")
+  updatedAt     DateTime   @updatedAt @map(name: "updated_at")
+
+  question      Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
 
 enum QuestionType {
   INTEGER

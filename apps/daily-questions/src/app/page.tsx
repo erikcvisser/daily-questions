@@ -8,15 +8,10 @@ export default function Index() {
     <Container>
       <Title order={1}>Welcome to Daily Questions</Title>
       <Text>Lorum ipsum </Text>
-      <Title order={2} mt={8}>
-        About
-      </Title>
-      <Text>
-        This is a simple example of a Next.js application with Tailwind CSS.
-      </Text>
+
       <Button
+        mt={16}
         onClick={() =>
-          // Most used notification props
           notifications.show({
             id: 'hello-there',
             position: 'bottom-right',
