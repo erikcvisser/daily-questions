@@ -2,7 +2,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/client"
 }
 
 datasource db {
@@ -73,9 +72,12 @@ model VerificationRequest {
 
 model Question {
   id            String    @id @default(cuid())
+  position      Int       @default(autoincrement())  
   title         String
   type          QuestionType
   status        QuestionStatus
+  targetInt     Int?      @map("target_int")
+  targetBool    Boolean?  @map("target_bool")
   userId        String    @map("user_id")
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")

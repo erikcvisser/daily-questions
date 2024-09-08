@@ -1,5 +1,6 @@
 import { Container, List, ListItem, Title } from '@mantine/core';
 import { auth } from '@/lib/auth';
+import { BasicAppShell } from '@/components/AppShell/AppShell';
 
 export default async function ProfilePage() {
   const session = await auth();

@@ -1,62 +1,31 @@
-'use client';
 import Link from 'next/link';
-import { Modal, NavLink, Stack } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { NavLink, Stack } from '@mantine/core';
 
 import {
   IconCalendarMonth,
   IconHome2,
-  IconLogin,
   IconLogout,
   IconQuestionMark,
   IconUserCircle,
-  IconUserPlus,
 } from '@tabler/icons-react';
-import { LoginForm } from '@/app/login/login-form';
-import { RegisterForm } from '@/app/register/register-form';
+import { auth } from '@/lib/auth';
+import { LoginLinks } from './AuthComponents';
 
-export function Links() {
-  //!remove
-  const user = { user: null };
+export const experimental_ppr = true;
 
-  const [loginOpened, { open: openLogin, close: closeLogin }] =
-    useDisclosure(false);
-  const [registerOpened, { open: openRegister, close: closeRegister }] =
-    useDisclosure(false);
+export async function Links() {
+  const session = await auth();
 
   return (
     <>
-      <Modal opened={loginOpened} onClose={closeLogin} title="Log in">
-        <LoginForm onLoginSuccess={closeLogin} />
-      </Modal>
-      <Modal opened={registerOpened} onClose={closeRegister} title="Register">
-        <RegisterForm />
-      </Modal>
       <NavLink
         component={Link}
         label="Home"
         href="/"
         leftSection={<IconHome2 stroke={1} />}
       />
-      {!user.user && (
-        <>
-          <NavLink
-            component={Link}
-            label="Register"
-            href="#"
-            onClick={openRegister}
-            leftSection={<IconUserPlus stroke={1} />}
-          />
-          <NavLink
-            component={Link}
-            label="Login"
-            href="#"
-            onClick={openLogin}
-            leftSection={<IconLogin stroke={1} />}
-          />
-        </>
-      )}
-      {user.user && (
+      {!session?.user && <LoginLinks />}
+      {session?.user && (
         <>
           <NavLink
             component={Link}
@@ -72,7 +41,7 @@ export function Links() {
           />
         </>
       )}
-      {user && (
+      {session?.user && (
         <>
           <Stack justify="flex-start">
             <NavLink

@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
-import { LoginUserInput, loginUserSchema } from '@/lib/user-schema';
+import { LoginUserInput, loginUserSchema } from '@/lib/definitions';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
-import { Button, Group, Stack, TextInput } from '@mantine/core';
+import { Button, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 
 export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
@@ -88,8 +88,7 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           {errors['email']?.message as string}
         </span>
       )}
-      <TextInput
-        type="password"
+      <PasswordInput
         label="Pasword"
         withAsterisk
         {...register('password')}

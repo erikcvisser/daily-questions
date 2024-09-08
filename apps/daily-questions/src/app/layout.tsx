@@ -7,7 +7,6 @@ import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
-import { auth } from '@/lib/auth';
 
 export const metadata = {
   title: 'Daily Questions',
@@ -15,9 +14,6 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: any }) {
-  const session = await auth();
-  const user = session?.user || null;
-
   return (
     <html lang="en">
       <head>
@@ -30,8 +26,10 @@ export default async function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <Notifications />
-          <BasicAppShell user={user}>{children}</BasicAppShell>
+          <BasicAppShell>
+            <Notifications />
+            {children}
+          </BasicAppShell>
         </MantineProvider>
       </body>
     </html>

@@ -1,26 +1,22 @@
-'use client';
 import {
   AppShell,
+  AppShellHeader,
+  AppShellMain,
+  AppShellNavbar,
   Burger,
   Grid,
   GridCol,
   Group,
   ThemeIcon,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+// import { useDisclosure } from '@mantine/hooks';
 
 import { ColorSchemeToggle } from '@/components/ColorSchemeToggle/ColorSchemeToggle';
 import { IconHelpHexagonFilled } from '@tabler/icons-react';
 import { Links } from '@/components/Header/Links';
 
-export function BasicAppShell({
-  user,
-  children,
-}: {
-  user: any;
-  children: any;
-}) {
-  const [burgerOpened, { toggle }] = useDisclosure();
+export function BasicAppShell({ children }: { children: any }) {
+  // const [burgerOpened, { toggle }] = useDisclosure();
 
   return (
     <AppShell
@@ -28,20 +24,20 @@ export function BasicAppShell({
       navbar={{
         width: 300,
         breakpoint: 'sm',
-        collapsed: { mobile: !burgerOpened },
+        //  collapsed: { mobile: !burgerOpened },
       }}
       padding="md"
     >
-      <AppShell.Header>
+      <AppShellHeader>
         <Grid>
           <GridCol span="auto">
             <Group h="100%" px="md">
-              <Burger
+              {/* <Burger
                 opened={burgerOpened}
                 onClick={toggle}
                 hiddenFrom="sm"
                 size="sm"
-              />
+              /> */}
               <ThemeIcon>
                 <IconHelpHexagonFilled size={48} />
               </ThemeIcon>
@@ -52,11 +48,11 @@ export function BasicAppShell({
             <ColorSchemeToggle />
           </GridCol>
         </Grid>
-      </AppShell.Header>
-      <AppShell.Navbar p="md">
+      </AppShellHeader>
+      <AppShellNavbar p="md">
         <Links />
-      </AppShell.Navbar>
-      <AppShell.Main>{children}</AppShell.Main>
+      </AppShellNavbar>
+      <AppShellMain>{children}</AppShellMain>
     </AppShell>
   );
 }

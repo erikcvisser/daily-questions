@@ -52,14 +52,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({ allowDangerousEmailAccountLinking: true }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized: async ({ auth, request: { nextUrl } }) => {
       const isLoggedIn = !!auth?.user;
-      const paths = ['/profile', '/questions'];
+      const paths = ['/profile', '/questions', '/questionnaire'];
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
 
       if (isProtected && !isLoggedIn) {
+        console.log('protected');
         const redirectUrl = new URL('/api/auth/signin', nextUrl.origin);
         redirectUrl.searchParams.append('callbackUrl', nextUrl.href);
         return Response.redirect(redirectUrl);

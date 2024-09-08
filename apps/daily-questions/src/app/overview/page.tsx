@@ -1,3 +1,4 @@
+import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { Container, Title } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 
