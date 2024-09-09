@@ -41,6 +41,7 @@
     "@nx/playwright": "19.6.1",
     "@nx/workspace": "19.6.1",
     "@playwright/test": "^1.36.0",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^5.19.1",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
