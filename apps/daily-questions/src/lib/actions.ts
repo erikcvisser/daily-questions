@@ -11,7 +11,7 @@ const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
   console.log(formData);
   const session = await auth();
-  let { title, type, targetBool, targetInt } = CreateQuestion.parse({
+  const { title, type, targetBool, targetInt } = CreateQuestion.parse({
     title: formData['title'],
     type: formData['type'],
     targetBool: formData['targetBool'] || undefined,
@@ -33,8 +33,7 @@ export async function createQuestion(formData: any) {
 }
 
 export async function updateQuestion(id: string, formData: any) {
-  const session = await auth();
-  let { title, type, targetBool, targetInt } = CreateQuestion.parse({
+  const { title, type, targetBool, targetInt } = CreateQuestion.parse({
     title: formData['title'],
     type: formData['type'],
     targetBool: formData['targetBool'] || undefined,

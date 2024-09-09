@@ -1,7 +1,7 @@
 import { hash } from 'bcryptjs';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { createUserSchema } from '@/lib/user-schema';
+import { createUserSchema } from '@/lib/definitions';
 import { ZodError } from 'zod';
 
 export async function POST(req: Request) {

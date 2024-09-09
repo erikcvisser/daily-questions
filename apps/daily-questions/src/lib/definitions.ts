@@ -9,6 +9,15 @@ export const createQuestionSchema = object({
   targetBool: z.coerce.boolean().optional(),
 });
 
+export const submitQuestionnaireSchema = object({
+  date: z.date({ required_error: 'Date is required' }),
+  answers: z.array(
+    object({
+      id: z.string(),
+      value: z.union([z.string(), z.number(), z.boolean()]),
+    })
+  ),
+});
 export const createUserSchema = object({
   name: string({ required_error: 'Name is required' }).min(
     1,

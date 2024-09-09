@@ -16,7 +16,6 @@ export default async function Page({ params }: { params: { id: string } }) {
     <Container>
       <Title order={1}>Edit question</Title>
       {question && <QuestionForm question={question} />}
-      <pre>{JSON.stringify(question, null, 2)}</pre>
     </Container>
   );
 }

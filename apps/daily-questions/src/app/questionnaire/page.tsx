@@ -1,10 +1,10 @@
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
-import { Container, Title, Text } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 
 export default async function Index() {
   return (
     <Container>
-      <Title order={1}>Answer today's questions</Title>
+      <Title order={1}>Answer today&apos;s questions</Title>
       <Questionnaire />
     </Container>
   );

@@ -6,7 +6,9 @@ export default async function LoginPage() {
   return (
     <Container size="xs">
       <Title order={1}>Login</Title>
-      <LoginForm />
+      <Suspense fallback="Loading...">
+        <LoginForm />
+      </Suspense>
     </Container>
   );
 }

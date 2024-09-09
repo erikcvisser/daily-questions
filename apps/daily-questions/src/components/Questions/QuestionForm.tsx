@@ -48,7 +48,6 @@ export default function QuestionForm({ question }: { question?: Question }) {
     <>
       <form
         onSubmit={form.onSubmit(handleSubmit, handleError)}
-        className="flex gap-3 items-center"
         ref={focusTrapRef}
       >
         <TextInput

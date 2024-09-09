@@ -1,4 +1,3 @@
-import { BasicAppShell } from '@/components/AppShell/AppShell';
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
 import { auth } from '@/lib/auth';
 import { Container, Title, Text } from '@mantine/core';

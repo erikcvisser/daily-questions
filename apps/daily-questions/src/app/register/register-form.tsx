@@ -2,19 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import {
-  Button,
-  Group,
-  Input,
-  Notification,
-  PasswordInput,
-  rem,
-  TextInput,
-} from '@mantine/core';
-import { IconX, IconCheck } from '@tabler/icons-react';
+import { Button, Group, PasswordInput, TextInput } from '@mantine/core';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { CreateUserInput, createUserSchema } from '@/lib/user-schema';
+import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 
 export const RegisterForm = () => {
   const [submitting, setSubmitting] = useState(false);

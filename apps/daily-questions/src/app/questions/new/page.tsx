@@ -1,4 +1,4 @@
-import { Button, Container, List, Title } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 import QuestionForm from '@/components/Questions/QuestionForm';
 
 export default async function Question() {

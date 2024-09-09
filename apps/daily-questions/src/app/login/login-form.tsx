@@ -7,7 +7,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { LoginUserInput, loginUserSchema } from '@/lib/definitions';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
-import { Button, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
+import { Button, Group, PasswordInput, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 
 export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {

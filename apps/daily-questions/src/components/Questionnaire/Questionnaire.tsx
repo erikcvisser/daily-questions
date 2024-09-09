@@ -16,9 +16,11 @@ export default async function Questionnaire() {
     where: { status: 'ACTIVE', userId: user.id },
   });
   return (
-    <Group>
-      <Title order={4}>Questionnaire</Title>
+    <>
+      <Group>
+        <Title order={4}>Answer today&apos;s questions</Title>
+      </Group>
       <QuestionnaireForm questions={questions} />
-    </Group>
+    </>
   );
 }

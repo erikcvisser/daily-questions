@@ -1,15 +1,9 @@
 'use client';
 
-import {
-  ActionIcon,
-  Button,
-  Group,
-  useMantineColorScheme,
-} from '@mantine/core';
+import { ActionIcon, Group, useMantineColorScheme } from '@mantine/core';
 import { IconSunMoon } from '@tabler/icons-react';
 
 export function ColorSchemeToggle() {
-  const { setColorScheme } = useMantineColorScheme();
   const { toggleColorScheme } = useMantineColorScheme();
 
   return (
