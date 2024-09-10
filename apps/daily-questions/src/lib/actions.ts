@@ -3,9 +3,9 @@
 import { Question } from '@prisma/client';
 import { createQuestionSchema } from './definitions';
 import prisma from './prisma';
-import { auth } from './auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { auth, signIn } from '@/lib/auth';
 
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
@@ -63,4 +63,8 @@ export async function deleteQuestion(question: Question) {
   });
   revalidatePath('/questions');
   redirect('/questions');
+}
+
+export async function signInPostmark(formData: FormData) {
+  signIn('postmark', formData);
 }

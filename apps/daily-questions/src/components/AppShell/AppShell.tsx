@@ -7,15 +7,20 @@ import {
   Grid,
   GridCol,
   Group,
-  ThemeIcon,
+  Text,
 } from '@mantine/core';
 // import { useDisclosure } from '@mantine/hooks';
 
 import { ColorSchemeToggle } from '@/components/ColorSchemeToggle/ColorSchemeToggle';
 import { IconHelpHexagonFilled } from '@tabler/icons-react';
 import { Links } from '@/components/Header/Links';
+import Image from 'next/image';
+import Link from 'next/link';
+import { auth } from '@/lib/auth';
 
-export function BasicAppShell({ children }: { children: any }) {
+export async function BasicAppShell({ children }: { children: any }) {
+  const session = await auth();
+  console.log(session?.user?.id);
   // const [burgerOpened, { toggle }] = useDisclosure();
 
   return (
@@ -25,23 +30,40 @@ export function BasicAppShell({ children }: { children: any }) {
         width: 300,
         breakpoint: 'sm',
         //  collapsed: { mobile: !burgerOpened },
+        collapsed: { mobile: true },
       }}
       padding="md"
     >
       <AppShellHeader>
         <Grid>
           <GridCol span="auto">
-            <Group h="100%" px="md">
+            <Group h="100%" px="xl">
               {/* <Burger
                 opened={burgerOpened}
                 onClick={toggle}
                 hiddenFrom="sm"
                 size="sm"
               /> */}
-              <ThemeIcon>
-                <IconHelpHexagonFilled size={48} />
-              </ThemeIcon>
-              <h3>Daily Questions</h3>
+              <Link
+                href="/"
+                style={{
+                  display: 'inline-flex',
+                  textDecoration: 'none',
+                  alignItems: 'center',
+                  color: 'inherit',
+                  fontWeight: 'bold',
+                }}
+              >
+                <Image
+                  src="/android-chrome-192x192.png"
+                  width={32}
+                  height={32}
+                  alt={''}
+                />
+                <Text p={16} size="xl" fw={'bold'}>
+                  Daily Questions
+                </Text>
+              </Link>
             </Group>
           </GridCol>
           <GridCol visibleFrom="md" span={1}>
@@ -50,7 +72,7 @@ export function BasicAppShell({ children }: { children: any }) {
         </Grid>
       </AppShellHeader>
       <AppShellNavbar p="md">
-        <Links />
+        <Links session={session} />
       </AppShellNavbar>
       <AppShellMain>{children}</AppShellMain>
     </AppShell>

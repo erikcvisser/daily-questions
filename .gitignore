@@ -45,3 +45,5 @@ Thumbs.db
 .next
 out
 .vercel
+
+.env.local

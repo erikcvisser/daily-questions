@@ -6,9 +6,10 @@ import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { LoginUserInput, loginUserSchema } from '@/lib/definitions';
-import { IconBrandGoogleFilled } from '@tabler/icons-react';
+import { IconBrandGoogleFilled, IconMail } from '@tabler/icons-react';
 import { Button, Group, PasswordInput, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { signInPostmark } from '@/lib/actions';
 
 export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const router = useRouter();
@@ -50,19 +51,20 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           title: 'Success!',
           message: 'You have successfully signed in! 🌟',
         });
-        // toast.success('successfully logged in');
         router.push(callbackUrl);
       } else {
         reset({ password: '' });
         const message = 'invalid email or password';
-        // toast.error(message);
-        setError(message);
+        notifications.show({
+          title: 'Error signing you in',
+          message: message,
+        });
       }
     } catch (error: any) {
       // toast.error(error.message);
       notifications.show({
-        title: 'Default notification',
-        message: 'Do not forget to star Mantine on GitHub! 🌟',
+        title: 'Error signing you in',
+        message: error.message,
       });
       setError(error.message);
     } finally {
@@ -71,43 +73,66 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitHandler)}>
-      {error && (
-        <p className="text-center bg-red-300 py-4 mb-6 rounded">{error}</p>
-      )}
-      <TextInput
-        type="email"
-        label="Email"
-        withAsterisk
-        placeholder="your@email.com"
-        data-autofocus
-        {...register('email')}
-      />
-      {errors['email'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['email']?.message as string}
-        </span>
-      )}
-      <PasswordInput
-        label="Pasword"
-        withAsterisk
-        {...register('password')}
-        placeholder="Password"
-      />
-      {errors['password'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['password']?.message as string}
-        </span>
-      )}
-      <Group justify="flex-end" mt="md">
+    <>
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        {error && (
+          <p className="text-center bg-red-300 py-4 mb-6 rounded">{error}</p>
+        )}
+        <TextInput
+          type="email"
+          label="Email"
+          withAsterisk
+          placeholder="your@email.com"
+          data-autofocus
+          {...register('email')}
+        />
+        {errors['email'] && (
+          <span className="text-red-500 text-xs pt-1 block">
+            {errors['email']?.message as string}
+          </span>
+        )}
+        <PasswordInput
+          label="Pasword"
+          withAsterisk
+          {...register('password')}
+          placeholder="Password"
+        />
+        {errors['password'] && (
+          <span className="text-red-500 text-xs pt-1 block">
+            {errors['password']?.message as string}
+          </span>
+        )}
+        <Group justify="flex-end" mt="md">
+          <Button
+            type="submit"
+            data-disabled={submitting}
+            // onClick={(event) => event.preventDefault()}
+          >
+            {submitting ? 'loading...' : 'Sign In'}
+          </Button>
+        </Group>
+      </form>
+
+      <div className="flex items-center my-4 before:flex-1 before:border-t before:border-gray-300 before:mt-0.5 after:flex-1 after:border-t after:border-gray-300 after:mt-0.5">
+        <p className="text-center font-semibold mx-4 mb-0">OR</p>
+      </div>
+
+      <form action={signInPostmark}>
+        <TextInput
+          type="email"
+          label="Email"
+          withAsterisk
+          placeholder="your@email.com"
+        />
         <Button
           type="submit"
-          data-disabled={submitting}
-          // onClick={(event) => event.preventDefault()}
+          variant="outline"
+          leftSection={<IconMail />}
+          fullWidth
         >
-          {submitting ? 'loading...' : 'Sign In'}
+          Send link to email
         </Button>
-      </Group>
+      </form>
 
       <div className="flex items-center my-4 before:flex-1 before:border-t before:border-gray-300 before:mt-0.5 after:flex-1 after:border-t after:border-gray-300 after:mt-0.5">
         <p className="text-center font-semibold mx-4 mb-0">OR</p>
@@ -122,6 +147,6 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
       >
         Continue with Google
       </Button>
-    </form>
+    </>
   );
 }

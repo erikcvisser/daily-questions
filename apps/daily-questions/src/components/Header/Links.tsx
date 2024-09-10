@@ -1,5 +1,7 @@
+'use client';
 import Link from 'next/link';
 import { NavLink, Stack } from '@mantine/core';
+import { usePathname } from 'next/navigation';
 
 import {
   IconCalendarMonth,
@@ -8,13 +10,12 @@ import {
   IconQuestionMark,
   IconUserCircle,
 } from '@tabler/icons-react';
-import { auth } from '@/lib/auth';
 import { LoginLinks } from './AuthComponents';
 
 export const experimental_ppr = true;
 
-export async function Links() {
-  const session = await auth();
+export function Links({ session }: { session: any }) {
+  const pathname = usePathname();
 
   return (
     <>
@@ -22,6 +23,7 @@ export async function Links() {
         component={Link}
         label="Home"
         href="/"
+        active={pathname === '/'}
         leftSection={<IconHome2 stroke={1} />}
       />
       {!session?.user && <LoginLinks />}
@@ -31,12 +33,14 @@ export async function Links() {
             component={Link}
             label="Questions"
             href="/questions"
+            active={pathname === '/questions'}
             leftSection={<IconQuestionMark stroke={1} />}
           />
           <NavLink
             component={Link}
             label="Overview"
             href="/overview"
+            active={pathname === '/overview'}
             leftSection={<IconCalendarMonth stroke={1} />}
           />
         </>
@@ -48,6 +52,7 @@ export async function Links() {
               component={Link}
               label="Profile"
               href="/profile"
+              active={pathname === '/profile'}
               leftSection={<IconUserCircle stroke={1} />}
             />
             <NavLink

@@ -3,6 +3,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
+import Postmark from 'next-auth/providers/postmark';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -12,6 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   providers: [
+    Postmark,
     CredentialsProvider({
       name: 'Sign in',
       id: 'credentials',
