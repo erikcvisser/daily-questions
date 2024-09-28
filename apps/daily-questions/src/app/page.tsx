@@ -6,7 +6,7 @@ export default async function Index() {
   const session = await auth();
   return (
     <Container>
-      <Title order={1}>Welcome to Daily Questions</Title>
+      <Title order={2}>Welcome to Daily Questions</Title>
       <Text>Lorum ipsum </Text>
       {session?.user && <Questionnaire />}
     </Container>

@@ -10,16 +10,18 @@ import {
 } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { Question } from '@prisma/client';
-import { IconEdit, IconX } from '@tabler/icons-react';
+import { IconArchive, IconEdit, IconX } from '@tabler/icons-react';
 import { Table, Checkbox } from '@mantine/core';
 import { useState } from 'react';
 
 export default function QuestionTable({
   questions,
   deleteQuestionAction,
+  archiveQuestionAction,
 }: {
   questions: Question[];
   deleteQuestionAction: (question: Question) => void;
+  archiveQuestionAction: (question: Question) => void;
 }) {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const router = useRouter();
@@ -51,7 +53,10 @@ export default function QuestionTable({
       <TableTd>{question.position}</TableTd>
       <TableTd>{question.title}</TableTd>
       <TableTd>{question.type}</TableTd>
-      <TableTd>{question.targetInt || question.targetBool}</TableTd>
+      <TableTd>
+        {question.targetInt || (question.targetBool ? 'Yes' : 'No')}
+      </TableTd>
+      <TableTd>{question.status}</TableTd>
       <TableTd>
         {' '}
         <ActionIcon
@@ -59,6 +64,12 @@ export default function QuestionTable({
           aria-label="delete question"
         >
           <IconX />
+        </ActionIcon>
+        <ActionIcon
+          onClick={() => archiveQuestionAction(question)}
+          aria-label="archive question"
+        >
+          <IconArchive />
         </ActionIcon>
         <ActionIcon
           onClick={() => router.push(`/questions/${question.id}`)}
@@ -97,6 +108,7 @@ export default function QuestionTable({
             <TableTh>Question</TableTh>
             <TableTh>Type</TableTh>
             <TableTh>Target</TableTh>
+            <TableTh>Status</TableTh>
             <TableTh>Actions</TableTh>
           </TableTr>
         </TableThead>

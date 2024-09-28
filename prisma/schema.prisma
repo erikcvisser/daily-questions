@@ -84,8 +84,12 @@ model Question {
 
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map(name: "questions")
   Answer Answer[]
+
+  libraryQuestion  LibraryQuestion? @relation("LibraryToQuestion", fields: [libraryQuestionId], references: [id])
+  libraryQuestionId String?
+  
+  @@map(name: "questions")
 }
 
 
@@ -124,5 +128,24 @@ enum QuestionType {
 enum QuestionStatus {
   ACTIVE
   INACTIVE
+}
+
+model LibraryQuestion {
+  id             String       @id @default(cuid())
+  title          String
+  targetInt      Int?         @map("target_int")
+  targetBool     Boolean?     @map("target_bool")
+  type           QuestionType
+  category       Category     @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  copiedQuestions Question[]  @relation("LibraryToQuestion")
+}
+
+model Category {
+  id               String           @id @default(cuid())
+  name             String           @unique
+  libraryQuestions LibraryQuestion[]
 }
 

@@ -1,10 +1,14 @@
 import { Button, Container, Title } from '@mantine/core';
 import QuestionTable from '@/components/Questions/QuestionTable';
 import prisma from '@/lib/prisma';
-import { deleteQuestion } from '@/lib/actions';
+import { deleteQuestion, archiveQuestion } from '@/lib/actions';
 
 export default async function QuestionPage() {
-  const questions = await prisma.question.findMany();
+  const questions = await prisma.question.findMany({
+    orderBy: {
+      position: 'asc',
+    },
+  });
 
   return (
     <Container>
@@ -15,6 +19,7 @@ export default async function QuestionPage() {
       <QuestionTable
         questions={questions}
         deleteQuestionAction={deleteQuestion}
+        archiveQuestionAction={archiveQuestion}
       />
     </Container>
   );

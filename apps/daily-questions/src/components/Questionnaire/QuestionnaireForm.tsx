@@ -17,41 +17,72 @@ import { notifications } from '@mantine/notifications';
 import { Question, Answer, Submission } from '@prisma/client';
 import { IconSend } from '@tabler/icons-react';
 import { useState } from 'react';
+import { submitQuestionnaire, updateQuestionnaire } from '@/lib/actions';
+import { useSearchParams } from 'next/navigation';
 
 export default function QuestionnaireForm({
   questions,
+  submission,
 }: {
   questions: Question[];
+  submission:
+    | (Submission & {
+        answers: Answer[];
+      })
+    | null;
 }) {
   const [submitting, setSubmitting] = useState(false);
   const focusTrapRef = useFocusTrap();
+  const searchParams = useSearchParams();
 
-  const form = useForm({
-    mode: 'uncontrolled',
-    initialValues: {
-      date: new Date(),
+  const dateParam = searchParams.get('date');
+  const now = dateParam ? new Date(dateParam) : new Date();
+
+  let initialAnswers = {
+    date: new Date(now.setHours(0, 0, 0, 0)),
+    answers: {
       ...questions.reduce((acc: { [key: string]: string }, question) => {
-        if (question.type === 'INTEGER') {
-          acc[question.id] = '5';
-        } else if (question.type === 'BOOLEAN') {
-          acc[question.id] = 'true';
-        } else if (question.type === 'FREETEXT') {
-          acc[question.id] = '';
-        }
+        acc[question.id] = '';
         return acc;
       }, {}),
     },
+  };
+
+  if (submission && submission.answers) {
+    initialAnswers = {
+      date: new Date(submission.date),
+      answers: {
+        ...submission.answers.reduce(
+          (acc: { [key: string]: string }, answer) => {
+            acc[answer.questionId] = answer.answer;
+            return acc;
+          },
+          {}
+        ),
+      },
+    };
+    console.log(initialAnswers);
+  }
+
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: initialAnswers,
     validateInputOnChange: true,
     validate: zodResolver(submitQuestionnaireSchema),
   });
 
-  const handleSubmit = (values: typeof form.values) => {
+  const handleSubmit = async (values: typeof form.values) => {
     setSubmitting(true);
-    console.log(values);
+
+    if (submission) {
+      await updateQuestionnaire(submission.id, values);
+    } else {
+      await submitQuestionnaire(values);
+    }
+    setSubmitting(false);
   };
 
   const handleError = (errors: typeof form.errors) => {
-    console.log(form.getValues());
     console.log(errors);
     if (errors) {
       notifications.show({
@@ -68,23 +99,28 @@ export default function QuestionnaireForm({
         ref={focusTrapRef}
       >
         <DateInput label="Date" {...form.getInputProps('date')} />
-        {questions.map((question, k) =>
-          question.type === 'INTEGER' ? (
+        {questions.map((item, index) =>
+          item.type === 'INTEGER' ? (
             <NumberInput
-              label={question.title}
-              {...form.getInputProps(question.id)}
+              label={item.title}
               description="Rate from 0 to 10"
-              data-autofocus={k === 0}
+              data-autofocus={index === 0}
               min={0}
               max={10}
-              key={form.key(question.id)}
+              key={form.key(`answers.${item.id}`)}
+              withAsterisk
+              //key={form.key(item.id)}
+              {...form.getInputProps(`answers.${item.id}`)}
+              //{...form.getInputProps(item.id)}
             />
-          ) : question.type === 'BOOLEAN' ? (
+          ) : item.type === 'BOOLEAN' ? (
             <RadioGroup
-              key={form.key(question.id)}
-              {...form.getInputProps(question.id)}
-              label={question.title}
-              data-autofocus={k === 0}
+              // key={form.key(item.id)}
+              key={form.key(`answers.${item.id}`)}
+              //{...form.getInputProps(item.id)}
+              {...form.getInputProps(`answers.${item.id}`)}
+              label={item.title}
+              data-autofocus={index === 0}
               withAsterisk
             >
               <Group mt="xs">
@@ -92,12 +128,12 @@ export default function QuestionnaireForm({
                 <Radio value="false" label="No" />
               </Group>
             </RadioGroup>
-          ) : question.type === 'FREETEXT' ? (
+          ) : item.type === 'FREETEXT' ? (
             <Textarea
-              key={form.key(question.id)}
-              {...form.getInputProps(question.id)}
-              label={question.title}
-              data-autofocus={k === 0}
+              key={form.key(`answers.${item.id}`)}
+              {...form.getInputProps(`answers.${item.id}`)}
+              label={item.title}
+              data-autofocus={index === 0}
               withAsterisk
             />
           ) : null

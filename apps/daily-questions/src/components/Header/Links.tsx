@@ -19,35 +19,37 @@ export function Links({ session }: { session: any }) {
 
   return (
     <>
-      <NavLink
-        component={Link}
-        label="Home"
-        href="/"
-        active={pathname === '/'}
-        leftSection={<IconHome2 stroke={1} />}
-      />
-      {!session?.user && <LoginLinks />}
+      <Stack>
+        <NavLink
+          component={Link}
+          label="Home"
+          href="/"
+          active={pathname === '/'}
+          leftSection={<IconHome2 stroke={1} />}
+        />
+        {!session?.user && <LoginLinks />}
+        {session?.user && (
+          <>
+            <NavLink
+              component={Link}
+              label="Overview"
+              href="/overview"
+              active={pathname === '/overview'}
+              leftSection={<IconCalendarMonth stroke={1} />}
+            />
+            <NavLink
+              component={Link}
+              label="Configure questions"
+              href="/questions"
+              active={pathname === '/questions'}
+              leftSection={<IconQuestionMark stroke={1} />}
+            />
+          </>
+        )}
+      </Stack>
       {session?.user && (
         <>
-          <NavLink
-            component={Link}
-            label="Questions"
-            href="/questions"
-            active={pathname === '/questions'}
-            leftSection={<IconQuestionMark stroke={1} />}
-          />
-          <NavLink
-            component={Link}
-            label="Overview"
-            href="/overview"
-            active={pathname === '/overview'}
-            leftSection={<IconCalendarMonth stroke={1} />}
-          />
-        </>
-      )}
-      {session?.user && (
-        <>
-          <Stack justify="flex-start">
+          <Stack justify="flex-end" h={'100%'} mt={16}>
             <NavLink
               component={Link}
               label="Profile"

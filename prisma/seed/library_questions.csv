@@ -1,0 +1,10 @@
+title,type,targetInt,targetBool,category
+"Did I do my best to increase my happiness?",BOOLEAN,,true,Starter
+"Did I do my best to find meaning? ",BOOLEAN,,true,Starter
+"Did I do my best to be engaged? ",BOOLEAN,,true,Starter
+"Did I do my best to build positive relationships?",BOOLEAN,,true,Starter
+"Did I do my best to set clear goals?",BOOLEAN,,true,Starter
+"Did I do my best to be engaged? ",BOOLEAN,,true,Starter
+"Did I say or do something nice for my family?",BOOLEAN,,true,Relations
+"How much time did I spent taking care of my health",INTEGER,30,,Health
+"How much time did I spent meditating?",INTEGER,30,,Personal

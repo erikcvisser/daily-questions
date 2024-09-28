@@ -1,11 +1,10 @@
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
 import { Container, Title } from '@mantine/core';
 
-export default async function Index() {
+export default async function Index({ params }: { params: { id: string } }) {
   return (
     <Container>
-      <Title order={1}>Answer today&apos;s questions</Title>
-      <Questionnaire />
+      <Questionnaire id={params.id} />
     </Container>
   );
 }

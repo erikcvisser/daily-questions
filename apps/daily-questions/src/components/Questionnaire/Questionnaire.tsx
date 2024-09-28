@@ -4,7 +4,7 @@ import { Group, Title } from '@mantine/core';
 import QuestionnaireForm from './QuestionnaireForm';
 import { notFound } from 'next/navigation';
 
-export default async function Questionnaire() {
+export default async function Questionnaire({ id }: { id?: string }) {
   const session = await auth();
   const user = session?.user;
 
@@ -15,12 +15,22 @@ export default async function Questionnaire() {
   const questions = await prisma.question.findMany({
     where: { status: 'ACTIVE', userId: user.id },
   });
+  let submission = null;
+  if (id) {
+    submission = await prisma.submission.findUnique({
+      where: { userId: user.id, id: id },
+      include: {
+        answers: true,
+      },
+    });
+  }
+
   return (
     <>
       <Group>
-        <Title order={4}>Answer today&apos;s questions</Title>
+        <Title order={4}>Answer your daily questions</Title>
       </Group>
-      <QuestionnaireForm questions={questions} />
+      <QuestionnaireForm questions={questions} submission={submission} />
     </>
   );
 }
