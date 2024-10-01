@@ -73,11 +73,13 @@ const AboutPage: NextPage = () => {
           </GridCol>
         </Grid>
         <Text mt="md">
-          Marshall Goldsmith&apos;s work has been instrumental in shaping
-          leaders and professionals globally. &quot;Triggers&quot; delves into
-          the environmental and psychological stimuli that influence our
-          actions. By understanding these triggers, we can better manage our
-          responses and behaviors.
+          Marshall Goldsmith has been recognized as the world&apos;s leading
+          Executive Coach and the New York Times bestselling author of many
+          books, including What Got You Here Won&apos;t Get You There, Mojo, and
+          Triggers. He received his Ph.D. from the UCLA Anderson School of
+          Management. In his executive-coaching career, Goldsmith has advised
+          more than 200 major CEOs and their management teams. He and his wife
+          live in Nashville, Tennessee.
         </Text>
         <Button
           variant="outline"

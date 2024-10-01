@@ -83,6 +83,35 @@ export default function PublicHome() {
       </Container>
       <SectionDivider />
 
+      {/* Who is it for */}
+      <Container size="md" mt="xl">
+        <Title order={3} ta="center" mb="md">
+          Who is it for?
+        </Title>
+        <SimpleGrid cols={2} spacing="xl">
+          <Card shadow="sm" padding="lg" withBorder>
+            <Text fw={500} mb="sm">
+              This is for people who:
+            </Text>
+            <Text>
+              Want to change their behaviors and are committed to personal
+              growth.
+            </Text>
+          </Card>
+          <Card shadow="sm" padding="lg" withBorder>
+            <Text fw={500} mb="sm">
+              This is not for people who:
+            </Text>
+            <Text>
+              Do not want to change their behaviors. No one can make a
+              successful and contented adult change their behavior unless they
+              want to.
+            </Text>
+          </Card>
+        </SimpleGrid>
+      </Container>
+      <SectionDivider />
+
       {/* Key Benefits */}
       <Container size="lg" mt="xl">
         <SimpleGrid
@@ -134,10 +163,13 @@ export default function PublicHome() {
           <GridCol span={7}>
             <Title order={3}>Meet Marshall Goldsmith</Title>
             <Text mt="sm">
-              Marshall Goldsmith is a world-renowned executive coach and author
-              of the bestseller &quot;Triggers&quot;. His innovative strategies
-              for behavioral change have helped leaders and professionals
-              worldwide achieve lasting success.
+              Marshall Goldsmith has been recognized as the world&apos;s leading
+              Executive Coach and the New York Times bestselling author of many
+              books, including What Got You Here Won&apos;t Get You There, Mojo,
+              and Triggers. He received his Ph.D. from the UCLA Anderson School
+              of Management. In his executive-coaching career, Goldsmith has
+              advised more than 200 major CEOs and their management teams. He
+              and his wife live in Nashville, Tennessee.
             </Text>
             <Button
               variant="outline"
