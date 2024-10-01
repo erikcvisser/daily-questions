@@ -21,6 +21,7 @@ model User {
   questions     Question[]
   accounts      Account[]
   sessions      Session[]
+  targetScore   Float @default(0.75)
 
   @@map(name: "users")
   Submission Submission[]
@@ -99,8 +100,9 @@ model Submission {
   date       DateTime
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   answers    Answer[]
-  createdAt     DateTime   @default(now()) @map(name: "created_at")
-  updatedAt     DateTime   @updatedAt @map(name: "updated_at")
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @updatedAt @map(name: "updated_at")
+  scorePercentage Float? 
 
   @@map("submissions")
 }

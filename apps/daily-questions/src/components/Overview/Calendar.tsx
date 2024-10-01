@@ -8,12 +8,14 @@ import { useState } from 'react';
 
 export default function CalendarComp({
   submissions,
+  personalTarget,
 }: {
   submissions: (Submission & {
     answers: (Answer & {
       question: Question;
     })[];
   })[];
+  personalTarget: number;
 }) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
@@ -21,29 +23,14 @@ export default function CalendarComp({
   const [existingSubmission, setExistingSubmission] =
     useState<Submission | null>(null);
 
-  console.log(submissions);
   const subs = submissions.map((submission) => {
-    let totalQuestions = 0;
-    const exceededTarget = submission.answers.filter((answer) => {
-      if (answer.question.type === 'BOOLEAN' && answer.question.targetBool) {
-        totalQuestions++;
-        return answer.answer === String(answer.question.targetBool);
-      } else if (
-        answer.question.type === 'INTEGER' &&
-        answer.question.targetInt
-      ) {
-        totalQuestions++;
-        return Number(answer.answer) >= answer.question.targetInt;
-      }
-      return false;
-    }).length;
-
-    console.log(totalQuestions);
-    const percentage = (exceededTarget / totalQuestions) * 100;
-    const color = percentage > 50 ? 'green' : 'red';
+    const color =
+      submission.scorePercentage &&
+      submission.scorePercentage >= personalTarget * 100
+        ? 'green'
+        : 'red';
     return {
       ...submission,
-      percentage,
       color,
     };
   });

@@ -47,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          randomKey: 'Hey cool',
+          targetScore: user.targetScore,
         };
       },
     }),
@@ -56,7 +56,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     authorized: async ({ auth, request: { nextUrl } }) => {
       const isLoggedIn = !!auth?.user;
-      const paths = ['/profile', '/questions', '/questionnaire'];
+      const paths = ['/profile', '/overview', '/submission', '/questions'];
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
@@ -75,7 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         user: {
           ...session.user,
           id: token.id as string | undefined,
-          randomKey: token.randomKey,
+          targetScore: token.targetScore,
         },
       };
     },
@@ -85,7 +85,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return {
           ...token,
           id: u.id as string | undefined,
-          randomKey: u.randomKey,
+          targetScore: u.targetScore,
         };
       }
       return token;

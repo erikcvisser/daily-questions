@@ -1,49 +1,56 @@
+'use client';
 import {
   AppShell,
   AppShellHeader,
   AppShellMain,
   AppShellNavbar,
-  // Burger,
+  Burger,
   Grid,
+  UnstyledButton,
   GridCol,
   Group,
   Text,
 } from '@mantine/core';
-// import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
+import classes from './AppShell.module.css';
 
 import { ColorSchemeToggle } from '@/components/ColorSchemeToggle/ColorSchemeToggle';
-import { IconHelpHexagonFilled } from '@tabler/icons-react';
 import { Links } from '@/components/Header/Links';
 import Image from 'next/image';
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
+import { Session } from 'next-auth';
+import { LoginLinks } from '@/components/Header/AuthComponents';
 
-export async function BasicAppShell({ children }: { children: any }) {
-  const session = await auth();
-  console.log(session?.user?.id);
-  // const [burgerOpened, { toggle }] = useDisclosure();
+export function BasicAppShell({
+  children,
+  session,
+}: {
+  children: any;
+  session: Session | undefined;
+}) {
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
+  const desktopOpened = session ? true : false;
 
   return (
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: 300,
+        width: { base: 200, md: 250, lg: 300 },
         breakpoint: 'sm',
-        //  collapsed: { mobile: !burgerOpened },
-        collapsed: { mobile: true },
+        collapsed: { desktop: !desktopOpened, mobile: !mobileOpened },
       }}
       padding="md"
     >
-      <AppShellHeader>
-        <Grid>
-          <GridCol span="auto">
-            <Group h="100%" px="xl">
-              {/* <Burger
-                opened={burgerOpened}
-                onClick={toggle}
+      <AppShellHeader px="md">
+        <Grid align="center" justify="space-between">
+          <GridCol span="content">
+            <Group>
+              <Burger
+                opened={mobileOpened}
+                onClick={toggleMobile}
                 hiddenFrom="sm"
                 size="sm"
-              /> */}
+              />
               <Link
                 href="/"
                 style={{
@@ -66,8 +73,27 @@ export async function BasicAppShell({ children }: { children: any }) {
               </Link>
             </Group>
           </GridCol>
-          <GridCol visibleFrom="md" span={1}>
-            <ColorSchemeToggle />
+          <GridCol span="content">
+            <Group>
+              <Group gap={64} visibleFrom="sm" mr={32}>
+                <UnstyledButton
+                  className={classes.control}
+                  component="a"
+                  href="/"
+                >
+                  Home
+                </UnstyledButton>
+                <UnstyledButton
+                  className={classes.control}
+                  component="a"
+                  href="/about"
+                >
+                  About
+                </UnstyledButton>
+                {!session && <LoginLinks />}
+              </Group>
+              <ColorSchemeToggle />
+            </Group>
           </GridCol>
         </Grid>
       </AppShellHeader>

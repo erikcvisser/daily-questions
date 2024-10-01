@@ -1,11 +1,14 @@
-import { Container, Title } from '@mantine/core';
+import { Container, Title, Stack, Space } from '@mantine/core';
 import { RegisterForm } from './register-form';
 
 export default async function RegisterPage() {
   return (
-    <Container size="xs">
-      <Title order={1}>Register</Title>
-      <RegisterForm />
+    <Container size="sm">
+      <Stack>
+        <Title order={1}>Register</Title>
+        <Space h="md" />
+        <RegisterForm />
+      </Stack>
     </Container>
   );
 }

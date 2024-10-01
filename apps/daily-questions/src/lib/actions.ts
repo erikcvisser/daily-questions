@@ -1,11 +1,13 @@
 'use server';
 
-import { Question, QuestionStatus } from '@prisma/client';
+import { Question, QuestionStatus, QuestionType } from '@prisma/client';
 import { createQuestionSchema } from './definitions';
 import prisma from './prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { auth, signIn } from '@/lib/auth';
+import { auth, signIn, signOut } from '@/lib/auth';
+import { CreateUserInput, createUserSchema } from '@/lib/definitions';
+import { hash } from 'bcryptjs';
 
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
@@ -79,6 +81,39 @@ export async function archiveQuestion(question: Question) {
   redirect('/questions');
 }
 
+async function calculateScorePercentage(answers: any[]) {
+  let totalQuestions = 0;
+  let exceededTarget = 0;
+
+  for (const answer of answers) {
+    const question = await prisma.question.findUnique({
+      where: { id: answer.questionId },
+    });
+
+    if (!question) continue;
+
+    if (
+      question.type === QuestionType.BOOLEAN &&
+      question.targetBool !== null
+    ) {
+      totalQuestions++;
+      if (answer.answer === String(question.targetBool)) {
+        exceededTarget++;
+      }
+    } else if (
+      question.type === QuestionType.INTEGER &&
+      question.targetInt !== null
+    ) {
+      totalQuestions++;
+      if (Number(answer.answer) >= question.targetInt) {
+        exceededTarget++;
+      }
+    }
+  }
+
+  return totalQuestions > 0 ? (exceededTarget / totalQuestions) * 100 : null;
+}
+
 export async function submitQuestionnaire(formData: any) {
   console.log(formData);
   const session = await auth();
@@ -90,11 +125,15 @@ export async function submitQuestionnaire(formData: any) {
     });
   }
   console.log(answers);
+
+  const scorePercentage = await calculateScorePercentage(answers);
+
   await prisma.submission.create({
     data: {
       userId: session?.user?.id || '1',
       date: formData['date'],
       answers: { create: answers },
+      scorePercentage,
     },
   });
   revalidatePath('/overview');
@@ -111,6 +150,8 @@ export async function updateQuestionnaire(id: string, formData: any) {
     });
   }
 
+  const scorePercentage = await calculateScorePercentage(answers);
+
   await prisma.submission.update({
     where: {
       id: id,
@@ -122,6 +163,7 @@ export async function updateQuestionnaire(id: string, formData: any) {
         deleteMany: {},
         create: answers,
       },
+      scorePercentage,
     },
   });
 
@@ -158,9 +200,8 @@ export async function copyLibraryQuestions(questionIds: string[]) {
     status: 'ACTIVE',
     userId: session?.user?.id || '1',
     libraryQuestionId: libQ.id,
-    // Set default values for targetInt and targetBool if necessary
-    targetInt: libQ.type === 'INTEGER' ? 0 : undefined,
-    targetBool: libQ.type === 'BOOLEAN' ? false : undefined,
+    targetInt: libQ.type === 'INTEGER' ? libQ.targetInt : undefined,
+    targetBool: libQ.type === 'BOOLEAN' ? libQ.targetBool : undefined,
   }));
 
   await prisma.question.createMany({
@@ -172,4 +213,71 @@ export async function copyLibraryQuestions(questionIds: string[]) {
 
   revalidatePath('/questions');
   redirect('/questions');
+}
+
+export async function updateQuestionPositions(updatedQuestions: Question[]) {
+  const updatePromises = updatedQuestions.map((question) =>
+    prisma.question.update({
+      where: { id: question.id },
+      data: { position: question.position },
+    })
+  );
+
+  await Promise.all(updatePromises);
+  revalidatePath('/questions');
+}
+
+export async function registerUser(formData: CreateUserInput) {
+  const validatedData = createUserSchema.parse(formData);
+  const hashed_password = await hash(validatedData.password, 12);
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: validatedData.name,
+        email: validatedData.email.toLowerCase(),
+        password: hashed_password,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User creation failed');
+    }
+
+    // Return success instead of redirecting
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      throw new Error('Email already exists');
+    }
+    throw new Error(error.message || 'An unexpected error occurred');
+  }
+}
+
+export async function deleteAccount() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Delete all related data
+    await prisma.submission.deleteMany({
+      where: { userId: session.user.id },
+    });
+    await prisma.question.deleteMany({
+      where: { userId: session.user.id },
+    });
+
+    // Delete the user
+    await prisma.user.delete({
+      where: { id: session.user.id },
+    });
+
+    // Return success instead of redirecting
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    return { success: false, error: 'Failed to delete account' };
+  }
 }

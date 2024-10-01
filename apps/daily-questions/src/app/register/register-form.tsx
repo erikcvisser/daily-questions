@@ -2,13 +2,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Button, Group, PasswordInput, TextInput } from '@mantine/core';
+import {
+  Button,
+  Group,
+  PasswordInput,
+  TextInput,
+  Box,
+  Stack,
+} from '@mantine/core';
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { CreateUserInput, createUserSchema } from '@/lib/definitions';
+import { registerUser } from '@/lib/actions';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export const RegisterForm = () => {
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const methods = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
@@ -18,91 +28,83 @@ export const RegisterForm = () => {
     handleSubmit,
     register,
     formState: { errors },
+    setError,
   } = methods;
 
   const onSubmitHandler: SubmitHandler<CreateUserInput> = async (values) => {
     try {
       setSubmitting(true);
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        body: JSON.stringify(values),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const result = await registerUser(values);
 
-      if (!res.ok) {
-        const errorData = await res.json();
+      if (result.success) {
+        // User registered successfully, now sign them in
+        const signInResult = await signIn('credentials', {
+          email: values.email,
+          password: values.password,
+          redirect: true,
+        });
 
-        if (Array.isArray(errorData.errors) && errorData.errors.length > 0) {
-          errorData.errors.forEach((error: any) => {
-            // toast.error(error.message);
-          });
-
-          return;
+        if (signInResult?.ok) {
+          // router.push('/');
+          setSubmitting(false);
+        } else {
+          // Sign-in failed
+          setError('root', { message: 'Failed to sign in after registration' });
         }
-
-        // toast.error(errorData.message);
-        return;
+      } else {
+        // Registration failed
+        setError('root', { message: 'Registration failed' });
       }
-
-      signIn(undefined, { callbackUrl: '/' });
     } catch (error: any) {
-      // toast.error(error.message);
+      setError('root', { message: error.message });
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitHandler)}>
-      <TextInput {...register('name')} label="Name" placeholder="Name" />
-      {errors['name'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['name']?.message as string}
-        </span>
-      )}
-      <TextInput
-        type="email"
-        data-autofocus
-        {...register('email')}
-        placeholder="Email address"
-      />
-      {errors['email'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['email']?.message as string}
-        </span>
-      )}
-      <PasswordInput
-        label="Password"
-        {...register('password')}
-        placeholder="Password"
-      />
-      {errors['password'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['password']?.message as string}
-        </span>
-      )}
-      <PasswordInput
-        type="password"
-        label="Confirm Password"
-        {...register('passwordConfirm')}
-        placeholder="Confirm Password"
-      />
-      {errors['passwordConfirm'] && (
-        <span className="text-red-500 text-xs pt-1 block">
-          {errors['passwordConfirm']?.message as string}
-        </span>
-      )}
-      <Group justify="flex-end" mt="md">
-        <Button
-          type="submit"
-          data-disabled={submitting}
-          // onClick={(event) => event.preventDefault()}
-        >
-          {submitting ? 'loading...' : 'Sign In'}
-        </Button>
-      </Group>
-    </form>
+    <Box maw={400} mx="auto">
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <Stack gap={'sm'}>
+          <TextInput
+            {...register('name')}
+            label="Name"
+            placeholder="Name"
+            error={errors['name'] && (errors['name']?.message as string)}
+          />
+          <TextInput
+            {...register('email')}
+            label="Email"
+            placeholder="Email address"
+            error={errors['email'] && (errors['email']?.message as string)}
+          />
+          <PasswordInput
+            {...register('password')}
+            label="Password"
+            placeholder="Password"
+            error={
+              errors['password'] && (errors['password']?.message as string)
+            }
+          />
+          <PasswordInput
+            {...register('passwordConfirm')}
+            label="Confirm Password"
+            placeholder="Confirm Password"
+            error={
+              errors['passwordConfirm'] &&
+              (errors['passwordConfirm']?.message as string)
+            }
+          />
+          {errors.root && (
+            <div style={{ color: 'red' }}>{errors.root.message}</div>
+          )}
+          <Group justify="flex-end" mt="md">
+            <Button type="submit" loading={submitting}>
+              {submitting ? 'Signing Up...' : 'Sign Up'}
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Box>
   );
 };

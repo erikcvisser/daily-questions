@@ -8,6 +8,9 @@ import {
   Radio,
   RadioGroup,
   Textarea,
+  Paper,
+  Stack,
+  Title,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -93,12 +96,12 @@ export default function QuestionnaireForm({
   };
 
   return (
-    <>
-      <form
-        onSubmit={form.onSubmit(handleSubmit, handleError)}
-        ref={focusTrapRef}
-      >
-        <DateInput label="Date" {...form.getInputProps('date')} />
+    <form
+      onSubmit={form.onSubmit(handleSubmit, handleError)}
+      ref={focusTrapRef}
+    >
+      <Stack>
+        <DateInput label="Date" {...form.getInputProps('date')} radius="md" />
         {questions.map((item, index) =>
           item.type === 'INTEGER' ? (
             <NumberInput
@@ -109,15 +112,12 @@ export default function QuestionnaireForm({
               max={10}
               key={form.key(`answers.${item.id}`)}
               withAsterisk
-              //key={form.key(item.id)}
               {...form.getInputProps(`answers.${item.id}`)}
-              //{...form.getInputProps(item.id)}
+              radius="md"
             />
           ) : item.type === 'BOOLEAN' ? (
             <RadioGroup
-              // key={form.key(item.id)}
               key={form.key(`answers.${item.id}`)}
-              //{...form.getInputProps(item.id)}
               {...form.getInputProps(`answers.${item.id}`)}
               label={item.title}
               data-autofocus={index === 0}
@@ -135,19 +135,24 @@ export default function QuestionnaireForm({
               label={item.title}
               data-autofocus={index === 0}
               withAsterisk
+              radius="md"
+              autosize
+              minRows={3}
             />
           ) : null
         )}
-        <Group justify="flex-end" mt="md">
+        <Group justify="flex-end" mt="xl">
           <Button
             type="submit"
-            data-disabled={submitting}
+            disabled={submitting}
             leftSection={<IconSend />}
+            radius="md"
+            size="md"
           >
             {submitting ? 'Saving...' : 'Save'}
           </Button>
         </Group>
-      </form>
-    </>
+      </Stack>
+    </form>
   );
 }

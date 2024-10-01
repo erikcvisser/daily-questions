@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { Group, Title } from '@mantine/core';
 import QuestionnaireForm from './QuestionnaireForm';
 import { notFound } from 'next/navigation';
 
@@ -27,9 +26,6 @@ export default async function Questionnaire({ id }: { id?: string }) {
 
   return (
     <>
-      <Group>
-        <Title order={4}>Answer your daily questions</Title>
-      </Group>
       <QuestionnaireForm questions={questions} submission={submission} />
     </>
   );

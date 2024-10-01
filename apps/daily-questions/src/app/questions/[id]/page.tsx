@@ -1,6 +1,6 @@
 import QuestionForm from '@/components/Questions/QuestionForm';
 import prisma from '@/lib/prisma';
-import { Container, Title } from '@mantine/core';
+import { Container, Title, Stack, Space } from '@mantine/core';
 import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -13,9 +13,12 @@ export default async function Page({ params }: { params: { id: string } }) {
     notFound();
   }
   return (
-    <Container>
-      <Title order={1}>Edit question</Title>
-      {question && <QuestionForm question={question} />}
+    <Container size="xl">
+      <Stack>
+        <Title order={2}>Edit question</Title>
+        <Space h="md" />
+        {question && <QuestionForm question={question} />}
+      </Stack>
     </Container>
   );
 }

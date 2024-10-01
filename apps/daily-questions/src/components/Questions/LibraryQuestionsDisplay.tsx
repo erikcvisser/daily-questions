@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { Category, LibraryQuestion } from '@prisma/client';
 import { copyLibraryQuestions } from '@/lib/actions';
+import { useMediaQuery } from '@mantine/hooks';
 
 async function onCopy(selectedIds: string[]) {
   try {
@@ -50,27 +51,66 @@ export default function LibraryQuestionsDisplay({
     setSelectedQuestions([]);
   };
 
+  const isMobile = useMediaQuery('(max-width: 48em)');
+  const isTablet = useMediaQuery('(max-width: 62em)');
+
   return (
     <>
       <Select
-        label="Filter by Category"
-        placeholder="All Categories"
+        label="Filter by category"
+        placeholder="All categories"
         data={categories}
         value={category || 'All'}
         onChange={(value) => setCategory(value === 'All' ? null : value)}
         mb="md"
       />
 
-      <Grid gutter="sm">
+      <Grid>
         {filteredLibraryQuestions.map((question) => (
-          <Grid.Col span={4} key={question.id}>
-            <Card shadow="sm" padding="sm">
+          <Grid.Col span={isMobile ? 12 : isTablet ? 6 : 4} key={question.id}>
+            <Card
+              shadow="sm"
+              padding="sm"
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                position: 'relative', // Add this
+              }}
+              onClick={() => handleSelect(question.id)}
+            >
               <Checkbox
-                label={question.title}
                 checked={selectedQuestions.includes(question.id)}
                 onChange={() => handleSelect(question.id)}
+                styles={{
+                  root: {
+                    position: 'absolute',
+                    top: '12px',
+                    left: '12px',
+                    paddingTop: '4px',
+                  },
+                  input: {
+                    cursor: 'pointer',
+                  },
+                }}
+                onClick={(e) => e.stopPropagation()}
               />
-              <Text size="sm" color="dimmed">
+              <Text
+                style={{
+                  flex: 1,
+                  cursor: 'pointer',
+                  paddingLeft: '32px', // Add space for checkbox
+                }}
+              >
+                {question.title}
+              </Text>
+              <Text
+                size="sm"
+                color="dimmed"
+                mt="auto"
+                style={{ paddingLeft: '32px' }}
+              >
                 Category: {question.category.name}
               </Text>
             </Card>
@@ -80,7 +120,7 @@ export default function LibraryQuestionsDisplay({
 
       <Group justify="flex-end" mt="md">
         <Button onClick={handleCopy} disabled={selectedQuestions.length === 0}>
-          Copy Selected Questions
+          Copy selected questions
         </Button>
       </Group>
     </>

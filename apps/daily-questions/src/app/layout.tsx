@@ -8,13 +8,16 @@ import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
+import { auth } from '@/lib/auth';
 
 export const metadata = {
   title: 'Daily Questions',
-  description: 'I am using Mantine with Next.js!',
+  description: 'Daily Questions helps you improve.',
 };
 
 export default async function RootLayout({ children }: { children: any }) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <head>
@@ -45,7 +48,7 @@ export default async function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <BasicAppShell>
+          <BasicAppShell session={session ?? undefined}>
             <Notifications />
             {children}
           </BasicAppShell>

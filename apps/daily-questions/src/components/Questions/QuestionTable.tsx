@@ -10,47 +10,93 @@ import {
 } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { Question } from '@prisma/client';
-import { IconArchive, IconEdit, IconX } from '@tabler/icons-react';
-import { Table, Checkbox } from '@mantine/core';
+import {
+  IconArchive,
+  IconEdit,
+  IconX,
+  IconGripVertical,
+} from '@tabler/icons-react';
+import { Table, Checkbox, Group, Text } from '@mantine/core';
 import { useState } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-export default function QuestionTable({
-  questions,
+function SortableTableRow({
+  question,
+  selectedRows,
+  setSelectedRows,
   deleteQuestionAction,
   archiveQuestionAction,
+  router,
 }: {
-  questions: Question[];
+  question: Question;
+  selectedRows: string[];
+  setSelectedRows: React.Dispatch<React.SetStateAction<string[]>>;
   deleteQuestionAction: (question: Question) => void;
   archiveQuestionAction: (question: Question) => void;
+  router: any;
 }) {
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const router = useRouter();
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: question.id });
 
-  const rows = questions.map((question) => (
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
     <TableTr
+      ref={setNodeRef}
+      style={style}
       key={question.id}
       bg={
-        selectedRows.includes(question.position)
+        selectedRows.includes(question.id)
           ? 'var(--mantine-color-blue-light)'
           : undefined
       }
     >
-      <TableTd>
+      <TableTd
+        {...attributes}
+        {...listeners}
+        m={0}
+        p={0}
+        style={{ width: '40px' }}
+      >
+        <IconGripVertical
+          style={{
+            cursor: 'grab',
+            height: '1.2em',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        />
+      </TableTd>
+      <TableTd style={{ width: '40px' }}>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(question.position)}
+          checked={selectedRows.includes(question.id)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, question.position]
-                : selectedRows.filter(
-                    (position) => position !== question.position
-                  )
+                ? [...selectedRows, question.id]
+                : selectedRows.filter((id) => id !== question.id)
             )
           }
         />
       </TableTd>
-      <TableTd>{question.position}</TableTd>
       <TableTd>{question.title}</TableTd>
       <TableTd>{question.type}</TableTd>
       <TableTd>
@@ -58,62 +104,136 @@ export default function QuestionTable({
       </TableTd>
       <TableTd>{question.status}</TableTd>
       <TableTd>
-        {' '}
-        <ActionIcon
-          onClick={() => deleteQuestionAction(question)}
-          aria-label="delete question"
-        >
-          <IconX />
-        </ActionIcon>
-        <ActionIcon
-          onClick={() => archiveQuestionAction(question)}
-          aria-label="archive question"
-        >
-          <IconArchive />
-        </ActionIcon>
-        <ActionIcon
-          onClick={() => router.push(`/questions/${question.id}`)}
-          aria-label="edit question"
-        >
-          <IconEdit />
-        </ActionIcon>
+        <Group gap="xs">
+          <ActionIcon
+            onClick={() => deleteQuestionAction(question)}
+            aria-label="delete question"
+            color="red"
+            variant="light"
+          >
+            <IconX size="1rem" />
+          </ActionIcon>
+          <ActionIcon
+            onClick={() => archiveQuestionAction(question)}
+            aria-label="archive question"
+            color="gray"
+            variant="light"
+          >
+            <IconArchive size="1rem" />
+          </ActionIcon>
+          <ActionIcon
+            onClick={() => router.push(`/questions/${question.id}`)}
+            aria-label="edit question"
+            color="blue"
+            variant="light"
+          >
+            <IconEdit size="1rem" />
+          </ActionIcon>
+        </Group>
       </TableTd>
     </TableTr>
-  ));
+  );
+}
+
+export default function QuestionTable({
+  questions,
+  deleteQuestionAction,
+  archiveQuestionAction,
+  updateQuestionPositions,
+}: {
+  questions: Question[];
+  deleteQuestionAction: (question: Question) => void;
+  archiveQuestionAction: (question: Question) => void;
+  updateQuestionPositions: (updatedQuestions: Question[]) => void;
+}) {
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const router = useRouter();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = questions.findIndex((q) => q.id === active.id);
+      const newIndex = questions.findIndex((q) => q.id === over?.id);
+
+      const updatedQuestions = [...questions];
+      const [reorderedItem] = updatedQuestions.splice(oldIndex, 1);
+      updatedQuestions.splice(newIndex, 0, reorderedItem);
+
+      // Update positions
+      const questionsWithNewPositions = updatedQuestions.map((q, index) => ({
+        ...q,
+        position: index + 1,
+      }));
+
+      updateQuestionPositions(questionsWithNewPositions);
+    }
+  };
 
   return (
     <>
       {selectedRows.length > 0 && (
-        <div>
-          {selectedRows.length} selected
+        <Group mb="md" justify="space-between">
+          <Text fw={500}>{selectedRows.length} selected</Text>
           <ActionIcon
             aria-label="Delete selected rows"
             onClick={() => {
               const selectedQuestions = questions.filter((question) =>
-                selectedRows.includes(question.position)
+                selectedRows.includes(question.id)
               );
               selectedQuestions.forEach(deleteQuestionAction);
               setSelectedRows([]);
             }}
+            color="red"
+            variant="filled"
+            size="lg"
           >
-            <IconX />
+            <IconX size="1.2rem" />
           </ActionIcon>
-        </div>
+        </Group>
       )}
-      <Table highlightOnHover>
-        <TableThead>
-          <TableTr>
-            <TableTh />
-            <TableTh>Order</TableTh>
-            <TableTh>Question</TableTh>
-            <TableTh>Type</TableTh>
-            <TableTh>Target</TableTh>
-            <TableTh>Status</TableTh>
-            <TableTh>Actions</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>{rows}</TableTbody>
-      </Table>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <Table highlightOnHover>
+          <TableThead>
+            <TableTr>
+              <TableTh style={{ width: '40px' }} />
+              <TableTh style={{ width: '40px' }} />
+              <TableTh>Question</TableTh>
+              <TableTh>Type</TableTh>
+              <TableTh>Target</TableTh>
+              <TableTh>Status</TableTh>
+              <TableTh>Actions</TableTh>
+            </TableTr>
+          </TableThead>
+          <SortableContext
+            items={questions.map((q) => q.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <TableTbody>
+              {questions.map((question) => (
+                <SortableTableRow
+                  key={question.id}
+                  question={question}
+                  selectedRows={selectedRows}
+                  setSelectedRows={setSelectedRows}
+                  deleteQuestionAction={deleteQuestionAction}
+                  archiveQuestionAction={archiveQuestionAction}
+                  router={router}
+                />
+              ))}
+            </TableTbody>
+          </SortableContext>
+        </Table>
+      </DndContext>
     </>
   );
 }

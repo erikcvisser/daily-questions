@@ -17,7 +17,7 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const [submitting, setSubmitting] = useState(false);
 
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/profile';
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const methods = useForm<LoginUserInput>({
     resolver: zodResolver(loginUserSchema),
@@ -52,6 +52,7 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           message: 'You have successfully signed in! 🌟',
         });
         router.push(callbackUrl);
+        router.refresh();
       } else {
         reset({ password: '' });
         const message = 'invalid email or password';
@@ -61,7 +62,6 @@ export function LoginForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
         });
       }
     } catch (error: any) {
-      // toast.error(error.message);
       notifications.show({
         title: 'Error signing you in',
         message: error.message,

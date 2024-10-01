@@ -1,14 +1,21 @@
-import Questionnaire from '@/components/Questionnaire/Questionnaire';
+import PublicHome from '@/components/Home/PublicHome';
+import InternalHome from '@/components/Home/InternalHome';
 import { auth } from '@/lib/auth';
-import { Container, Title, Text } from '@mantine/core';
+import prisma from '@/lib/prisma';
 
 export default async function Index() {
   const session = await auth();
+  const userQuestions = session?.user
+    ? await prisma.question.findMany({ where: { userId: session.user.id } })
+    : [];
+
   return (
-    <Container>
-      <Title order={2}>Welcome to Daily Questions</Title>
-      <Text>Lorum ipsum </Text>
-      {session?.user && <Questionnaire />}
-    </Container>
+    <>
+      {session?.user ? (
+        <InternalHome userQuestions={userQuestions} />
+      ) : (
+        <PublicHome />
+      )}
+    </>
   );
 }
