@@ -1,0 +1,4 @@
+{
+  "buildCommand": "npm run postinstall && npm run build",
+  "outputDirectory": ".next"
+}
