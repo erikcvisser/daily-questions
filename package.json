@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "seed": "ts-node prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "build": "nx run daily-questions:build"
   },
   "private": true,
   "dependencies": {
