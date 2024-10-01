@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "seed": "ts-node prisma/seed.ts",
-    "postinstall": "prisma generate",
-    "build": "nx run daily-questions:build"
+    "seed": "ts-node prisma/seed.ts"
   },
   "private": true,
   "dependencies": {
