@@ -58,7 +58,7 @@ export default function PublicHome() {
           <Title order={1}>Transform Your Life One Question at a Time</Title>
           <Text size="lg" mt="md">
             Harness the power of daily reflection inspired by Marshall
-            Goldsmith's "Triggers"
+            Goldsmith&apos;s &quot;Triggers&quot;
           </Text>
           <Button
             variant="filled"
@@ -76,9 +76,9 @@ export default function PublicHome() {
       <Container size="md" mt="xl">
         <Text size="lg" ta="center">
           At Daily Questions, we believe that asking the right questions leads
-          to meaningful change. Inspired by Marshall Goldsmith's transformative
-          work, our platform guides you toward personal and professional growth
-          through daily self-reflection.
+          to meaningful change. Inspired by Marshall Goldsmith&apos;s
+          transformative work, our platform guides you toward personal and
+          professional growth through daily self-reflection.
         </Text>
       </Container>
       <SectionDivider />
@@ -135,9 +135,9 @@ export default function PublicHome() {
             <Title order={3}>Meet Marshall Goldsmith</Title>
             <Text mt="sm">
               Marshall Goldsmith is a world-renowned executive coach and author
-              of the bestseller "Triggers". His innovative strategies for
-              behavioral change have helped leaders and professionals worldwide
-              achieve lasting success.
+              of the bestseller &quot;Triggers&quot;. His innovative strategies
+              for behavioral change have helped leaders and professionals
+              worldwide achieve lasting success.
             </Text>
             <Button
               variant="outline"
@@ -158,12 +158,12 @@ export default function PublicHome() {
       <Container size="md" mt="xl">
         <Grid gutter="xl" align="center">
           <GridCol span={7}>
-            <Title order={3}>And his book: "Triggers"</Title>
+            <Title order={3}>And his book: &quot;Triggers&quot;</Title>
             <Text mt="sm">
-              "Triggers" explores how our environment shapes our behavior and
-              offers tools to enact positive change. The book inspires our daily
-              questioning approach, helping you navigate life's challenges with
-              intentionality.
+              &quot;Triggers&quot; explores how our environment shapes our
+              behavior and offers tools to enact positive change. The book
+              inspires our daily questioning approach, helping you navigate
+              life&apos;s challenges with intentionality.
             </Text>
             <Button
               variant="outline"
@@ -203,9 +203,9 @@ export default function PublicHome() {
               <Text fw={500}>Alex P.</Text>
             </Group>
             <Text mt="sm">
-              "Daily Questions has improved the way I approach my day. I like
-              the accountability it creates and I'm more focused and driven than
-              ever."
+              &quot;Daily Questions has improved the way I approach my day. I
+              like the accountability it creates and I&apos;m more focused and
+              driven than ever.&quot;
             </Text>
           </Card>
           <Card shadow="sm" padding="lg">
@@ -216,8 +216,8 @@ export default function PublicHome() {
               <Text fw={500}>Jordan S.</Text>
             </Group>
             <Text mt="sm">
-              "A simple yet powerful tool for personal growth. Highly
-              recommended!"
+              &quot;A simple yet powerful tool for personal growth. Highly
+              recommended!&quot;
             </Text>
           </Card>
         </SimpleGrid>

@@ -14,11 +14,9 @@ import { useState } from 'react';
 import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { registerUser } from '@/lib/actions';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export const RegisterForm = () => {
   const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
 
   const methods = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),

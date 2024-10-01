@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, NavLink, UnstyledButton } from '@mantine/core';
+import { Modal, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LoginForm } from '@/app/login/login-form';
 import { RegisterForm } from '@/app/register/register-form';

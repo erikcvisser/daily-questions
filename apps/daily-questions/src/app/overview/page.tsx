@@ -14,10 +14,10 @@ import CalendarComp from '@/components/Overview/Calendar';
 import SubmissionsTable from '@/components/Overview/Table';
 import { SummarySection } from '@/components/Overview/Summary';
 import { Button, Text } from '@mantine/core';
-import Link from 'next/link';
 
 export default async function OverviewPage() {
   const session = await auth();
+  // @ts-ignore
   const personalTarget = session?.user?.targetScore;
   const questions = await prisma.question.findMany({
     where: {
@@ -38,7 +38,9 @@ export default async function OverviewPage() {
   return (
     <Container size="xl">
       <Stack>
-        <Title order={2}>Overview of {session?.user?.name}'s submissions</Title>
+        <Title order={2}>
+          Overview of {session?.user?.name}&apos;s submissions
+        </Title>
         <Space h="md" />
         {submissions.length > 0 ? (
           <Flex
@@ -62,12 +64,12 @@ export default async function OverviewPage() {
         ) : (
           <Center>
             <Paper shadow="md" p="xl" radius="md" withBorder>
-              <Stack align="center" spacing="md">
+              <Stack align="center" gap="md">
                 {questions.length > 0 ? (
                   <>
                     <Title order={3}>No submissions yet</Title>
                     <Text ta="center">
-                      You have questions set up, but haven't made any
+                      You have questions set up, but haven&apos;t made any
                       submissions. Start tracking your progress today!
                     </Text>
                     <Button component="a" href="/submission/new" size="lg">
@@ -78,8 +80,8 @@ export default async function OverviewPage() {
                   <>
                     <Title order={3}>Get started</Title>
                     <Text ta="center">
-                      You haven't set up any questions yet. Create your first
-                      question to begin your journey of self-improvement!
+                      You haven&apos;t set up any questions yet. Create your
+                      first question to begin your journey of self-improvement!
                     </Text>
                     <Button component="a" href="/questions/new" size="lg">
                       Create your first question

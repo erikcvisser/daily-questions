@@ -1,6 +1,6 @@
 //@ts-check
 
-// @ts-ignore
+// @ts-expect-error lalala
 const { PrismaPlugin } = require('@prisma/nextjs-monorepo-workaround-plugin');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

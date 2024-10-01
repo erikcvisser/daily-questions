@@ -38,7 +38,7 @@ export default function InternalHome({
           {userQuestions.length > 0 ? (
             <>
               <Text size="lg" fw={500} mb="md">
-                Ready for today's reflection?
+                Ready for today&apos;s reflection?
               </Text>
               <Questionnaire />
             </>

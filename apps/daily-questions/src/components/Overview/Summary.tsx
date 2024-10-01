@@ -1,7 +1,6 @@
-import { Paper, Text, Group, RingProgress } from '@mantine/core';
+import { Paper, Text, Group } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
 import { Submission } from '@prisma/client';
-import { auth } from '@/lib/auth';
 
 export async function SummarySection({
   submissions,
@@ -83,7 +82,7 @@ function calculateStreak(submissions: Submission[]): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  let currentDate = new Date(today);
+  const currentDate = new Date(today);
 
   // If there's no submission for today, start checking from yesterday
   if (
@@ -127,7 +126,7 @@ async function calculateWeeklyData(
   );
 
   // Initialize all weeks with 0
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
   while (currentDate <= endDate) {
     const weekNumber = getWeekNumber(currentDate);
     const year = currentDate.getFullYear();

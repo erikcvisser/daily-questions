@@ -6,10 +6,6 @@ import {
   Image,
   Timeline,
   TimelineItem,
-  Accordion,
-  AccordionItem,
-  AccordionControl,
-  AccordionPanel,
   Card,
   Grid,
   GridCol,
@@ -27,10 +23,10 @@ const AboutPage: NextPage = () => {
       <Container size="md" mt="xl">
         <Title order={2}>About Daily Questions</Title>
         <Text size="lg" mt="md">
-          Daily Questions is more than a platform; it's a journey toward
+          Daily Questions is more than a platform; it&apos;s a journey toward
           self-improvement. Rooted in the principles outlined in Marshall
-          Goldsmith's "Triggers", we aim to make personal growth accessible and
-          achievable for everyone.
+          Goldsmith&apos;s &quot;Triggers&quot;, we aim to make personal growth
+          accessible and achievable for everyone.
         </Text>
       </Container>
 
@@ -48,13 +44,13 @@ const AboutPage: NextPage = () => {
       <Container size="md" mt="xl">
         <Title order={3}>The Concept of Daily Questions</Title>
         <Grid align="center" mt="md">
-          <GridCol md={6}>
+          <GridCol span={6}>
             <Image
               src="/path-to-daily-questions-illustration.jpg"
               alt="Daily Questions Illustration"
             />
           </GridCol>
-          <GridCol md={6}>
+          <GridCol span={6}>
             <Text>
               The practice involves asking yourself a set of tailored questions
               each day. These questions are designed to keep you aligned with
@@ -67,26 +63,21 @@ const AboutPage: NextPage = () => {
 
       {/* Marshall Goldsmith and 'Triggers' */}
       <Container size="md" mt="xl">
-        <Title order={3}>Marshall Goldsmith and "Triggers"</Title>
+        <Title order={3}>Marshall Goldsmith and &quot;Triggers&quot;</Title>
         <Grid align="center" mt="md">
-          <GridCol md={6}>
-            <Image
-              src="/path-to-marshall-goldsmith-photo.jpg"
-              alt="Marshall Goldsmith"
-            />
+          <GridCol span={6}>
+            <Image src="/images/marshall.jpg" alt="Marshall Goldsmith" />
           </GridCol>
-          <GridCol md={6}>
-            <Image
-              src="/path-to-triggers-book-cover.jpg"
-              alt="'Triggers' Book Cover"
-            />
+          <GridCol span={6}>
+            <Image src="/images/triggers.jpg" alt="'Triggers' Book Cover" />
           </GridCol>
         </Grid>
         <Text mt="md">
-          Marshall Goldsmith's work has been instrumental in shaping leaders and
-          professionals globally. "Triggers" delves into the environmental and
-          psychological stimuli that influence our actions. By understanding
-          these triggers, we can better manage our responses and behaviors.
+          Marshall Goldsmith&apos;s work has been instrumental in shaping
+          leaders and professionals globally. &quot;Triggers&quot; delves into
+          the environmental and psychological stimuli that influence our
+          actions. By understanding these triggers, we can better manage our
+          responses and behaviors.
         </Text>
         <Button
           variant="outline"
@@ -96,7 +87,7 @@ const AboutPage: NextPage = () => {
           href="https://marshallgoldsmith.com/"
           target="_blank"
         >
-          Visit Marshall's Website
+          Visit Marshall&apos;s Website
         </Button>
       </Container>
 
@@ -137,7 +128,7 @@ const AboutPage: NextPage = () => {
         <Title order={3}>Benefits of Daily Questions</Title>
         <SimpleGrid cols={3} spacing="lg" mt="md">
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" weight={700} color="blue">
+            <Text size="xl" fw={700} color="blue">
               1
             </Text>
             <Title order={4} mt="md">
@@ -150,7 +141,7 @@ const AboutPage: NextPage = () => {
           </Card>
 
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" weight={700} color="blue">
+            <Text size="xl" fw={700} color="blue">
               2
             </Text>
             <Title order={4} mt="md">
@@ -162,7 +153,7 @@ const AboutPage: NextPage = () => {
           </Card>
 
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" weight={700} color="blue">
+            <Text size="xl" fw={700} color="blue">
               3
             </Text>
             <Title order={4} mt="md">
@@ -185,8 +176,9 @@ const AboutPage: NextPage = () => {
               <Text fw={500}>Taylor R.</Text>
             </Group>
             <Text mt="sm">
-              "Using Daily Questions has been a game-changer. I've seen
-              significant improvements in my productivity and mindset."
+              &quot;Using Daily Questions has been a game-changer. I&apos;ve
+              seen significant improvements in my productivity and
+              mindset.&quot;
             </Text>
           </Card>
           <Card shadow="sm" padding="lg">
@@ -195,8 +187,8 @@ const AboutPage: NextPage = () => {
               <Text fw={500}>Morgan L.</Text>
             </Group>
             <Text mt="sm">
-              "The daily prompts keep me focused on what's important. It's a
-              simple yet powerful tool."
+              &quot;The daily prompts keep me focused on what&apos;s important.
+              It&apos;s a simple yet powerful tool.&quot;
             </Text>
           </Card>
         </SimpleGrid>

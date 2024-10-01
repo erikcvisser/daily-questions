@@ -5,7 +5,7 @@ import { createQuestionSchema } from './definitions';
 import prisma from './prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { auth, signIn, signOut } from '@/lib/auth';
+import { auth, signIn } from '@/lib/auth';
 import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
 

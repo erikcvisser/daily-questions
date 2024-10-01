@@ -8,9 +8,7 @@ import {
   Radio,
   RadioGroup,
   Textarea,
-  Paper,
   Stack,
-  Title,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
