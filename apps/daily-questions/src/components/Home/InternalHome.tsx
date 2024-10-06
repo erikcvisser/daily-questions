@@ -20,8 +20,7 @@ export default function InternalHome({
       <Stack gap="xl">
         <Group justify="space-between" align="center" wrap="nowrap">
           <Title order={2} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>
-            Welcome back to Daily Questions -
-            <Text>your aid in actual growth</Text>
+            Welcome back to Daily Questions
           </Title>
           <Button
             leftSection={<IconClipboardList size={20} />}

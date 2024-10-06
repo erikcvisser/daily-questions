@@ -13,6 +13,9 @@ export default async function Questionnaire({ id }: { id?: string }) {
 
   const questions = await prisma.question.findMany({
     where: { status: 'ACTIVE', userId: user.id },
+    orderBy: {
+      position: 'asc',
+    },
   });
   let submission = null;
   if (id) {
