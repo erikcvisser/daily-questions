@@ -19,21 +19,16 @@ import {
   Progress,
   Stack,
   List,
-  ThemeIcon,
+  // ThemeIcon, // Removed unused import
 } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+// import { IconCheck } from '@tabler/icons-react'; // Removed unused import
 import Link from 'next/link';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
 const AboutPage: NextPage = () => {
-  const data = [
-    { label: 'Improved in all six areas', value: 34, color: 'blue' },
-    { label: 'Improved on at least four items', value: 67, color: 'green' },
-    { label: 'Improved in at least one area', value: 91, color: 'teal' },
-    { label: 'Experienced no change', value: 9, color: 'yellow' },
-    { label: 'Saw any decline', value: 3, color: 'red' },
-  ];
+  // const data = [ ... ]; // Removed unused variable
+
   return (
     <>
       {/* Hero Section */}
@@ -81,10 +76,10 @@ const AboutPage: NextPage = () => {
       {/* Introduction */}
       <Container size="md" mt="xl">
         <Text size="lg" ta="center">
-          Daily Questions is more than a platform; it's a journey toward
+          Daily Questions is more than a platform; it&apos;s a journey toward
           self-improvement. Rooted in the principles outlined in Marshall
-          Goldsmith's "Triggers", we aim to make personal growth accessible and
-          achievable for everyone.
+          Goldsmith&apos;s &quot;Triggers&quot;, we aim to make personal growth
+          accessible and achievable for everyone.
         </Text>
       </Container>
       <SectionDivider />
@@ -137,7 +132,7 @@ const AboutPage: NextPage = () => {
 
           <GridCol span={6}>
             <Title order={4} mb="md">
-              Goldsmith's Research Results:
+              Goldsmith&apos;s Research Results:
             </Title>
             <Stack>
               {[

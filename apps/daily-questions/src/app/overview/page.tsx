@@ -17,7 +17,7 @@ import { Button, Text } from '@mantine/core';
 
 export default async function OverviewPage() {
   const session = await auth();
-  // @ts-ignore
+  // @ts-expect-error lalala
   const personalTarget = session?.user?.targetScore;
   const questions = await prisma.question.findMany({
     where: {
