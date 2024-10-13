@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { NavLink, Stack } from '@mantine/core';
 import { usePathname } from 'next/navigation';
+import { useViewportSize } from '@mantine/hooks';
 
 import {
   IconCalendarMonth,
@@ -14,8 +15,21 @@ import { LoginLinks } from './AuthComponents';
 
 export const experimental_ppr = true;
 
-export function Links({ session }: { session: any }) {
+export function Links({
+  session,
+  toggleMobile,
+}: {
+  session: any;
+  toggleMobile: () => void;
+}) {
   const pathname = usePathname();
+  const { width } = useViewportSize();
+
+  const handleLinkClick = () => {
+    if (width < 768) {
+      toggleMobile();
+    }
+  };
 
   return (
     <>
@@ -26,6 +40,7 @@ export function Links({ session }: { session: any }) {
           href="/"
           active={pathname === '/'}
           leftSection={<IconHome2 stroke={1} />}
+          onClick={handleLinkClick}
         />
         {!session?.user && <LoginLinks />}
         {session?.user && (
@@ -36,6 +51,7 @@ export function Links({ session }: { session: any }) {
               href="/overview"
               active={pathname === '/overview'}
               leftSection={<IconCalendarMonth stroke={1} />}
+              onClick={handleLinkClick}
             />
             <NavLink
               component={Link}
@@ -43,6 +59,7 @@ export function Links({ session }: { session: any }) {
               href="/questions"
               active={pathname === '/questions'}
               leftSection={<IconQuestionMark stroke={1} />}
+              onClick={handleLinkClick}
             />
           </>
         )}
@@ -56,12 +73,14 @@ export function Links({ session }: { session: any }) {
               href="/profile"
               active={pathname === '/profile'}
               leftSection={<IconUserCircle stroke={1} />}
+              onClick={handleLinkClick}
             />
             <NavLink
               component={Link}
               label="Logout"
               href="/api/auth/signout"
               leftSection={<IconLogout stroke={1} />}
+              onClick={handleLinkClick}
             />
           </Stack>
         </>

@@ -20,8 +20,13 @@ export default function InternalHome({
       <Stack gap="xl">
         <Group justify="space-between" align="center" wrap="nowrap">
           <Title order={2} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>
-            Welcome back to Daily Questions
+            Welcome back
+            <Text visibleFrom="lg" component="span" display="inline" inherit>
+              {' '}
+              to Daily Questions
+            </Text>
           </Title>
+
           <Button
             leftSection={<IconClipboardList size={20} />}
             color="blue"
@@ -29,7 +34,7 @@ export default function InternalHome({
             href="/overview"
             style={{ flexShrink: 0 }}
           >
-            View History
+            <Text visibleFrom="xs">View History</Text>
           </Button>
         </Group>
 
