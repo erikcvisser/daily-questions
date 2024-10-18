@@ -1,6 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["**/*"],
+  "ignorePatterns": ["**/*", "**/public/sw.js"],
   "plugins": ["@nx"],
   "overrides": [
     {

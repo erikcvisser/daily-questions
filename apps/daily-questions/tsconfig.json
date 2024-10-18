@@ -37,6 +37,6 @@
     "jest.config.ts",
     "**/*.spec.ts",
     "**/*.test.ts",
-    "public/sw.js"
+    "**/public/sw.js"
   ]
 }
