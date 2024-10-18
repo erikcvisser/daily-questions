@@ -1,7 +1,11 @@
 {
   "name": "Daily Questions",
-  "short_name": "DQ",
-  "description": "Daily Questions description",
+  "short_name": "Daily Questions",
+  "description": "Empowering personal growth through daily reflection",
+  "id": "dailyquestions",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
