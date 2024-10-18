@@ -16,7 +16,7 @@ import {
   IconX,
   IconGripVertical,
 } from '@tabler/icons-react';
-import { Table, Checkbox, Group, Text } from '@mantine/core';
+import { Table, Checkbox, Group, Text, Switch } from '@mantine/core';
 import { useState } from 'react';
 import {
   DndContext,
@@ -98,34 +98,42 @@ function SortableTableRow({
         />
       </TableTd>
       <TableTd>{question.title}</TableTd>
-      <TableTd>{question.type}</TableTd>
+      <TableTd>
+        {question.type === 'BOOLEAN' && 'Yes/No'}
+        {question.type === 'INTEGER' && 'Numeric (1-10)'}
+        {question.type === 'FREETEXT' && 'Free text'}
+      </TableTd>
       <TableTd>
         {question.targetInt || (question.targetBool ? 'Yes' : 'No')}
       </TableTd>
-      <TableTd>{question.status}</TableTd>
       <TableTd>
         <Group gap="xs">
-          <ActionIcon
-            onClick={() => deleteQuestionAction(question)}
-            aria-label="delete question"
-            color="red"
-            variant="light"
-          >
-            <IconX size="1rem" />
-          </ActionIcon>
-          <ActionIcon
-            onClick={() => archiveQuestionAction(question)}
-            aria-label="archive question"
-            color="gray"
-            variant="light"
-          >
-            <IconArchive size="1rem" />
-          </ActionIcon>
+          {question.status === 'INACTIVE' && (
+            <ActionIcon
+              onClick={() => deleteQuestionAction(question)}
+              aria-label="delete question"
+              color="red"
+              variant="light"
+            >
+              <IconX size="1rem" />
+            </ActionIcon>
+          )}
+          {question.status === 'ACTIVE' && (
+            <ActionIcon
+              onClick={() => archiveQuestionAction(question)}
+              aria-label="archive question"
+              color="gray"
+              variant="light"
+            >
+              <IconArchive size="1rem" />
+            </ActionIcon>
+          )}
           <ActionIcon
             onClick={() => router.push(`/questions/${question.id}`)}
             aria-label="edit question"
             color="blue"
             variant="light"
+            disabled={question.status === 'INACTIVE'}
           >
             <IconEdit size="1rem" />
           </ActionIcon>
@@ -147,6 +155,7 @@ export default function QuestionTable({
   updateQuestionPositions: (updatedQuestions: Question[]) => void;
 }) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [showInactive, setShowInactive] = useState(false);
   const router = useRouter();
 
   const sensors = useSensors(
@@ -175,28 +184,45 @@ export default function QuestionTable({
     }
   };
 
+  const filteredQuestions = questions.filter(
+    (question) =>
+      (!showInactive && question.status === 'ACTIVE') ||
+      (showInactive && question.status === 'INACTIVE')
+  );
+
   return (
     <>
-      {selectedRows.length > 0 && (
-        <Group mb="md" justify="space-between">
-          <Text fw={500}>{selectedRows.length} selected</Text>
-          <ActionIcon
-            aria-label="Delete selected rows"
-            onClick={() => {
-              const selectedQuestions = questions.filter((question) =>
-                selectedRows.includes(question.id)
-              );
-              selectedQuestions.forEach(deleteQuestionAction);
-              setSelectedRows([]);
-            }}
-            color="red"
-            variant="filled"
-            size="lg"
-          >
-            <IconX size="1.2rem" />
-          </ActionIcon>
-        </Group>
-      )}
+      <Group mb="md" justify="space-between">
+        {selectedRows.length > 0 && (
+          <>
+            <Text fw={500}>{selectedRows.length} selected</Text>
+            <ActionIcon
+              aria-label="Delete selected rows"
+              onClick={() => {
+                const selectedQuestions = questions.filter((question) =>
+                  selectedRows.includes(question.id)
+                );
+                selectedQuestions.forEach(deleteQuestionAction);
+                setSelectedRows([]);
+              }}
+              color="red"
+              variant="filled"
+              size="lg"
+            >
+              <IconX size="1.2rem" />
+            </ActionIcon>
+          </>
+        )}
+        <Switch
+          label={
+            showInactive
+              ? 'Showing Inactive Questions'
+              : 'Showing Active Questions'
+          }
+          checked={showInactive}
+          onChange={(event) => setShowInactive(event.currentTarget.checked)}
+        />
+      </Group>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -210,16 +236,15 @@ export default function QuestionTable({
               <TableTh>Question</TableTh>
               <TableTh>Type</TableTh>
               <TableTh>Target</TableTh>
-              <TableTh>Status</TableTh>
               <TableTh>Actions</TableTh>
             </TableTr>
           </TableThead>
           <SortableContext
-            items={questions.map((q) => q.id)}
+            items={filteredQuestions.map((q) => q.id)}
             strategy={verticalListSortingStrategy}
           >
             <TableTbody>
-              {questions.map((question) => (
+              {filteredQuestions.map((question) => (
                 <SortableTableRow
                   key={question.id}
                   question={question}

@@ -9,42 +9,70 @@ import { Notifications } from '@mantine/notifications';
 import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { auth } from '@/lib/auth';
+import type { Metadata, Viewport } from 'next';
 
-export const metadata = {
-  title: 'Daily Questions',
-  description: 'Daily Questions helps you improve.',
+const APP_NAME = 'Daily Questions';
+const APP_DEFAULT_TITLE = 'Daily Questions';
+const APP_TITLE_TEMPLATE = '%s - Daily Questions';
+const APP_DESCRIPTION = 'Your guide to a better day every day';
+
+export const metadata: Metadata = {
+  applicationName: APP_NAME,
+  manifest: '/manifest.json',
+  // viewport: 'width=device-width, initial-scale=1',
+  icons: [
+    { rel: 'icon', url: '/favicon.ico' },
+    { rel: 'apple-touch-icon', url: '/icon-192x192.png' },
+  ],
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
+  description: APP_DESCRIPTION,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: APP_DEFAULT_TITLE,
+    // startUpImage: [],
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary',
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
 };
 
-export default async function RootLayout({ children }: { children: any }) {
+export const viewport: Viewport = {
+  themeColor: '#FFFFFF',
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await auth();
 
   return (
     <html lang="en">
       <head>
         <ColorSchemeScript />
-        <link rel="shortcut icon" href="/favicon.svg" />
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="shortcut icon" href="/favicon.ico" />
       </head>
       <body>
         <MantineProvider theme={theme}>

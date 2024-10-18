@@ -35,23 +35,65 @@ export async function createQuestion(formData: any) {
 }
 
 export async function updateQuestion(id: string, formData: any) {
-  const { title, type, targetBool, targetInt } = CreateQuestion.parse({
-    title: formData['title'],
-    type: formData['type'],
-    targetBool: formData['targetBool'] || undefined,
-    targetInt: formData['targetInt'] || undefined,
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  // Check if the question is linked to a library question
+  const existingQuestion = await prisma.question.findUnique({
+    where: { id },
+    include: { libraryQuestion: true },
   });
-  await prisma.question.update({
-    where: {
-      id: id,
-    },
-    data: {
-      title,
-      type,
-      ...(targetBool && { targetBool }),
-      ...(targetInt && { targetInt }),
-    },
-  });
+
+  if (existingQuestion?.libraryQuestion) {
+    // If linked to a library question, create a new question and archive the current one
+    const { title, type, targetBool, targetInt } = CreateQuestion.parse({
+      title: formData['title'],
+      type: formData['type'],
+      targetBool: formData['targetBool'] || undefined,
+      targetInt: formData['targetInt'] || undefined,
+    });
+
+    await prisma.$transaction([
+      // Create new question
+      prisma.question.create({
+        data: {
+          title,
+          type,
+          ...(targetBool && { targetBool }),
+          ...(targetInt && { targetInt }),
+          status: 'ACTIVE',
+          userId: session.user.id,
+          position: existingQuestion.position, // Maintain the same position
+        },
+      }),
+      // Archive the current question
+      prisma.question.update({
+        where: { id },
+        data: { status: 'INACTIVE' },
+      }),
+    ]);
+  } else {
+    // If not linked to a library question, update as before
+    const { title, type, targetBool, targetInt } = CreateQuestion.parse({
+      title: formData['title'],
+      type: formData['type'],
+      targetBool: formData['targetBool'] || undefined,
+      targetInt: formData['targetInt'] || undefined,
+    });
+
+    await prisma.question.update({
+      where: { id },
+      data: {
+        title,
+        type,
+        ...(targetBool && { targetBool }),
+        ...(targetInt && { targetInt }),
+      },
+    });
+  }
+
   revalidatePath('/questions');
   redirect('/questions');
 }
@@ -279,5 +321,37 @@ export async function deleteAccount() {
   } catch (error) {
     console.error('Error deleting account:', error);
     return { success: false, error: 'Failed to delete account' };
+  }
+}
+
+export async function updateUserDetails(data: {
+  name: string;
+  targetScore: number;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  console.log(data);
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        name: data.name,
+        targetScore: data.targetScore,
+      },
+    });
+    console.log(updatedUser);
+
+    if (!updatedUser) {
+      throw new Error('User update failed');
+    }
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating user details:', error);
+    return { success: false, error: 'Failed to update user details' };
   }
 }

@@ -1,18 +1,36 @@
 'use client';
-import { useState } from 'react';
-import { Button, Group, NumberInput, Select, TextInput } from '@mantine/core';
+import { useState, useEffect } from 'react';
+import {
+  Button,
+  Group,
+  NumberInput,
+  Select,
+  TextInput,
+  Alert,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { createQuestionSchema } from '@/lib/definitions';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconAlertCircle } from '@tabler/icons-react';
 import { Question } from '@prisma/client';
 import { createQuestion, updateQuestion } from '@/lib/actions';
 import { useFocusTrap } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { useRouter } from 'next/navigation';
 
 export default function QuestionForm({ question }: { question?: Question }) {
   const [submitting, setSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
+  const [showLibraryWarning, setShowLibraryWarning] = useState(false);
   const focusTrapRef = useFocusTrap();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (question?.libraryQuestionId) {
+      setShowLibraryWarning(true);
+      setIsEditing(false);
+    }
+  }, [question]);
 
   const form = useForm({
     mode: 'uncontrolled',
@@ -36,16 +54,44 @@ export default function QuestionForm({ question }: { question?: Question }) {
     }
   };
 
-  const handleSubmit = (values: typeof form.values) => {
+  const handleSubmit = async (values: typeof form.values) => {
     setSubmitting(true);
-    if (question) {
-      updateQuestion(question.id, values);
-    } else {
-      createQuestion(values);
+    try {
+      if (question) {
+        await updateQuestion(question.id, values);
+      } else {
+        await createQuestion(values);
+      }
+      router.push('/questions');
+    } catch (error) {
+      console.error('Error submitting question:', error);
+      notifications.show({
+        message: 'Something went wrong saving this question',
+        color: 'red',
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent default button behavior
+    setIsEditing(true);
+  };
+
   return (
     <>
+      {showLibraryWarning && (
+        <Alert
+          icon={<IconAlertCircle size="1rem" />}
+          title="Library Question"
+          color="blue"
+          mb="md"
+        >
+          This question is linked to a library question. Editing it will create
+          a new question and archive the current one.
+        </Alert>
+      )}
       <form
         onSubmit={form.onSubmit(handleSubmit, handleError)}
         ref={focusTrapRef}
@@ -58,6 +104,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
           {...form.getInputProps('title')}
           data-autofocus
           withAsterisk
+          disabled={!isEditing && !!question}
         />
         <Select
           label="Type of question"
@@ -71,6 +118,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
             { value: 'FREETEXT', label: 'Free text' },
           ]}
           withAsterisk
+          disabled={!isEditing && !!question}
         />
 
         {form.getValues()['type'] == 'INTEGER' && (
@@ -82,6 +130,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
             max={10}
             placeholder="Target value"
             withAsterisk
+            disabled={!isEditing && !!question}
           />
         )}
         {form.getValues()['type'] == 'BOOLEAN' && (
@@ -96,16 +145,23 @@ export default function QuestionForm({ question }: { question?: Question }) {
               { value: 'false', label: 'No' },
             ]}
             withAsterisk
+            disabled={!isEditing && !!question}
           />
         )}
         <Group justify="flex-end" mt="md">
-          <Button
-            type="submit"
-            data-disabled={submitting}
-            leftSection={<IconPlus />}
-          >
-            {submitting ? 'Saving...' : 'Save'}
-          </Button>
+          {question && !isEditing ? (
+            <Button onClick={handleEditClick} leftSection={<IconEdit />}>
+              Edit
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              data-disabled={submitting}
+              leftSection={<IconPlus />}
+            >
+              {submitting ? 'Saving...' : 'Save'}
+            </Button>
+          )}
         </Group>
       </form>
     </>
