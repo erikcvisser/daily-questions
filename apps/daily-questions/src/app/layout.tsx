@@ -10,6 +10,7 @@ import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { auth } from '@/lib/auth';
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 
 const APP_NAME = 'Daily Questions';
 const APP_DEFAULT_TITLE = 'Daily Questions';
@@ -75,6 +76,7 @@ export default async function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
       </head>
       <body>
+        <Analytics />
         <MantineProvider theme={theme}>
           <BasicAppShell session={session ?? undefined}>
             <Notifications />
