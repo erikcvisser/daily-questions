@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@evilmartians/lefthook": "^1.7.18",
+    "@next/bundle-analyzer": "^14.2.15",
     "@nx/devkit": "19.6.1",
     "@nx/eslint": "19.6.1",
     "@nx/eslint-plugin": "19.6.1",

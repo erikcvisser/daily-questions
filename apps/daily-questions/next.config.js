@@ -14,6 +14,10 @@ const plugins = [
   withNx,
 ];
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
 module.exports = async (phase) => {
   /**
@@ -41,7 +45,9 @@ module.exports = async (phase) => {
       swSrc: 'src/app/sw.ts',
       swDest: 'public/sw.js',
     });
-    return withSerwist(composePlugins(...plugins)(nextConfig));
+    return withBundleAnalyzer(
+      withSerwist(composePlugins(...plugins)(nextConfig))
+    );
   }
 
   return composePlugins(...plugins)(nextConfig);
