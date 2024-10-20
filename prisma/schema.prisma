@@ -61,15 +61,12 @@ model Session {
   @@map("sessions")
 }
 
-model VerificationRequest {
-  id         String   @id @default(cuid())
+model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, token])
+ 
+  @@id([identifier, token])
 }
 
 model Question {

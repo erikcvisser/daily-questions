@@ -6,7 +6,11 @@ import { signIn } from 'next-auth/react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { notifications } from '@mantine/notifications';
-import { IconBrandGoogleFilled, IconMail } from '@tabler/icons-react';
+import {
+  IconBrandGoogleFilled,
+  IconMail,
+  IconBrandAzure,
+} from '@tabler/icons-react';
 import {
   Button,
   Group,
@@ -110,6 +114,38 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
     signIn('google', { callbackUrl });
   };
 
+  const handleMicrosoftSignIn = () => {
+    signIn('microsoft-entra-id', { callbackUrl });
+  };
+
+  const handleMagicLinkSignIn = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    const email = event.currentTarget.email.value;
+    setSubmitting(true);
+    try {
+      const result = await signIn('postmark', {
+        email,
+        redirect: false,
+        callbackUrl,
+      });
+      if (result?.ok) {
+        notifications.show({
+          title: 'Magic Link Sent',
+          message: 'Check your email for the login link.',
+          color: 'green',
+        });
+      } else {
+        setError('Failed to send magic link. Please try again.');
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Paper p="md" withBorder>
       <Stack>
@@ -197,6 +233,35 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
         >
           Continue with Google
         </Button>
+
+        <Button
+          onClick={handleMicrosoftSignIn}
+          variant="outline"
+          leftSection={<IconBrandAzure />}
+          fullWidth
+        >
+          Continue with Microsoft
+        </Button>
+
+        <form onSubmit={handleMagicLinkSignIn}>
+          <Stack>
+            <TextInput
+              name="email"
+              label="Email for Magic Link"
+              placeholder="your@email.com"
+              required
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              leftSection={<IconMail />}
+              fullWidth
+              loading={submitting}
+            >
+              {submitting ? 'Sending...' : 'Send Magic Link'}
+            </Button>
+          </Stack>
+        </form>
       </Stack>
     </Paper>
   );

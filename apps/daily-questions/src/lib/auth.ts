@@ -3,6 +3,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
+import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
 import Postmark from 'next-auth/providers/postmark';
 import bcrypt from 'bcryptjs';
 
@@ -13,7 +14,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   providers: [
-    Postmark,
+    Postmark({
+      from: 'mail@dailyquestions.app',
+    }),
+    MicrosoftEntraID({
+      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
+      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
+      tenantId: process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID,
+      allowDangerousEmailAccountLinking: true,
+    }),
     CredentialsProvider({
       name: 'Sign in',
       id: 'credentials',
