@@ -1,0 +1,35 @@
+'use client';
+
+import { Button, Modal } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { CombiForm } from '@/components/Authenticate/CombiForm';
+
+interface ButtonModalProps {
+  buttonText: string;
+  modalTitle: string;
+  variant?: string;
+  size?: string;
+  mt?: string;
+}
+
+export function ButtonModal({
+  buttonText,
+  modalTitle,
+  variant = 'filled',
+  size = 'lg',
+  mt = 'xl',
+}: ButtonModalProps) {
+  const [opened, { open, close }] = useDisclosure(false);
+
+  return (
+    <>
+      <Button variant={variant} size={size} mt={mt} onClick={open}>
+        {buttonText}
+      </Button>
+
+      <Modal opened={opened} onClose={close} title={modalTitle}>
+        <CombiForm onLoginSuccess={close} />
+      </Modal>
+    </>
+  );
+}

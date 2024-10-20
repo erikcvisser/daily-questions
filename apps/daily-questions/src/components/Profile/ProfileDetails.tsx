@@ -13,6 +13,7 @@ import {
   Alert,
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { signOut } from 'next-auth/react';
 
 export default function ProfileDetails({ session }: { session: any }) {
   const user = session?.user;
@@ -28,7 +29,11 @@ export default function ProfileDetails({ session }: { session: any }) {
     try {
       const result = await deleteAccount();
       if (result.success) {
-        router.push('/login');
+        await signOut({ redirect: false });
+        router.push('/');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } else {
         setError(result.error || 'Failed to delete account');
         setIsDeleting(false);

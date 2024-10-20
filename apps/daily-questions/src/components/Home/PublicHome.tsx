@@ -13,7 +13,7 @@ import {
   Group,
   Divider,
 } from '@mantine/core';
-import Link from 'next/link';
+import { ButtonModal } from '../Authenticate/ButtonModal';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
@@ -60,15 +60,10 @@ export default function PublicHome() {
             Harness the power of daily reflection inspired by Marshall
             Goldsmith&apos;s &quot;Triggers&quot;
           </Text>
-          <Button
-            variant="filled"
-            size="lg"
-            mt="xl"
-            component={Link}
-            href="/register"
-          >
-            Get Started
-          </Button>
+          <ButtonModal
+            buttonText="Get Started"
+            modalTitle="Log in or register"
+          />
         </Container>
       </div>
 
@@ -259,15 +254,10 @@ export default function PublicHome() {
       {/* Call to Action */}
       <Container size="md" mt="xl" style={{ textAlign: 'center' }}>
         <Title order={2}>Ready to Start Your Journey?</Title>
-        <Button
-          variant="filled"
-          size="lg"
-          mt="md"
-          component={Link}
-          href="/register"
-        >
-          Join Daily Questions Today
-        </Button>
+        <ButtonModal
+          buttonText="Join Daily Questions Today"
+          modalTitle="Log in or register"
+        />
       </Container>
     </>
   );

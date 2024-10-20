@@ -19,16 +19,12 @@ import {
   Progress,
   Stack,
   List,
-  // ThemeIcon, // Removed unused import
 } from '@mantine/core';
-// import { IconCheck } from '@tabler/icons-react'; // Removed unused import
-import Link from 'next/link';
+import { ButtonModal } from '@/components/Authenticate/ButtonModal';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
 const AboutPage: NextPage = () => {
-  // const data = [ ... ]; // Removed unused variable
-
   return (
     <>
       {/* Hero Section */}
@@ -429,15 +425,10 @@ const AboutPage: NextPage = () => {
       {/* Join Us */}
       <Container size="md" my="xl" ta="center">
         <Title order={2}>Embark on Your Journey Today</Title>
-        <Button
-          variant="filled"
-          size="lg"
-          mt="md"
-          component={Link}
-          href="/signup"
-        >
-          Sign Up Now
-        </Button>
+        <ButtonModal
+          buttonText="Join Daily Questions Today"
+          modalTitle="Log in or register"
+        />
       </Container>
     </>
   );

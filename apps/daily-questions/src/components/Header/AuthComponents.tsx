@@ -2,8 +2,7 @@
 
 import { Modal, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { LoginForm } from '@/app/login/login-form';
-import { RegisterForm } from '@/app/register/register-form';
+import { CombiForm } from '@/components/Authenticate/CombiForm';
 import Link from 'next/link';
 
 export function LoginLinks() {
@@ -13,15 +12,13 @@ export function LoginLinks() {
     useDisclosure(false);
   return (
     <>
-      <Modal opened={loginOpened} onClose={closeLogin} title="Log in">
-        <LoginForm onLoginSuccess={closeLogin} />
+      <Modal
+        opened={loginOpened}
+        onClose={closeLogin}
+        title="Log in or register"
+      >
+        <CombiForm />
       </Modal>
-      <Modal opened={registerOpened} onClose={closeRegister} title="Register">
-        <RegisterForm />
-      </Modal>
-      <UnstyledButton component={Link} href="#" onClick={openRegister}>
-        Register
-      </UnstyledButton>
       <UnstyledButton component={Link} href="#" onClick={openLogin}>
         Sign in
       </UnstyledButton>
