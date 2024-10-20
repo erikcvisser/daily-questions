@@ -49,6 +49,6 @@ out
 .env.local
 
 # Serwist
-public/sw*
-public/swe-worker*
-public/sw.js
+**/public/sw*
+**/public/swe-worker*
+**/public/sw.js

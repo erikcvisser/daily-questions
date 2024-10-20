@@ -9,24 +9,6 @@ const { PrismaPlugin } = require('@prisma/nextjs-monorepo-workaround-plugin');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 
-/**
- * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
- **/
-const nextConfig = {
-  nx: {
-    // Set this to true if you would like to use SVGR
-    // See: https://github.com/gregberge/svgr
-    svgr: false,
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.plugins = [...config.plugins, new PrismaPlugin()];
-    }
-
-    return config;
-  },
-};
-
 const plugins = [
   // Add more Next.js plugins to this list if needed.
   withNx,
@@ -34,8 +16,23 @@ const plugins = [
 
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
 module.exports = async (phase) => {
-  /** @type {import("next").NextConfig} */
-  const nextConfig = {};
+  /**
+   * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
+   **/
+  const nextConfig = {
+    nx: {
+      // Set this to true if you would like to use SVGR
+      // See: https://github.com/gregberge/svgr
+      svgr: false,
+    },
+    webpack: (config, { isServer }) => {
+      if (isServer) {
+        config.plugins = [...config.plugins, new PrismaPlugin()];
+      }
+
+      return config;
+    },
+  };
 
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
     const withSerwist = (await import('@serwist/next')).default({
