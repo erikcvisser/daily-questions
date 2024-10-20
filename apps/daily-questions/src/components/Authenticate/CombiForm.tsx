@@ -169,11 +169,13 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
               <TextInput
                 label="Email"
                 placeholder="your@email.com"
+                required
                 {...loginMethods.register('email')}
                 error={loginMethods.formState.errors.email?.message}
               />
               <PasswordInput
                 label="Password"
+                required
                 placeholder="Password"
                 {...loginMethods.register('password')}
                 error={loginMethods.formState.errors.password?.message}
@@ -189,24 +191,28 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
               <TextInput
                 label="Name"
                 placeholder="Your Name"
+                required
                 {...registerMethods.register('name')}
                 error={registerMethods.formState.errors.name?.message}
               />
               <TextInput
                 label="Email"
                 placeholder="your@email.com"
+                required
                 {...registerMethods.register('email')}
                 error={registerMethods.formState.errors.email?.message}
               />
               <PasswordInput
                 label="Password"
                 placeholder="Password"
+                required
                 {...registerMethods.register('password')}
                 error={registerMethods.formState.errors.password?.message}
               />
               <PasswordInput
                 label="Confirm Password"
                 placeholder="Confirm Password"
+                required
                 {...registerMethods.register('passwordConfirm')}
                 error={
                   registerMethods.formState.errors.passwordConfirm?.message

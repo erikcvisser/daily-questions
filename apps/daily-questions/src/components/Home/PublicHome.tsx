@@ -62,7 +62,7 @@ export default function PublicHome() {
           </Text>
           <ButtonModal
             buttonText="Get Started"
-            modalTitle="Log in or register"
+            modalTitle="Sign in or sign up"
           />
         </Container>
       </div>
@@ -256,7 +256,7 @@ export default function PublicHome() {
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
           buttonText="Join Daily Questions Today"
-          modalTitle="Log in or register"
+          modalTitle="Sign in or sign up"
         />
       </Container>
     </>

@@ -427,7 +427,7 @@ const AboutPage: NextPage = () => {
         <Title order={2}>Embark on Your Journey Today</Title>
         <ButtonModal
           buttonText="Join Daily Questions Today"
-          modalTitle="Log in or register"
+          modalTitle="Sign in or sign up"
         />
       </Container>
     </>

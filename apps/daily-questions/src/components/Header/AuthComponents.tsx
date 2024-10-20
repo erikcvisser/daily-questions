@@ -8,14 +8,12 @@ import Link from 'next/link';
 export function LoginLinks() {
   const [loginOpened, { open: openLogin, close: closeLogin }] =
     useDisclosure(false);
-  const [registerOpened, { open: openRegister, close: closeRegister }] =
-    useDisclosure(false);
   return (
     <>
       <Modal
         opened={loginOpened}
         onClose={closeLogin}
-        title="Log in or register"
+        title="Sign in or sign up"
       >
         <CombiForm />
       </Modal>
