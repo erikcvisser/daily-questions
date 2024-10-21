@@ -21,10 +21,13 @@ import {
   List,
 } from '@mantine/core';
 import { ButtonModal } from '@/components/Authenticate/ButtonModal';
+import { auth } from '@/lib/auth';
+import Link from 'next/link';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
-const AboutPage: NextPage = () => {
+export default async function AboutPage() {
+  const session = await auth();
   return (
     <>
       {/* Hero Section */}
@@ -108,7 +111,7 @@ const AboutPage: NextPage = () => {
         <Divider my="lg" />
 
         <Grid gutter="xl">
-          <GridCol span={6}>
+          <GridCol span={{ base: 12, md: 6 }}>
             <Title order={4} mb="md">
               The Six Starter Questions:
             </Title>
@@ -126,7 +129,7 @@ const AboutPage: NextPage = () => {
             </List>
           </GridCol>
 
-          <GridCol span={6}>
+          <GridCol span={{ base: 12, md: 6 }}>
             <Title order={4} mb="md">
               Goldsmith&apos;s Research Results:
             </Title>
@@ -301,7 +304,7 @@ const AboutPage: NextPage = () => {
       {/* About Marshall Goldsmith */}
       <Container size="md" mt="xl">
         <Grid gutter="xl" align="center">
-          <GridCol span={5}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Image
               src="/images/marshall.jpg"
               alt="Marshall Goldsmith"
@@ -311,7 +314,7 @@ const AboutPage: NextPage = () => {
               radius="md"
             />
           </GridCol>
-          <GridCol span={7}>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Title order={3}>Meet Marshall Goldsmith</Title>
             <Text mt="sm">
               Marshall Goldsmith has been recognized as the world&apos;s leading
@@ -340,7 +343,7 @@ const AboutPage: NextPage = () => {
       {/* About 'Triggers' */}
       <Container size="md" mt="xl">
         <Grid gutter="xl" align="center">
-          <GridCol span={7}>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Title order={3}>And his book: &quot;Triggers&quot;</Title>
             <Text mt="sm">
               &quot;Triggers&quot; explores how our environment shapes our
@@ -359,8 +362,7 @@ const AboutPage: NextPage = () => {
               Learn More
             </Button>
           </GridCol>
-          <GridCol span={1}></GridCol>
-          <GridCol span={4}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Image
               src="/images/triggers.jpg"
               alt="'Triggers' Book Cover"
@@ -425,13 +427,17 @@ const AboutPage: NextPage = () => {
       {/* Join Us */}
       <Container size="md" my="xl" ta="center">
         <Title order={2}>Embark on Your Journey Today</Title>
-        <ButtonModal
-          buttonText="Join Daily Questions Today"
-          modalTitle="Sign in or sign up"
-        />
+        {session ? (
+          <Button component={Link} href="/" size="lg" mt="md">
+            Go to Dashboard
+          </Button>
+        ) : (
+          <ButtonModal
+            buttonText="Join Daily Questions Today"
+            modalTitle="Sign in or sign up"
+          />
+        )}
       </Container>
     </>
   );
-};
-
-export default AboutPage;
+}

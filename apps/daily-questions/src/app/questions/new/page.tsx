@@ -6,6 +6,7 @@ import {
   GridCol,
   Stack,
   Space,
+  Divider,
 } from '@mantine/core';
 import QuestionForm from '@/components/Questions/QuestionForm';
 import prisma from '@/lib/prisma';
@@ -21,13 +22,15 @@ export default async function AddQuestionPage() {
   return (
     <Container size="xl">
       <Stack>
-        <Title order={1}>Add a Question</Title>
-        <Space h="md" />
+        <Title order={2}>Add a Question</Title>
         <QuestionForm />
-        <Text ta="center" size="lg" fw={500}>
-          OR
-        </Text>
-        <Title order={2}>Browse sample questions from our library</Title>
+
+        <Divider
+          my="xs"
+          label={<Text size="sm">OR</Text>}
+          labelPosition="center"
+        />
+        <Title order={3}>Browse sample questions from our library</Title>
         <Grid>
           <GridCol>
             <LibraryQuestionsDisplay libraryQuestions={libraryQuestions} />

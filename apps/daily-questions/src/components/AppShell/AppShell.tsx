@@ -19,7 +19,7 @@ import { Links } from '@/components/Header/Links';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Session } from 'next-auth';
-import { LoginLinks } from '@/components/Header/AuthComponents';
+import { LoginLinkUnstyled } from '@/components/Header/AuthComponents';
 
 export function BasicAppShell({
   children,
@@ -90,7 +90,7 @@ export function BasicAppShell({
                 >
                   About
                 </UnstyledButton>
-                {!session && <LoginLinks />}
+                {!session && <LoginLinkUnstyled />}
               </Group>
               <ColorSchemeToggle />
             </Group>

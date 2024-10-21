@@ -62,7 +62,6 @@ export default function QuestionnaireForm({
         ),
       },
     };
-    console.log(initialAnswers);
   }
 
   const form = useForm({
@@ -84,7 +83,6 @@ export default function QuestionnaireForm({
   };
 
   const handleError = (errors: typeof form.errors) => {
-    console.log(errors);
     if (errors) {
       notifications.show({
         message: 'Something went wrong saving this question',

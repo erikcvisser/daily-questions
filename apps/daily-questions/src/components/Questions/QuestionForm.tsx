@@ -45,7 +45,6 @@ export default function QuestionForm({ question }: { question?: Question }) {
   });
 
   const handleError = (errors: typeof form.errors) => {
-    console.log(errors);
     if (errors) {
       notifications.show({
         message: 'Something went wrong saving this question',

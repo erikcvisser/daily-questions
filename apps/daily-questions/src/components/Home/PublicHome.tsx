@@ -83,7 +83,7 @@ export default function PublicHome() {
         <Title order={3} ta="center" mb="md">
           Who is it for?
         </Title>
-        <SimpleGrid cols={2} spacing="xl">
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           <Card shadow="sm" padding="lg" withBorder>
             <Text fw={500} mb="sm">
               This is for people who:
@@ -145,7 +145,7 @@ export default function PublicHome() {
       {/* About Marshall Goldsmith */}
       <Container size="md" mt="xl">
         <Grid gutter="xl" align="center">
-          <GridCol span={5}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Image
               src="/images/marshall.jpg"
               alt="Marshall Goldsmith"
@@ -155,7 +155,7 @@ export default function PublicHome() {
               radius="md"
             />
           </GridCol>
-          <GridCol span={7}>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Title order={3}>Meet Marshall Goldsmith</Title>
             <Text mt="sm">
               Marshall Goldsmith has been recognized as the world&apos;s leading
@@ -184,7 +184,7 @@ export default function PublicHome() {
       {/* About 'Triggers' */}
       <Container size="md" mt="xl">
         <Grid gutter="xl" align="center">
-          <GridCol span={7}>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Title order={3}>And his book: &quot;Triggers&quot;</Title>
             <Text mt="sm">
               &quot;Triggers&quot; explores how our environment shapes our
@@ -203,8 +203,7 @@ export default function PublicHome() {
               Learn More
             </Button>
           </GridCol>
-          <GridCol span={1}></GridCol>
-          <GridCol span={4}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Image
               src="/images/triggers.jpg"
               alt="'Triggers' Book Cover"
@@ -252,7 +251,7 @@ export default function PublicHome() {
       <SectionDivider />
 
       {/* Call to Action */}
-      <Container size="md" mt="xl" style={{ textAlign: 'center' }}>
+      <Container size="md" mt="xl" mb="xl" style={{ textAlign: 'center' }}>
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
           buttonText="Join Daily Questions Today"

@@ -11,7 +11,6 @@ import { hash } from 'bcryptjs';
 
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
-  console.log(formData);
   const session = await auth();
   const { title, type, targetBool, targetInt } = CreateQuestion.parse({
     title: formData['title'],

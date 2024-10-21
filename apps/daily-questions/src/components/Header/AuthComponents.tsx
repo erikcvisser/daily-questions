@@ -1,11 +1,45 @@
 'use client';
 
-import { Modal, UnstyledButton } from '@mantine/core';
+import { Modal, NavLink, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { CombiForm } from '@/components/Authenticate/CombiForm';
 import Link from 'next/link';
+import { IconLogin2 } from '@tabler/icons-react';
 
-export function LoginLinks() {
+export function LoginLinks({
+  handleLinkClick,
+}: {
+  handleLinkClick?: () => void;
+}) {
+  const [loginOpened, { open: openLogin, close: closeLogin }] =
+    useDisclosure(false);
+
+  const handleLoginClick = () => {
+    openLogin();
+    if (handleLinkClick) {
+      handleLinkClick();
+    }
+  };
+
+  return (
+    <>
+      <Modal
+        opened={loginOpened}
+        onClose={closeLogin}
+        title="Sign in or sign up"
+      >
+        <CombiForm />
+      </Modal>
+      <NavLink
+        onClick={handleLoginClick}
+        label="Sign in"
+        leftSection={<IconLogin2 stroke={1} />}
+      />
+    </>
+  );
+}
+
+export function LoginLinkUnstyled() {
   const [loginOpened, { open: openLogin, close: closeLogin }] =
     useDisclosure(false);
   return (

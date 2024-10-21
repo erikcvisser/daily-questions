@@ -38,9 +38,7 @@ export default async function OverviewPage() {
   return (
     <Container size="xl">
       <Stack>
-        <Title order={2}>
-          Overview of {session?.user?.name}&apos;s submissions
-        </Title>
+        <Title order={2}>Overview of your submissions</Title>
         <Space h="md" />
         {submissions.length > 0 ? (
           <Flex
@@ -48,7 +46,11 @@ export default async function OverviewPage() {
             direction={{ base: 'column', md: 'row' }}
             align={{ base: 'stretch', md: 'flex-start' }}
           >
-            <Box w={{ base: '100%', md: 300 }} miw={300}>
+            <Box
+              w={{ base: '100%', md: 300 }}
+              miw={300}
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
               <CalendarComp
                 submissions={submissions}
                 personalTarget={personalTarget}

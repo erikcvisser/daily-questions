@@ -10,6 +10,7 @@ import {
   IconLogout,
   IconQuestionMark,
   IconUserCircle,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { LoginLinks } from './AuthComponents';
 
@@ -42,7 +43,15 @@ export function Links({
           leftSection={<IconHome2 stroke={1} />}
           onClick={handleLinkClick}
         />
-        {!session?.user && <LoginLinks />}
+        <NavLink
+          component={Link}
+          label="About"
+          href="/about"
+          active={pathname === '/about'}
+          leftSection={<IconUsersGroup stroke={1} />}
+          onClick={handleLinkClick}
+        />
+        {!session?.user && <LoginLinks handleLinkClick={handleLinkClick} />}
         {session?.user && (
           <>
             <NavLink

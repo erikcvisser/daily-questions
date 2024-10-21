@@ -1,4 +1,4 @@
-import { Paper, Text, Group } from '@mantine/core';
+import { Paper, Text, Group, Flex } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
 import { Submission } from '@prisma/client';
 
@@ -14,14 +14,18 @@ export async function SummarySection({
     submissions,
     personalTarget * 100
   );
-
   return (
-    <Group grow align="stretch">
+    <Flex direction={{ base: 'column', md: 'row' }} gap="md">
       <Paper
         withBorder
         p="md"
         radius="md"
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '220px',
+          flex: 1,
+        }}
       >
         <Text size="lg" fw={500} mb="xs">
           Current Streak
@@ -47,16 +51,24 @@ export async function SummarySection({
         withBorder
         p="md"
         radius="md"
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '220px',
+          minHeight: '220px',
+          flex: 1,
+        }}
       >
         <Text size="lg" fw={500} mb="xs">
           Weekly Target Achievement
         </Text>
-        <div style={{ flex: 1 }}>
+        <div style={{ height: '220px', minWidth: '220px' }}>
           <LineChart
             h="100%"
+            w="100%"
             data={weeklyData}
             dataKey="week"
+            yAxisProps={{ domain: [0, 7] }}
             series={[
               {
                 name: 'daysMetTarget',
@@ -68,7 +80,7 @@ export async function SummarySection({
           />
         </div>
       </Paper>
-    </Group>
+    </Flex>
   );
 }
 
