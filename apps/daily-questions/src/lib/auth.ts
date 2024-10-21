@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
-import Postmark from 'next-auth/providers/postmark';
+import Resend from 'next-auth/providers/resend';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -14,7 +14,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   providers: [
-    Postmark({
+    Resend({
       from: 'mail@dailyquestions.app',
     }),
     MicrosoftEntraID({
@@ -71,7 +71,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       );
 
       if (isProtected && !isLoggedIn) {
-        console.log('protected');
         const redirectUrl = new URL('/api/auth/signin', nextUrl.origin);
         redirectUrl.searchParams.append('callbackUrl', nextUrl.href);
         return Response.redirect(redirectUrl);
