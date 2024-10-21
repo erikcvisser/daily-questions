@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { auth, signIn } from '@/lib/auth';
 import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
+import { Resend } from 'resend';
 
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
@@ -285,7 +286,19 @@ export async function registerUser(formData: CreateUserInput) {
       throw new Error('User creation failed');
     }
 
-    // Return success instead of redirecting
+    const resend = new Resend(process.env.AUTH_RESEND_KEY);
+    await resend.emails.send({
+      from: 'Daily Questions <mail@dailyquestions.app>',
+      to: user.email || '',
+      bcc: 'erikcvisser@gmail.com',
+      subject: 'Welcome to Daily Questions!',
+      html: `<p>Hello ${user.name},</p>
+             <p>Welcome to Daily Questions! We're excited to have you on board.</p>
+             <p>Start tracking your daily progress now!</p>
+             <p>Open the <a href="https://dailyquestions.app">Daily Questions</a> app to get started.</p>
+             <p>Best regards,<br>The Daily Questions Team</p>`,
+    });
+
     return { success: true };
   } catch (error: any) {
     if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
