@@ -47,6 +47,7 @@ export function Links({
           component={Link}
           label="About"
           href="/about"
+          hiddenFrom="md"
           active={pathname === '/about'}
           leftSection={<IconUsersGroup stroke={1} />}
           onClick={handleLinkClick}
