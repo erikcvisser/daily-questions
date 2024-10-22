@@ -125,7 +125,7 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
     const email = event.currentTarget.email.value;
     setSubmitting(true);
     try {
-      const result = await signIn('postmark', {
+      const result = await signIn('resend', {
         email,
         redirect: false,
         callbackUrl,

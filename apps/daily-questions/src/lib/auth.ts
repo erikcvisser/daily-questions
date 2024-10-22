@@ -16,7 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     Resend({
-      from: 'mail@dailyquestions.app',
+      from: 'Daily Questions <mail@dailyquestions.app>',
     }),
     MicrosoftEntraID({
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
