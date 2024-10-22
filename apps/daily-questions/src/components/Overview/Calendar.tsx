@@ -87,6 +87,7 @@ export default function CalendarComp({
               size={15}
               color={dateWithSubmission ? dateWithSubmission.color : 'blue'}
               offset={-2}
+              zIndex={18}
               disabled={!dateWithSubmission}
             >
               <div>{day}</div>

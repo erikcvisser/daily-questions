@@ -1,12 +1,4 @@
-import {
-  Container,
-  Stack,
-  Group,
-  Title,
-  Text,
-  Button,
-  Card,
-} from '@mantine/core';
+import { Stack, Text, Button, Card } from '@mantine/core';
 import {
   IconClipboardList,
   IconInfoSquare,
@@ -33,72 +25,48 @@ export default async function InternalHome() {
   );
 
   return (
-    <Container size="xl">
-      <Stack gap="xl">
-        <Group justify="space-between" align="center" wrap="nowrap">
-          <Title order={2} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>
-            Welcome back
-            <Text visibleFrom="lg" component="span" display="inline" inherit>
-              {' '}
-              to Daily Questions
+    <Card shadow="sm" padding="lg" withBorder>
+      {userQuestions.length > 0 ? (
+        submittedToday ? (
+          <Stack align="center" gap="md">
+            <IconCheck size={48} color="green" />
+            <Text size="lg" fw={500} ta="center">
+              You&apos;ve already submitted today&apos;s reflection
             </Text>
-          </Title>
-
-          <Button
-            leftSection={<IconClipboardList size={20} />}
-            color="blue"
-            component="a"
-            href="/overview"
-            style={{ flexShrink: 0 }}
-          >
-            <Text visibleFrom="xs">View History</Text>
+            <Text c="dimmed" ta="center">
+              Great job! Come back tomorrow for your next reflection.
+            </Text>
+            <Button
+              color="blue"
+              component="a"
+              href="/overview"
+              leftSection={<IconClipboardList size={20} />}
+            >
+              View History
+            </Button>
+          </Stack>
+        ) : (
+          <>
+            <Text size="lg" fw={500} mb="md">
+              Ready for today&apos;s reflection?
+            </Text>
+            <Questionnaire />
+          </>
+        )
+      ) : (
+        <Stack align="center" gap="md">
+          <IconInfoSquare size={48} />
+          <Text size="lg" fw={500} ta="center">
+            No questions configured yet
+          </Text>
+          <Text c="dimmed" ta="center">
+            Set up your daily questions to start your reflection journey.
+          </Text>
+          <Button color="blue" component="a" href="/questions/new">
+            Configure Questions
           </Button>
-        </Group>
-
-        <Card shadow="sm" padding="lg" withBorder>
-          {userQuestions.length > 0 ? (
-            submittedToday ? (
-              <Stack align="center" gap="md">
-                <IconCheck size={48} color="green" />
-                <Text size="lg" fw={500} ta="center">
-                  You&apos;ve already submitted today&apos;s reflection
-                </Text>
-                <Text c="dimmed" ta="center">
-                  Great job! Come back tomorrow for your next reflection.
-                </Text>
-                <Button
-                  color="blue"
-                  component="a"
-                  href="/overview"
-                  leftSection={<IconClipboardList size={20} />}
-                >
-                  View History
-                </Button>
-              </Stack>
-            ) : (
-              <>
-                <Text size="lg" fw={500} mb="md">
-                  Ready for today&apos;s reflection?
-                </Text>
-                <Questionnaire />
-              </>
-            )
-          ) : (
-            <Stack align="center" gap="md">
-              <IconInfoSquare size={48} />
-              <Text size="lg" fw={500} ta="center">
-                No questions configured yet
-              </Text>
-              <Text c="dimmed" ta="center">
-                Set up your daily questions to start your reflection journey.
-              </Text>
-              <Button color="blue" component="a" href="/questions/new">
-                Configure Questions
-              </Button>
-            </Stack>
-          )}
-        </Card>
-      </Stack>
-    </Container>
+        </Stack>
+      )}
+    </Card>
   );
 }
