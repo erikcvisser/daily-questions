@@ -1,4 +1,4 @@
-import { Paper, Text, Group, Flex } from '@mantine/core';
+import { Paper, Text, Flex } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
 import { Submission } from '@prisma/client';
 

@@ -13,7 +13,9 @@ export default async function Index() {
           <InternalHome />
         </Suspense>
       ) : (
-        <PublicHome />
+        <Suspense fallback={<div>Loading...</div>}>
+          <PublicHome />
+        </Suspense>
       )}
     </>
   );

@@ -1,24 +1,8 @@
 import { Button, Container, Title, Group, Stack, Space } from '@mantine/core';
-import QuestionTable from '@/components/Questions/QuestionTable';
-import prisma from '@/lib/prisma';
-import {
-  deleteQuestion,
-  archiveQuestion,
-  updateQuestionPositions,
-} from '@/lib/actions';
-import { auth } from '@/lib/auth';
+import { Suspense } from 'react';
+import QuestionPageContent from './content';
 
-export default async function QuestionPage() {
-  const session = await auth();
-  const questions = await prisma.question.findMany({
-    where: {
-      userId: session?.user?.id,
-    },
-    orderBy: {
-      position: 'asc',
-    },
-  });
-
+export default function QuestionPage() {
   return (
     <Container size="xl">
       <Stack>
@@ -35,12 +19,9 @@ export default async function QuestionPage() {
           </Button>
         </Group>
         <Space h="md" />
-        <QuestionTable
-          questions={questions}
-          deleteQuestionAction={deleteQuestion}
-          archiveQuestionAction={archiveQuestion}
-          updateQuestionPositions={updateQuestionPositions}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <QuestionPageContent />
+        </Suspense>
       </Stack>
     </Container>
   );
