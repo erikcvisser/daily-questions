@@ -157,7 +157,6 @@ async function calculateScorePercentage(answers: any[]) {
 }
 
 export async function submitQuestionnaire(formData: any) {
-  console.log(formData);
   const session = await auth();
   const answers = [];
   for (const key in formData.answers) {
@@ -166,7 +165,6 @@ export async function submitQuestionnaire(formData: any) {
       answer: formData.answers[key].toString(),
     });
   }
-  console.log(answers);
 
   const scorePercentage = await calculateScorePercentage(answers);
 
@@ -345,7 +343,6 @@ export async function updateUserDetails(data: {
     throw new Error('Unauthorized');
   }
 
-  console.log(data);
   try {
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
