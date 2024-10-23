@@ -27,6 +27,7 @@ module.exports = async (phase) => {
     experimental: {
       swrDelta: 31536000,
     },
+    output: 'standalone',
     nx: {
       // Set this to true if you would like to use SVGR
       // See: https://github.com/gregberge/svgr
