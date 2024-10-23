@@ -1,6 +1,12 @@
 'use server';
 
-import { Question, QuestionStatus, QuestionType } from '@prisma/client';
+import {
+  Question,
+  QuestionStatus,
+  QuestionType,
+  LibraryQuestion,
+  Category,
+} from '@prisma/client';
 import { createQuestionSchema } from './definitions';
 import prisma from './prisma';
 import { revalidatePath } from 'next/cache';
@@ -366,4 +372,86 @@ export async function updateUserDetails(data: {
     console.error('Error updating user details:', error);
     return { success: false, error: 'Failed to update user details' };
   }
+}
+
+// LibraryQuestion CRUD operations
+export async function createLibraryQuestion(formData: any) {
+  const { title, type, targetBool, targetInt, categoryId } = formData;
+
+  const newLibraryQuestion = await prisma.libraryQuestion.create({
+    data: {
+      title,
+      type,
+      targetBool: targetBool === 'true',
+      targetInt: parseInt(targetInt),
+      categoryId,
+    },
+  });
+
+  revalidatePath('/library-questions');
+  return newLibraryQuestion;
+}
+
+export async function updateLibraryQuestion(id: string, formData: any) {
+  const { title, type, targetBool, targetInt, categoryId } = formData;
+
+  const updatedLibraryQuestion = await prisma.libraryQuestion.update({
+    where: { id },
+    data: {
+      title,
+      type,
+      targetBool: targetBool === 'true',
+      targetInt: parseInt(targetInt),
+      categoryId,
+    },
+  });
+
+  revalidatePath('/library-questions');
+  return updatedLibraryQuestion;
+}
+
+export async function deleteLibraryQuestion(id: string) {
+  await prisma.libraryQuestion.delete({
+    where: { id },
+  });
+
+  revalidatePath('/library-questions');
+}
+
+export async function getLibraryQuestions() {
+  return prisma.libraryQuestion.findMany({
+    include: { category: true },
+  });
+}
+
+// Category CRUD operations
+export async function createCategory(name: string) {
+  const newCategory = await prisma.category.create({
+    data: { name },
+  });
+
+  revalidatePath('/categories');
+  return newCategory;
+}
+
+export async function updateCategory(id: string, name: string) {
+  const updatedCategory = await prisma.category.update({
+    where: { id },
+    data: { name },
+  });
+
+  revalidatePath('/categories');
+  return updatedCategory;
+}
+
+export async function deleteCategory(id: string) {
+  await prisma.category.delete({
+    where: { id },
+  });
+
+  revalidatePath('/categories');
+}
+
+export async function getCategories() {
+  return prisma.category.findMany();
 }
