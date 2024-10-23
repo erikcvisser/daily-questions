@@ -70,12 +70,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
+      const isAdminRoute = nextUrl.pathname.startsWith('/admin');
 
       if (isProtected && !isLoggedIn) {
         const redirectUrl = new URL('/api/auth/signin', nextUrl.origin);
         redirectUrl.searchParams.append('callbackUrl', nextUrl.href);
         return Response.redirect(redirectUrl);
       }
+
+      if (isAdminRoute && auth?.user?.email !== 'erikcvisser@gmail.com') {
+        return Response.redirect(new URL('/', nextUrl.origin));
+      }
+
       return true;
     },
     session: ({ session, token }) => {

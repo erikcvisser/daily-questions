@@ -11,10 +11,9 @@ import {
   IconQuestionMark,
   IconUserCircle,
   IconUsersGroup,
+  IconUserShield,
 } from '@tabler/icons-react';
 import { LoginLinks } from './AuthComponents';
-
-export const experimental_ppr = true;
 
 export function Links({
   session,
@@ -77,6 +76,16 @@ export function Links({
       {session?.user && (
         <>
           <Stack justify="flex-end" h={'100%'} mt={16}>
+            {session.user.email === 'erikcvisser@gmail.com' && (
+              <NavLink
+                component={Link}
+                label="Admin"
+                href="/admin"
+                active={pathname === '/admin'}
+                leftSection={<IconUserShield stroke={1} />}
+                onClick={handleLinkClick}
+              />
+            )}
             <NavLink
               component={Link}
               label="Profile"
