@@ -1,6 +1,7 @@
 import { Button, Container, Title, Group, Stack, Space } from '@mantine/core';
 import { Suspense } from 'react';
 import QuestionPageContent from './content';
+import Link from 'next/link';
 
 export default function QuestionPage() {
   return (
@@ -9,7 +10,7 @@ export default function QuestionPage() {
         <Group justify="space-between" align="center">
           <Title order={2}>My Daily Questions</Title>
           <Button
-            component="a"
+            component={Link}
             href="/questions/new"
             size="md"
             variant="filled"

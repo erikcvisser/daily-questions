@@ -7,6 +7,7 @@ import {
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import Link from 'next/link';
 
 export default async function InternalHome() {
   const session = await auth();
@@ -38,7 +39,7 @@ export default async function InternalHome() {
             </Text>
             <Button
               color="blue"
-              component="a"
+              component={Link}
               href="/overview"
               leftSection={<IconClipboardList size={20} />}
             >
@@ -62,7 +63,7 @@ export default async function InternalHome() {
           <Text c="dimmed" ta="center">
             Set up your daily questions to start your reflection journey.
           </Text>
-          <Button color="blue" component="a" href="/questions/new">
+          <Button color="blue" component={Link} href="/questions/new">
             Configure Questions
           </Button>
         </Stack>

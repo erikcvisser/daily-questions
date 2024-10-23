@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { AdminTable } from '@/components/Admin/AdminTable';
 import prisma from '@/lib/prisma';
 import {
   Container,
@@ -12,6 +11,7 @@ import {
 } from '@mantine/core';
 import LibraryQuestionManager from '@/components/Admin/LibraryQuestion';
 import CategoryManager from '@/components/Admin/Category';
+import { AdminTable } from '@/components/Admin/AdminTable';
 
 export default async function AdminPage() {
   const session = await auth();

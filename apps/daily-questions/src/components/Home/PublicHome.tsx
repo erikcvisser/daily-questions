@@ -14,6 +14,8 @@ import {
   Divider,
 } from '@mantine/core';
 import { ButtonModal } from '../Authenticate/ButtonModal';
+import Link from 'next/link';
+import NextImage from 'next/image';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
@@ -76,10 +78,10 @@ export default function PublicHome() {
           professional growth through daily self-reflection.
         </Text>
       </Container>
-      <SectionDivider />
 
       {/* Who is it for */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Title order={3} ta="center" mb="md">
           Who is it for?
         </Title>
@@ -105,10 +107,10 @@ export default function PublicHome() {
           </Card>
         </SimpleGrid>
       </Container>
-      <SectionDivider />
 
       {/* Key Benefits */}
       <Container size="lg" mt="xl">
+        <SectionDivider />
         <SimpleGrid
           spacing="lg"
           verticalSpacing="lg"
@@ -140,13 +142,14 @@ export default function PublicHome() {
           </Card>
         </SimpleGrid>
       </Container>
-      <SectionDivider />
 
       {/* About Marshall Goldsmith */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Grid gutter="xl" align="center">
           <GridCol span={{ base: 12, md: 5 }}>
             <Image
+              component={NextImage}
               src="/images/marshall.jpg"
               alt="Marshall Goldsmith"
               width={200}
@@ -170,7 +173,7 @@ export default function PublicHome() {
               variant="outline"
               size="md"
               mt="md"
-              component="a"
+              component={Link}
               href="https://marshallgoldsmith.com/"
               target="_blank"
             >
@@ -179,12 +182,12 @@ export default function PublicHome() {
           </GridCol>
         </Grid>
       </Container>
-      <SectionDivider />
 
       {/* About 'Triggers' */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Grid gutter="xl" align="center">
-          <GridCol span={{ base: 12, md: 7 }}>
+          <GridCol span={{ base: 12, md: 8 }}>
             <Title order={3}>And his book: &quot;Triggers&quot;</Title>
             <Text mt="sm">
               &quot;Triggers&quot; explores how our environment shapes our
@@ -196,27 +199,30 @@ export default function PublicHome() {
               variant="outline"
               size="md"
               mt="md"
-              component="a"
+              component={Link}
               href="https://marshallgoldsmith.com/book-page-triggers/"
               target="_blank"
             >
               Learn More
             </Button>
           </GridCol>
-          <GridCol span={{ base: 12, md: 5 }}>
+          <GridCol span={{ base: 12, md: 4 }}>
             <Image
+              component={NextImage}
               src="/images/triggers.jpg"
               alt="'Triggers' Book Cover"
               mx="auto"
               radius="md"
+              height={400}
+              width={300}
             />
           </GridCol>
         </Grid>
       </Container>
-      <SectionDivider />
 
       {/* Testimonials */}
       <Container size="lg" mt="xl">
+        <SectionDivider />
         <Title order={3} ta="center">
           What Our Users Say
         </Title>
@@ -248,10 +254,10 @@ export default function PublicHome() {
           </Card>
         </SimpleGrid>
       </Container>
-      <SectionDivider />
 
       {/* Call to Action */}
       <Container size="md" mt="xl" mb="xl" style={{ textAlign: 'center' }}>
+        <SectionDivider />
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
           buttonText="Join Daily Questions Today"

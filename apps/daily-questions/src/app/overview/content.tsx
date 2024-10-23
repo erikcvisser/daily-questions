@@ -6,6 +6,7 @@ import SubmissionsTable from '@/components/Overview/Table';
 import { SummarySection } from '@/components/Overview/Summary';
 import { Button, Text } from '@mantine/core';
 import { IconInfoSquare } from '@tabler/icons-react';
+import Link from 'next/link';
 
 export default async function OverviewContent() {
   const session = await auth();
@@ -62,7 +63,7 @@ export default async function OverviewContent() {
                   You have questions set up, but haven&apos;t made any
                   submissions. Start tracking your progress today!
                 </Text>
-                <Button component="a" href="/submission/new" size="lg">
+                <Button component={Link} href="/submission/new" size="lg">
                   Create your first submission
                 </Button>
               </>
@@ -77,7 +78,7 @@ export default async function OverviewContent() {
                   You haven&apos;t set up any questions yet. Create your first
                   question to begin your journey of self-improvement!
                 </Text>
-                <Button component="a" href="/questions/new">
+                <Button component={Link} href="/questions/new">
                   Create your first question
                 </Button>
               </>

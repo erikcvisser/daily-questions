@@ -78,14 +78,14 @@ export function BasicAppShell({
               <Group gap={64} visibleFrom="sm" mr={32}>
                 <UnstyledButton
                   className={classes.control}
-                  component="a"
+                  component={Link}
                   href="/"
                 >
                   Home
                 </UnstyledButton>
                 <UnstyledButton
                   className={classes.control}
-                  component="a"
+                  component={Link}
                   href="/about"
                 >
                   About

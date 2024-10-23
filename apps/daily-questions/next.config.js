@@ -24,6 +24,9 @@ module.exports = async (phase) => {
    * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
    **/
   const nextConfig = {
+    experimental: {
+      swrDelta: 31536000,
+    },
     nx: {
       // Set this to true if you would like to use SVGR
       // See: https://github.com/gregberge/svgr

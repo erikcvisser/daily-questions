@@ -2,9 +2,9 @@ import {
   Container,
   Title,
   Text,
-  Image,
   ListItem,
   Timeline,
+  Image,
   TimelineItem,
   Card,
   Grid,
@@ -22,6 +22,8 @@ import {
 import { ButtonModal } from '@/components/Authenticate/ButtonModal';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
+import NextImage from 'next/image';
+import {} from '@mantine/core';
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
@@ -80,10 +82,10 @@ export default async function AboutPage() {
           accessible and achievable for everyone.
         </Text>
       </Container>
-      <SectionDivider />
 
       {/* The Concept of Daily Questions */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="md">
           The Concept of Daily Questions
         </Title>
@@ -93,8 +95,9 @@ export default async function AboutPage() {
           values, fostering accountability and continuous improvement.
         </Text>
       </Container>
-      <SectionDivider />
+
       <Container size="md" my="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="md">
           Why Daily Questions Work
         </Title>
@@ -184,10 +187,10 @@ export default async function AboutPage() {
           </GridCol>
         </Grid>
       </Container>
-      <Divider my="lg" />
 
       {/* How Daily Questions Works */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="xl">
           How Daily Questions Works
         </Title>
@@ -219,9 +222,10 @@ export default async function AboutPage() {
           </TimelineItem>
         </Timeline>
       </Container>
-      <SectionDivider />
+
       {/* Benefits of Daily Questions */}
       <Container size="lg" mt="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="xl">
           Benefits of Daily Questions
         </Title>
@@ -264,10 +268,10 @@ export default async function AboutPage() {
           </Card>
         </SimpleGrid>
       </Container>
-      <SectionDivider />
 
       {/* Testimonials */}
       <Container size="lg" mt="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="xl">
           What Our Users Say
         </Title>
@@ -299,12 +303,14 @@ export default async function AboutPage() {
           </Card>
         </SimpleGrid>
       </Container>
-      <SectionDivider />
+
       {/* About Marshall Goldsmith */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Grid gutter="xl" align="center">
           <GridCol span={{ base: 12, md: 5 }}>
             <Image
+              component={NextImage}
               src="/images/marshall.jpg"
               alt="Marshall Goldsmith"
               width={200}
@@ -328,7 +334,7 @@ export default async function AboutPage() {
               variant="outline"
               size="md"
               mt="md"
-              component="a"
+              component={Link}
               href="https://marshallgoldsmith.com/"
               target="_blank"
             >
@@ -337,10 +343,10 @@ export default async function AboutPage() {
           </GridCol>
         </Grid>
       </Container>
-      <SectionDivider />
 
       {/* About 'Triggers' */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Grid gutter="xl" align="center">
           <GridCol span={{ base: 12, md: 7 }}>
             <Title order={3}>And his book: &quot;Triggers&quot;</Title>
@@ -354,7 +360,7 @@ export default async function AboutPage() {
               variant="outline"
               size="md"
               mt="md"
-              component="a"
+              component={Link}
               href="https://marshallgoldsmith.com/book-page-triggers/"
               target="_blank"
             >
@@ -363,25 +369,29 @@ export default async function AboutPage() {
           </GridCol>
           <GridCol span={{ base: 12, md: 5 }}>
             <Image
+              component={NextImage}
               src="/images/triggers.jpg"
               alt="'Triggers' Book Cover"
               mx="auto"
               radius="md"
+              width={415}
+              height={600}
             />
           </GridCol>
         </Grid>
       </Container>
-      <SectionDivider />
 
       {/* Our Team */}
       <Container size="md" mt="xl">
+        <SectionDivider />
         <Title order={2} ta="center" mb="xl">
           Behind the scenes
         </Title>
-        <Card shadow="sm" padding="lg" radius="md">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Grid gutter="xl" align="center">
             <GridCol span={{ base: 12, sm: 4 }}>
               <Image
+                component={NextImage}
                 src="/images/erik-marshall.jpeg"
                 alt="Erik Visser"
                 height={350}
@@ -421,10 +431,10 @@ export default async function AboutPage() {
           </Grid>
         </Card>
       </Container>
-      <SectionDivider />
 
       {/* Join Us */}
       <Container size="md" my="xl" ta="center">
+        <SectionDivider />
         <Title order={2}>Embark on Your Journey Today</Title>
         {session ? (
           <Button component={Link} href="/" size="lg" mt="md">

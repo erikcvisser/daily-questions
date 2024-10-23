@@ -11,6 +11,7 @@ import {
   Stack,
   Divider,
   Alert,
+  Title,
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
@@ -126,9 +127,32 @@ export default function ProfileDetails({ session }: { session: any }) {
         )}
       </Group>
       <Divider my="xl" />
-      <Text size="sm" c="dimmed" mb="md">
-        Danger Zone
+      <Title order={4} mb="md">
+        Notifications
+      </Title>
+      <Text size="sm" mb="md">
+        Configure push or email notifications, as reminders to answers your
+        daily questions.
       </Text>
+      <Text size="sm" c="dimmed" mb="md">
+        Coming soon!
+      </Text>
+      <Divider my="xl" />
+      <Title order={4} mb="md">
+        Invite accountability partner
+      </Title>
+      <Text size="sm" mb="md">
+        Invite a friend or partner to hold you accountable. He/she will be able
+        able to see your submissions, and help you stay strong!
+      </Text>
+      <Text size="sm" c="dimmed" mb="md">
+        Coming soon!
+      </Text>
+      <Divider my="xl" />
+      <Title order={4} mb="md">
+        Danger Zone
+      </Title>
+
       <Button onClick={handleDeleteAccount} color="red" disabled={isDeleting}>
         {isDeleting ? 'Deleting...' : 'Delete Account'}
       </Button>

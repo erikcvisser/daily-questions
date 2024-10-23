@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Container, Title, Text, Button, Group } from '@mantine/core';
 import classes from '@/components/NotFound/NothingFoundBackground.module.css';
+import Link from 'next/link';
 
 enum Error {
   Configuration = 'Configuration',
@@ -37,7 +38,7 @@ export default function AuthErrorPage() {
             )}
           </Text>
           <Group justify="center">
-            <Button size="md" component="a" href="/">
+            <Button size="md" component={Link} href="/">
               Take me back to home page
             </Button>
           </Group>
