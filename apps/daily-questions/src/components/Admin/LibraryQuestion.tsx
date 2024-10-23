@@ -13,28 +13,40 @@ import {
   Table,
   Group,
 } from '@mantine/core';
+import { Category, LibraryQuestion } from '@prisma/client';
 import { useState } from 'react';
 
 export default function LibraryQuestionManager({
   libraryQuestions,
   categories,
+}: {
+  libraryQuestions: (LibraryQuestion & { category: Category })[];
+  categories: Category[];
 }) {
-  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    if (editingQuestion) {
-      await updateLibraryQuestion(
-        editingQuestion.id,
-        Object.fromEntries(formData)
-      );
-    } else {
-      await createLibraryQuestion(Object.fromEntries(formData));
+    const formData = new FormData(event.target as HTMLFormElement);
+    const formDataObject: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      formDataObject[key] = value.toString();
+    });
+
+    try {
+      if (editingQuestion) {
+        await updateLibraryQuestion(editingQuestion.id, formDataObject);
+      } else {
+        await createLibraryQuestion(formDataObject);
+      }
+      setEditingQuestion(null);
+      // Instead of reloading the page, update the state
+      //const updatedQuestions = await fetchUpdatedQuestions();
+      //setLibraryQuestions(updatedQuestions);
+    } catch (error) {
+      console.error('Error submitting question:', error);
+      // Handle error (e.g., show error message to user)
     }
-    setEditingQuestion(null);
-    // Refresh the page to show updated data
-    window.location.reload();
   };
 
   return (

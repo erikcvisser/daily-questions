@@ -10,23 +10,38 @@ import {
   Title,
   Paper,
 } from '@mantine/core';
+import { Category } from '@prisma/client';
 import { useState } from 'react';
 
-export default function CategoryManager({ categories }) {
-  const [editingCategory, setEditingCategory] = useState(null);
+export default function CategoryManager({
+  categories,
+}: {
+  categories: Category[];
+}) {
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const name = formData.get('name');
-    if (editingCategory) {
-      await updateCategory(editingCategory.id, name);
-    } else {
-      await createCategory(name);
+    const formData = new FormData(event.target as HTMLFormElement);
+    const name = formData.get('name') as string;
+
+    if (!name.trim()) {
+      console.error('Category name is required');
+      // TODO: Show error message to user (e.g., using a toast notification)
+      return;
     }
-    setEditingCategory(null);
-    // Refresh the page to show updated data
-    window.location.reload();
+
+    try {
+      if (editingCategory) {
+        await updateCategory(editingCategory.id, name);
+      } else {
+        await createCategory(name);
+      }
+      setEditingCategory(null);
+    } catch (error) {
+      console.error('Error submitting category:', error);
+      // TODO: Show error message to user (e.g., using a toast notification)
+    }
   };
 
   return (
@@ -36,14 +51,14 @@ export default function CategoryManager({ categories }) {
           name="name"
           label="Category Name"
           required
-          defaultValue={editingCategory?.name}
+          defaultValue={editingCategory?.name || ''}
         />
         <Button type="submit" mt="md">
           {editingCategory ? 'Update' : 'Create'} Category
         </Button>
       </form>
 
-      <Table striped highlightOnHover withBorder>
+      <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Name</Table.Th>
@@ -55,7 +70,7 @@ export default function CategoryManager({ categories }) {
             <Table.Tr key={category.id}>
               <Table.Td>{category.name}</Table.Td>
               <Table.Td>
-                <Group spacing="xs">
+                <Group gap="xs">
                   <Button
                     variant="outline"
                     onClick={() => setEditingCategory(category)}

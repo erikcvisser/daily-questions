@@ -1,12 +1,6 @@
 'use server';
 
-import {
-  Question,
-  QuestionStatus,
-  QuestionType,
-  LibraryQuestion,
-  Category,
-} from '@prisma/client';
+import { Question, QuestionStatus, QuestionType } from '@prisma/client';
 import { createQuestionSchema } from './definitions';
 import prisma from './prisma';
 import { revalidatePath } from 'next/cache';
@@ -374,7 +368,6 @@ export async function updateUserDetails(data: {
   }
 }
 
-// LibraryQuestion CRUD operations
 export async function createLibraryQuestion(formData: any) {
   const { title, type, targetBool, targetInt, categoryId } = formData;
 
@@ -388,7 +381,7 @@ export async function createLibraryQuestion(formData: any) {
     },
   });
 
-  revalidatePath('/library-questions');
+  revalidatePath('/admin');
   return newLibraryQuestion;
 }
 
@@ -406,7 +399,7 @@ export async function updateLibraryQuestion(id: string, formData: any) {
     },
   });
 
-  revalidatePath('/library-questions');
+  revalidatePath('/admin');
   return updatedLibraryQuestion;
 }
 
@@ -415,22 +408,15 @@ export async function deleteLibraryQuestion(id: string) {
     where: { id },
   });
 
-  revalidatePath('/library-questions');
+  revalidatePath('/admin');
 }
 
-export async function getLibraryQuestions() {
-  return prisma.libraryQuestion.findMany({
-    include: { category: true },
-  });
-}
-
-// Category CRUD operations
 export async function createCategory(name: string) {
   const newCategory = await prisma.category.create({
     data: { name },
   });
 
-  revalidatePath('/categories');
+  revalidatePath('/admin');
   return newCategory;
 }
 
@@ -440,7 +426,7 @@ export async function updateCategory(id: string, name: string) {
     data: { name },
   });
 
-  revalidatePath('/categories');
+  revalidatePath('/admin');
   return updatedCategory;
 }
 
@@ -449,9 +435,5 @@ export async function deleteCategory(id: string) {
     where: { id },
   });
 
-  revalidatePath('/categories');
-}
-
-export async function getCategories() {
-  return prisma.category.findMany();
+  revalidatePath('/admin');
 }

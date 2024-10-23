@@ -10,7 +10,6 @@ import {
   TabsList,
   TabsPanel,
 } from '@mantine/core';
-import { getLibraryQuestions, getCategories } from '@/lib/actions';
 import LibraryQuestionManager from '@/components/Admin/LibraryQuestion';
 import CategoryManager from '@/components/Admin/Category';
 
@@ -32,8 +31,10 @@ export default async function AdminPage() {
     },
   });
 
-  const libraryQuestions = await getLibraryQuestions();
-  const categories = await getCategories();
+  const libraryQuestions = await prisma.libraryQuestion.findMany({
+    include: { category: true },
+  });
+  const categories = await prisma.category.findMany();
 
   return (
     <Container size="lg">
