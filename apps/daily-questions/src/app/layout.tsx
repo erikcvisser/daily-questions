@@ -10,8 +10,8 @@ import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { auth } from '@/lib/auth';
 import type { Metadata, Viewport } from 'next';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+// import { Analytics } from '@vercel/analytics/react';
+// import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CSPostHogProvider } from './providers';
 
 const APP_NAME = 'Daily Questions';
@@ -79,8 +79,6 @@ export default async function RootLayout({
           <link rel="shortcut icon" href="/favicon.ico" />
         </head>
         <body>
-          <Analytics />
-          <SpeedInsights />
           <MantineProvider theme={theme}>
             <BasicAppShell session={session ?? undefined}>
               <Notifications />
