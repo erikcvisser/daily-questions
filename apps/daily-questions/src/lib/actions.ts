@@ -464,7 +464,17 @@ export async function sendNotification(message: string) {
 
   try {
     await webpush.sendNotification(
-      subscription,
+      {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: subscription.getKey('p256dh')
+            ? Buffer.from(subscription.getKey('p256dh')!).toString('base64')
+            : '',
+          auth: subscription.getKey('auth')
+            ? Buffer.from(subscription.getKey('auth')!).toString('base64')
+            : '',
+        },
+      },
       JSON.stringify({
         title: 'Test Notification',
         body: message,
