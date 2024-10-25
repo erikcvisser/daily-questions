@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
-
+import PushNotificationsComponent from './PushNotifications';
 export default function ProfileDetails({ session }: { session: any }) {
   const user = session?.user;
   const router = useRouter();
@@ -134,9 +134,7 @@ export default function ProfileDetails({ session }: { session: any }) {
         Configure push or email notifications, as reminders to answers your
         daily questions.
       </Text>
-      <Text size="sm" c="dimmed" mb="md">
-        Coming soon!
-      </Text>
+      {user.email === 'erikcvisser@gmail.com' && <PushNotificationsComponent />}
       <Divider my="xl" />
       <Title order={4} mb="md">
         Invite accountability partner
