@@ -39,7 +39,9 @@ export default function AuthErrorPage() {
             )}
           </Text>
           <Group justify="center">Please try again.</Group>
-          <CombiForm />
+          <Container size="sm">
+            <CombiForm />
+          </Container>
         </div>
       </div>
     </Container>

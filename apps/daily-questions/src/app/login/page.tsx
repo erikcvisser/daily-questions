@@ -8,11 +8,9 @@ export default async function LoginPage() {
       <Stack>
         <Title order={1}>Login</Title>
         <Space h="md" />
-        <Card shadow="sm" padding="lg" withBorder>
-          <Suspense fallback="Loading...">
-            <CombiForm />
-          </Suspense>
-        </Card>
+        <Suspense fallback="Loading...">
+          <CombiForm />
+        </Suspense>
       </Stack>
     </Container>
   );
