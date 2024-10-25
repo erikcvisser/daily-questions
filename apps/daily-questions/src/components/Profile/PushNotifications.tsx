@@ -6,7 +6,14 @@ import {
   unsubscribeUser,
   sendNotification,
 } from '@/lib/actions';
-import { Title, Button, Text } from '@mantine/core';
+import {
+  Title,
+  Button,
+  Text,
+  Stack,
+  TextInput,
+  Container,
+} from '@mantine/core';
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -74,29 +81,28 @@ function PushNotificationManager() {
   if (!isSupported) {
     return <p>Push notifications are not supported in this browser.</p>;
   }
-
   return (
-    <div>
-      <h3>Push Notifications</h3>
+    <Container size="sm" ml="0" p="0">
       {subscription ? (
-        <>
-          <p>You are subscribed to push notifications.</p>
-          <button onClick={unsubscribeFromPush}>Unsubscribe</button>
-          <input
-            type="text"
+        <Stack>
+          <Text>You are subscribed to push notifications.</Text>
+          <Button variant="light" color="red" onClick={unsubscribeFromPush}>
+            Unsubscribe
+          </Button>
+          <TextInput
             placeholder="Enter notification message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <button onClick={sendTestNotification}>Send Test</button>
-        </>
+          <Button onClick={sendTestNotification}>Send Test Notification</Button>
+        </Stack>
       ) : (
-        <>
-          <p>You are not subscribed to push notifications.</p>
-          <button onClick={subscribeToPush}>Subscribe</button>
-        </>
+        <Stack>
+          <Text>You are not subscribed to push notifications.</Text>
+          <Button onClick={subscribeToPush}>Subscribe</Button>
+        </Stack>
       )}
-    </div>
+    </Container>
   );
 }
 
