@@ -10,6 +10,8 @@ import {
   GridCol,
   Group,
   Text,
+  Container,
+  useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './AppShell.module.css';
@@ -33,6 +35,8 @@ export function BasicAppShell({
     useDisclosure(false);
   const desktopOpened = session ? true : false;
 
+  const theme = useMantineTheme();
+
   // Define swipe handlers
   const handlers = useSwipeable({
     onSwipedRight: (eventData) => {
@@ -54,7 +58,6 @@ export function BasicAppShell({
           breakpoint: 'sm',
           collapsed: { desktop: !desktopOpened, mobile: !mobileOpened },
         }}
-        padding="md"
       >
         <AppShellHeader px="md">
           <Grid align="center" justify="space-between">

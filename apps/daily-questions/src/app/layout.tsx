@@ -2,6 +2,7 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
 import '@mantine/notifications/styles.css';
+import '@/app/global.css';
 
 import React from 'react';
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
@@ -61,6 +62,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
   themeColor: '#FFFFFF',
 };
 
@@ -77,6 +82,10 @@ export default async function RootLayout({
         <head>
           <ColorSchemeScript />
           <link rel="shortcut icon" href="/favicon.ico" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+          />
         </head>
         <body>
           <MantineProvider theme={theme}>

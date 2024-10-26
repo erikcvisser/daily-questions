@@ -84,7 +84,7 @@ function SortableTableRow({
           }}
         />
       </TableTd>
-      <TableTd style={{ width: '40px' }}>
+      <TableTd style={{ width: '40px' }} visibleFrom="md">
         <Checkbox
           aria-label="Select row"
           checked={selectedRows.includes(question.id)}
@@ -98,16 +98,25 @@ function SortableTableRow({
         />
       </TableTd>
       <TableTd>{question.title}</TableTd>
-      <TableTd>
+      <TableTd visibleFrom="md">
         {question.type === 'BOOLEAN' && 'Yes/No'}
         {question.type === 'INTEGER' && 'Numeric (1-10)'}
         {question.type === 'FREETEXT' && 'Free text'}
       </TableTd>
-      <TableTd>
+      <TableTd visibleFrom="md">
         {question.targetInt || (question.targetBool ? 'Yes' : 'No')}
       </TableTd>
       <TableTd>
-        <Group gap="xs">
+        <Group gap="xs" justify="flex-end" w="100%">
+          <ActionIcon
+            onClick={() => router.push(`/questions/${question.id}`)}
+            aria-label="edit question"
+            color="blue"
+            variant="light"
+            disabled={question.status === 'INACTIVE'}
+          >
+            <IconEdit size="1rem" />
+          </ActionIcon>
           {question.status === 'INACTIVE' && (
             <ActionIcon
               onClick={() => deleteQuestionAction(question)}
@@ -128,15 +137,6 @@ function SortableTableRow({
               <IconArchive size="1rem" />
             </ActionIcon>
           )}
-          <ActionIcon
-            onClick={() => router.push(`/questions/${question.id}`)}
-            aria-label="edit question"
-            color="blue"
-            variant="light"
-            disabled={question.status === 'INACTIVE'}
-          >
-            <IconEdit size="1rem" />
-          </ActionIcon>
         </Group>
       </TableTd>
     </TableTr>
@@ -232,11 +232,13 @@ export default function QuestionTable({
           <TableThead>
             <TableTr>
               <TableTh style={{ width: '40px' }} />
-              <TableTh style={{ width: '40px' }} />
+              <TableTh visibleFrom="md" style={{ width: '40px' }} />
               <TableTh>Question</TableTh>
-              <TableTh>Type</TableTh>
-              <TableTh>Target</TableTh>
-              <TableTh>Actions</TableTh>
+              <TableTh visibleFrom="md">Type</TableTh>
+              <TableTh visibleFrom="md">Target</TableTh>
+              <TableTh w="100px" ta="right">
+                Actions
+              </TableTh>
             </TableTr>
           </TableThead>
           <SortableContext

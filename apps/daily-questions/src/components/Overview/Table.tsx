@@ -37,7 +37,7 @@ export default function SubmissionsTable({
     <Table.Tr key={submission.id}>
       <Table.Td>{formatDate(submission.date)}</Table.Td>
       <Table.Td>{submission.scorePercentage?.toFixed()}%</Table.Td>
-      <Table.Td style={{ maxWidth: '400px' }}>
+      <Table.Td style={{ maxWidth: '400px' }} visibleFrom="md">
         <ScrollArea h={60} scrollHideDelay={200}>
           <div style={{ display: 'flex', gap: '16px', padding: '8px 0' }}>
             {submission.answers.map((answer) => (
@@ -54,7 +54,7 @@ export default function SubmissionsTable({
         </ScrollArea>
       </Table.Td>
       <Table.Td>
-        <Group>
+        <Group align="flex-end" justify="flex-end" w="100%">
           <ActionIcon
             color="blue"
             onClick={() => router.push(`/submission/${submission.id}`)}
@@ -79,15 +79,17 @@ export default function SubmissionsTable({
       <Table>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Date</Table.Th>
-            <Table.Th>Score</Table.Th>
-            <Table.Th>Answers</Table.Th>
-            <Table.Th>Actions</Table.Th>
+            <Table.Th w="100px">Date</Table.Th>
+            <Table.Th w="60px">Score</Table.Th>
+            <Table.Th visibleFrom="md">Answers</Table.Th>
+            <Table.Th w="100px" ta="right">
+              Actions
+            </Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
-      <Group justify="center" mt="md">
+      <Group justify="center" mb="xl">
         <Pagination
           value={activePage}
           onChange={setActivePage}
