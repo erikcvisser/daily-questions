@@ -36,6 +36,7 @@ export function BasicAppShell({
   // Define swipe handlers
   const handlers = useSwipeable({
     onSwipedRight: (eventData) => {
+      eventData.event.preventDefault();
       if (eventData.initial[0] < 50 && !mobileOpened) {
         toggleMobile();
       }
@@ -114,7 +115,7 @@ export function BasicAppShell({
         <AppShellNavbar p="md" zIndex={20}>
           <Links session={session} toggleMobile={toggleMobile} />
         </AppShellNavbar>
-        <AppShellMain mt="lg">{children}</AppShellMain>
+        <AppShellMain>{children}</AppShellMain>
       </AppShell>
     </div>
   );
