@@ -13,6 +13,8 @@ import {
   Stack,
   TextInput,
   Container,
+  List,
+  ListItem,
 } from '@mantine/core';
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -30,7 +32,7 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
-function PushNotificationManager() {
+export function PushNotificationManager() {
   const [isSupported, setIsSupported] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
@@ -106,9 +108,10 @@ function PushNotificationManager() {
   );
 }
 
-function InstallPrompt() {
+export function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
     setIsIOS(
@@ -116,40 +119,80 @@ function InstallPrompt() {
     );
 
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      setDeferredPrompt(e);
+    });
   }, []);
 
-  if (isStandalone) {
-    return null; // Don't show install button if already installed
-  }
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
 
+    // Show the install prompt
+    deferredPrompt.prompt();
+
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+
+    // Clear the saved prompt since it can't be used again
+    setDeferredPrompt(null);
+  };
+
+  if (isStandalone) return null;
   return (
-    <div>
-      <Title order={3}>Install App</Title>
-      <Button>Add to Home Screen</Button>
+    <Stack>
       {isIOS && (
-        <Text>
-          To install this app on your iOS device, tap the share button
-          <span role="img" aria-label="share icon">
-            {' '}
-            ⎋{' '}
-          </span>
-          and then &quot;Add to Home Screen &quot;
-          <span role="img" aria-label="plus icon">
-            {' '}
-            ➕{' '}
-          </span>
-          .
-        </Text>
+        <>
+          <Text>To install on iOS:</Text>
+          <List>
+            <ListItem>
+              Tap the share button{' '}
+              <span role="img" aria-label="share icon">
+                ⎋
+              </span>
+            </ListItem>
+            <ListItem>
+              Scroll down and tap &quot;Add to Home Screen&quot;{' '}
+              <span role="img" aria-label="plus icon">
+                ➕
+              </span>
+            </ListItem>
+            <ListItem>Tap &quot;Add&quot; to confirm</ListItem>
+          </List>
+        </>
       )}
-    </div>
-  );
-}
-
-export default function PushNotificationsComponent() {
-  return (
-    <>
-      <PushNotificationManager />
-      <InstallPrompt />
-    </>
+      {!isIOS && deferredPrompt && (
+        <Button onClick={handleInstallClick}>Install App</Button>
+      )}
+      {!isIOS && (
+        <>
+          <Text>To install on Android:</Text>
+          <ol>
+            <li>Tap the menu (⋮) in your browser</li>
+            <li>
+              Tap &quot;Install app&quot; or &quot;Add to Home Screen&quot;
+            </li>
+            <li>Follow the installation prompts</li>
+          </ol>
+          <Text>To install on Desktop:</Text>
+          <ol>
+            <li>
+              Look for the install icon{' '}
+              <span role="img" aria-label="install icon">
+                ⊕
+              </span>{' '}
+              in your browser&apos;s address bar
+            </li>
+            <li>Click it and select &quot;Install&quot;</li>
+            <li>Or use Chrome menu (⋮) → &quot;Install [App Name]&quot;</li>
+          </ol>
+        </>
+      )}
+    </Stack>
   );
 }

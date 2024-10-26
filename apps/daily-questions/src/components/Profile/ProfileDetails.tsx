@@ -11,11 +11,13 @@ import {
   Stack,
   Divider,
   Alert,
+  Modal,
   Title,
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
-import PushNotificationsComponent from './PushNotifications';
+import { InstallPrompt, PushNotificationManager } from './PushNotifications';
+
 export default function ProfileDetails({ session }: { session: any }) {
   const user = session?.user;
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function ProfileDetails({ session }: { session: any }) {
   const [name, setName] = useState(user.name);
   const [targetScore, setTargetScore] = useState(user.targetScore * 100);
   const [error, setError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -127,23 +130,34 @@ export default function ProfileDetails({ session }: { session: any }) {
         )}
       </Group>
       <Divider my="xl" />
+
+      <Title order={4} mb="md">
+        Install app
+      </Title>
+      <Text mb="md">
+        Install the app on your phone for easier access and notifications.
+      </Text>
+      {user.email === 'erikcvisser@gmail.com' && <InstallPrompt />}
+      <Divider my="xl" />
+
       <Title order={4} mb="md">
         Notifications
       </Title>
-      <Text size="sm" mb="md">
+      <Text mb="md">
         Configure push or email notifications, as reminders to answers your
         daily questions.
       </Text>
-      {user.email === 'erikcvisser@gmail.com' && <PushNotificationsComponent />}
+      {user.email === 'erikcvisser@gmail.com' && <PushNotificationManager />}
       <Divider my="xl" />
+
       <Title order={4} mb="md">
         Invite accountability partner
       </Title>
-      <Text size="sm" mb="md">
+      <Text mb="md">
         Invite a friend or partner to hold you accountable. He/she will be able
         able to see your submissions, and help you stay strong!
       </Text>
-      <Text size="sm" c="dimmed" mb="md">
+      <Text c="dimmed" mb="md">
         Coming soon!
       </Text>
       <Divider my="xl" />
@@ -151,8 +165,32 @@ export default function ProfileDetails({ session }: { session: any }) {
         Danger Zone
       </Title>
 
-      <Button onClick={handleDeleteAccount} color="red" disabled={isDeleting}>
-        {isDeleting ? 'Deleting...' : 'Delete Account'}
+      <Modal
+        opened={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Account"
+        centered
+      >
+        <Text size="sm" mb="xl">
+          Are you sure you want to delete your account? This action cannot be
+          undone.
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            color="red"
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Account'}
+          </Button>
+        </Group>
+      </Modal>
+
+      <Button onClick={() => setShowDeleteModal(true)} color="red" mb="xl">
+        Delete Account
       </Button>
     </>
   );
