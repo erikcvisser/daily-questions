@@ -3,7 +3,7 @@ import { Container, Space, Title } from '@mantine/core';
 
 export default async function Index() {
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Title order={2}>Answer your daily questions</Title>
       <Space h="md" />
       <Questionnaire />

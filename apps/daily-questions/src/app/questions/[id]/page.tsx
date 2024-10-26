@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     notFound();
   }
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Stack>
         <Title order={2}>Edit question</Title>
         <Space h="md" />

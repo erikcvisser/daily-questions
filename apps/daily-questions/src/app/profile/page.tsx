@@ -6,7 +6,7 @@ export default async function ProfilePage() {
   const session = await auth();
 
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Title order={2}>Profile</Title>
       <Space h="xl" />
       <ProfileDetails session={session} />

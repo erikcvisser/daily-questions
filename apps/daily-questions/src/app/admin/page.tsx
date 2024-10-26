@@ -37,8 +37,8 @@ export default async function AdminPage() {
   const categories = await prisma.category.findMany();
 
   return (
-    <Container size="lg">
-      <Title order={2} mb={'lg'}>
+    <Container size="xl" mt="lg">
+      <Title order={2} mb="lg">
         Admin Dashboard
       </Title>
       <Tabs defaultValue="users">

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function QuestionPage() {
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Stack>
         <Group justify="space-between" align="center">
           <Title order={2}>My Daily Questions</Title>

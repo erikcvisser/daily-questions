@@ -19,7 +19,7 @@ export default async function AddQuestionPage() {
   });
 
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Stack>
         <Title order={2}>Add a Question</Title>
         <QuestionForm />

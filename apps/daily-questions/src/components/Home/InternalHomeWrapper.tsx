@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default async function InternalHomeWrapper() {
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Stack gap="xl">
         <Group justify="space-between" align="center" wrap="nowrap">
           <Title order={2} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>

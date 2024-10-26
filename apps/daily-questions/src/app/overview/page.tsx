@@ -4,7 +4,7 @@ import { Stack, Container, Title, Space } from '@mantine/core';
 
 export default function OverviewPage() {
   return (
-    <Container size="xl">
+    <Container size="xl" mt="lg">
       <Stack>
         <Title order={2}>Overview of your submissions</Title>
         <Space h="md" />
