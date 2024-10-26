@@ -10,8 +10,6 @@ import {
   GridCol,
   Group,
   Text,
-  Container,
-  useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './AppShell.module.css';
@@ -35,18 +33,16 @@ export function BasicAppShell({
     useDisclosure(false);
   const desktopOpened = session ? true : false;
 
-  const theme = useMantineTheme();
-
   // Define swipe handlers
   const handlers = useSwipeable({
     onSwipedRight: (eventData) => {
-      // Only open the navbar if it's not already open
-      if (!mobileOpened) {
+      if (eventData.initial[0] < 50 && !mobileOpened) {
         toggleMobile();
       }
     },
-    delta: 50,
+    delta: 30,
     trackTouch: true,
+    trackMouse: false,
   });
 
   return (
@@ -118,7 +114,7 @@ export function BasicAppShell({
         <AppShellNavbar p="md" zIndex={20}>
           <Links session={session} toggleMobile={toggleMobile} />
         </AppShellNavbar>
-        <AppShellMain>{children}</AppShellMain>
+        <AppShellMain mt="lg">{children}</AppShellMain>
       </AppShell>
     </div>
   );

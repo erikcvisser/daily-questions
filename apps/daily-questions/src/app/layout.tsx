@@ -81,11 +81,6 @@ export default async function RootLayout({
       <CSPostHogProvider>
         <head>
           <ColorSchemeScript />
-          <link rel="shortcut icon" href="/favicon.ico" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-          />
         </head>
         <body>
           <MantineProvider theme={theme}>
