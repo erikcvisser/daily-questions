@@ -84,6 +84,9 @@ export default function ProfileDetails({ session }: { session: any }) {
           {error}
         </Alert>
       )}
+      <Title order={4} mb="md">
+        Your profile
+      </Title>
       <Stack>
         <TextInput label="Email" value={user.email} readOnly disabled />
         {isEditing ? (
@@ -131,14 +134,12 @@ export default function ProfileDetails({ session }: { session: any }) {
       </Group>
       <Divider my="xl" />
 
-      <Title order={4} mb="md">
-        Install app
-      </Title>
-      <Text mb="md">
-        Install the app on your phone for easier access and notifications.
-      </Text>
-      {user.email === 'erikcvisser@gmail.com' && <InstallPrompt />}
-      <Divider my="xl" />
+      {user.email === 'erikcvisser@gmail.com' && (
+        <>
+          <InstallPrompt />
+          <Divider my="xl" />
+        </>
+      )}
 
       <Title order={4} mb="md">
         Notifications

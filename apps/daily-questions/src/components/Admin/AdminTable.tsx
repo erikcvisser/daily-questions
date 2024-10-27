@@ -5,7 +5,7 @@ import { Question, Submission, User } from '@prisma/client';
 export function AdminTable({
   users,
 }: {
-  users: (User & { Submission: Submission[]; questions: Question[] })[];
+  users: (User & { submissions: Submission[]; questions: Question[] })[];
 }) {
   return (
     <Table>
@@ -24,8 +24,8 @@ export function AdminTable({
             <Table.Td>{user.email}</Table.Td>
             <Table.Td>{formatDate(user.createdAt)}</Table.Td>
             <Table.Td>{user.questions.length}</Table.Td>
-            <Table.Td>{formatDate(user.Submission[0]?.createdAt)}</Table.Td>
-            <Table.Td>{user.Submission.length}</Table.Td>
+            <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>
+            <Table.Td>{user.submissions.length}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>

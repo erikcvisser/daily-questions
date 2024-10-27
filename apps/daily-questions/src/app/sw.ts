@@ -25,6 +25,18 @@ const serwist = new Serwist({
 self.addEventListener('push', function (event) {
   if (event.data) {
     const data = event.data.json();
+
+    // Check if this is a scheduled notification
+    if (data.scheduledTime) {
+      const scheduledTime = new Date(data.scheduledTime).getTime();
+      const now = Date.now();
+
+      // Only show notification if we're within 1 minute of scheduled time
+      if (Math.abs(now - scheduledTime) > 60000) {
+        return;
+      }
+    }
+
     const options = {
       body: data.body,
       icon: data.icon || '/android-chrome-192x192.png',
@@ -33,6 +45,7 @@ self.addEventListener('push', function (event) {
       data: {
         dateOfArrival: Date.now(),
         primaryKey: '2',
+        url: 'https://dailyquestions.app',
       },
     };
     event.waitUntil(self.registration.showNotification(data.title, options));
@@ -40,9 +53,12 @@ self.addEventListener('push', function (event) {
 });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('Notification click received.');
   event.notification.close();
-  event.waitUntil(self.clients.openWindow('https://dailyquestions.app'));
+  event.waitUntil(
+    self.clients.openWindow(
+      event.notification.data.url || 'https://dailyquestions.app'
+    )
+  );
 });
 
 serwist.addEventListeners();

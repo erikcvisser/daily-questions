@@ -21,7 +21,7 @@ export default async function AdminPage() {
 
   const users = await prisma.user.findMany({
     include: {
-      Submission: {
+      submissions: {
         orderBy: { date: 'desc' },
       },
       questions: true,

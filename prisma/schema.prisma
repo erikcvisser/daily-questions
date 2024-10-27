@@ -22,10 +22,12 @@ model User {
   questions     Question[]
   accounts      Account[]
   sessions      Session[]
+  submissions   Submission[]
   targetScore   Float @default(0.75)
+  pushSubscriptions PushSubscription[]
+  notificationTime String?  // Store as HH:mm format
 
   @@map(name: "users")
-  Submission Submission[]
 }
 
 model Account {
@@ -149,3 +151,15 @@ model Category {
   libraryQuestions LibraryQuestion[]
 }
 
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
