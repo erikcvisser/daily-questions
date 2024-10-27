@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   // viewport: 'width=device-width, initial-scale=1',
   icons: [
     { rel: 'icon', url: '/favicon.ico' },
-    { rel: 'apple-touch-icon', url: '/icon-192x192.png' },
+    { rel: 'apple-touch-icon', url: '/android-chrome-192x192.png' },
   ],
   title: {
     default: APP_DEFAULT_TITLE,
