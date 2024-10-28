@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Textarea,
   Stack,
+  Select,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -134,6 +135,27 @@ export default function QuestionnaireForm({
               radius="md"
               autosize
               minRows={3}
+            />
+          ) : item.type === 'RATING' ? (
+            <Select
+              label={item.title}
+              description="Rate from 0 to 5"
+              data-autofocus={index === 0}
+              min={0}
+              max={5}
+              data={[
+                { value: '0', label: '0. Not done' },
+                { value: '1', label: '1. Marginal effort' },
+                { value: '2', label: '2. Some effort' },
+                { value: '3', label: '3. OK' },
+                { value: '4', label: '4. Very good' },
+                { value: '5', label: '5. Exceptional' },
+              ]}
+              key={form.key(`answers.${item.id}`)}
+              withAsterisk
+              searchable
+              {...form.getInputProps(`answers.${item.id}`)}
+              radius="md"
             />
           ) : null
         )}
