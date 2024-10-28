@@ -16,6 +16,9 @@ export default async function AddQuestionPage() {
     include: {
       category: true,
     },
+    orderBy: {
+      categoryId: 'asc',
+    },
   });
 
   return (
