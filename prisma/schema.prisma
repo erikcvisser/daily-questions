@@ -79,6 +79,7 @@ model Question {
   status        QuestionStatus
   targetInt     Int?      @map("target_int")
   targetBool    Boolean?  @map("target_bool")
+  targetRating  Int?      @map("target_rating")
   userId        String    @map("user_id")
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
@@ -125,6 +126,7 @@ enum QuestionType {
   INTEGER
   BOOLEAN
   FREETEXT
+  RATING
 }
 
 enum QuestionStatus {
@@ -137,6 +139,7 @@ model LibraryQuestion {
   title          String
   targetInt      Int?         @map("target_int")
   targetBool     Boolean?     @map("target_bool")
+  targetRating   Int?         @map("target_rating")
   type           QuestionType
   category       Category     @relation(fields: [categoryId], references: [id])
   categoryId     String

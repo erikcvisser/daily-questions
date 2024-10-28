@@ -39,6 +39,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
       type: question?.type || 'INTEGER',
       targetInt: question?.targetInt || '',
       targetBool: question?.targetBool?.toString() || '',
+      targetRating: question?.targetRating?.toString() || '',
     },
     validateInputOnChange: true,
     validate: zodResolver(createQuestionSchema),
@@ -115,6 +116,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
             { value: 'BOOLEAN', label: 'Yes/no' },
             { value: 'INTEGER', label: 'Numeric score (1-10)' },
             { value: 'FREETEXT', label: 'Free text' },
+            { value: 'RATING', label: 'Rating (0-5)' },
           ]}
           withAsterisk
           disabled={!isEditing && !!question}
@@ -144,6 +146,26 @@ export default function QuestionForm({ question }: { question?: Question }) {
               { value: 'false', label: 'No' },
             ]}
             withAsterisk
+            disabled={!isEditing && !!question}
+          />
+        )}
+        {form.getValues()['type'] == 'RATING' && (
+          <Select
+            label="Target rating (0-5)"
+            key={form.key('targetRating')}
+            {...form.getInputProps('targetRating')}
+            min={0}
+            max={5}
+            placeholder="Target rating"
+            withAsterisk
+            data={[
+              { value: '0', label: '0. Not done' },
+              { value: '1', label: '1. Marginal effort' },
+              { value: '2', label: '2. Some effort' },
+              { value: '3', label: '3. OK' },
+              { value: '4', label: '4. Very good' },
+              { value: '5', label: '5. Exceptional' },
+            ]}
             disabled={!isEditing && !!question}
           />
         )}

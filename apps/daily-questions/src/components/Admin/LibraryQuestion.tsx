@@ -65,6 +65,7 @@ export default function LibraryQuestionManager({
           data={[
             { value: 'INTEGER', label: 'Integer' },
             { value: 'BOOLEAN', label: 'Boolean' },
+            { value: 'RATING', label: 'Rating' },
             { value: 'FREETEXT', label: 'Free Text' },
           ]}
           defaultValue={editingQuestion?.type}
@@ -82,6 +83,19 @@ export default function LibraryQuestionManager({
             { value: 'false', label: 'False' },
           ]}
           defaultValue={editingQuestion?.targetBool?.toString()}
+        />
+        <Select
+          name="targetRating"
+          label="Target Rating"
+          data={[
+            { value: '0', label: '0. Not done' },
+            { value: '1', label: '1. Marginal effort' },
+            { value: '2', label: '2. Some effort' },
+            { value: '3', label: '3. OK' },
+            { value: '4', label: '4. Very good' },
+            { value: '5', label: '5. Exceptional' },
+          ]}
+          defaultValue={editingQuestion?.targetRating?.toString()}
         />
         <Select
           name="categoryId"

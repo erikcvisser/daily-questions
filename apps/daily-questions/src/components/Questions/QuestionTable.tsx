@@ -102,9 +102,22 @@ function SortableTableRow({
         {question.type === 'BOOLEAN' && 'Yes/No'}
         {question.type === 'INTEGER' && 'Numeric (1-10)'}
         {question.type === 'FREETEXT' && 'Free text'}
+        {question.type === 'RATING' && 'Rating (0-5)'}
       </TableTd>
       <TableTd visibleFrom="md">
-        {question.targetInt || (question.targetBool ? 'Yes' : 'No')}
+        {question.type === 'INTEGER' && question.targetInt}
+        {question.type === 'BOOLEAN' && (question.targetBool ? 'Yes' : 'No')}
+        {question.type === 'RATING' &&
+          question.targetRating &&
+          {
+            0: '0. Not done',
+            1: '1. Marginal effort',
+            2: '2. Some effort',
+            3: '3. Ok',
+            4: '4. Very good',
+            5: '5. Exceptional',
+          }[question.targetRating]}
+        {question.type === 'FREETEXT' && '-'}
       </TableTd>
       <TableTd>
         <Group gap="xs" justify="flex-end" w="100%">

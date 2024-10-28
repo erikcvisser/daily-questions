@@ -64,11 +64,8 @@ export function PushNotificationManager() {
 
       setIsSupported(true);
       try {
-        // Register service worker
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'none',
-        });
+        // Wait for service worker to be ready (already registered by Serwist)
+        const registration = await navigator.serviceWorker.ready;
 
         // Check browser subscription
         const browserSub = await registration.pushManager.getSubscription();

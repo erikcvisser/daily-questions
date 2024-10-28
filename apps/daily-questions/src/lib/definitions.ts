@@ -4,9 +4,10 @@ export const createQuestionSchema = object({
   title: z
     .string({ required_error: 'Question is required' })
     .min(5, 'Minimum 5 charachters'),
-  type: z.enum(['INTEGER', 'BOOLEAN', 'FREETEXT']),
+  type: z.enum(['INTEGER', 'BOOLEAN', 'FREETEXT', 'RATING']),
   targetInt: z.coerce.number().optional(),
   targetBool: z.coerce.boolean().optional(),
+  targetRating: z.coerce.number().optional(),
 });
 
 export const submitQuestionnaireSchema = object({

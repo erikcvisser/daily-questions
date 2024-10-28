@@ -20,19 +20,22 @@ webpush.setVapidDetails(
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
   const session = await auth();
-  const { title, type, targetBool, targetInt } = CreateQuestion.parse({
-    title: formData['title'],
-    type: formData['type'],
-    targetBool: formData['targetBool'] || undefined,
-    targetInt: formData['targetInt'] || undefined,
-    userId: session?.user?.id || '1',
-  });
+  const { title, type, targetBool, targetInt, targetRating } =
+    CreateQuestion.parse({
+      title: formData['title'],
+      type: formData['type'],
+      targetBool: formData['targetBool'] || undefined,
+      targetInt: formData['targetInt'] || undefined,
+      targetRating: formData['targetRating'] || undefined,
+      userId: session?.user?.id || '1',
+    });
   await prisma.question.create({
     data: {
       title,
       type,
       ...(targetBool && { targetBool }),
       ...(targetInt && { targetInt }),
+      ...(targetRating && { targetRating }),
       status: 'ACTIVE',
       userId: session?.user?.id || '1',
     },
@@ -55,12 +58,14 @@ export async function updateQuestion(id: string, formData: any) {
 
   if (existingQuestion?.libraryQuestion) {
     // If linked to a library question, create a new question and archive the current one
-    const { title, type, targetBool, targetInt } = CreateQuestion.parse({
-      title: formData['title'],
-      type: formData['type'],
-      targetBool: formData['targetBool'] || undefined,
-      targetInt: formData['targetInt'] || undefined,
-    });
+    const { title, type, targetBool, targetInt, targetRating } =
+      CreateQuestion.parse({
+        title: formData['title'],
+        type: formData['type'],
+        targetBool: formData['targetBool'] || undefined,
+        targetInt: formData['targetInt'] || undefined,
+        targetRating: formData['targetRating'] || undefined,
+      });
 
     await prisma.$transaction([
       // Create new question
@@ -70,6 +75,7 @@ export async function updateQuestion(id: string, formData: any) {
           type,
           ...(targetBool && { targetBool }),
           ...(targetInt && { targetInt }),
+          ...(targetRating && { targetRating }),
           status: 'ACTIVE',
           userId: session.user.id,
           position: existingQuestion.position, // Maintain the same position
@@ -83,12 +89,14 @@ export async function updateQuestion(id: string, formData: any) {
     ]);
   } else {
     // If not linked to a library question, update as before
-    const { title, type, targetBool, targetInt } = CreateQuestion.parse({
-      title: formData['title'],
-      type: formData['type'],
-      targetBool: formData['targetBool'] || undefined,
-      targetInt: formData['targetInt'] || undefined,
-    });
+    const { title, type, targetBool, targetInt, targetRating } =
+      CreateQuestion.parse({
+        title: formData['title'],
+        type: formData['type'],
+        targetBool: formData['targetBool'] || undefined,
+        targetInt: formData['targetInt'] || undefined,
+        targetRating: formData['targetRating'] || undefined,
+      });
 
     await prisma.question.update({
       where: { id },
@@ -97,6 +105,7 @@ export async function updateQuestion(id: string, formData: any) {
         type,
         ...(targetBool && { targetBool }),
         ...(targetInt && { targetInt }),
+        ...(targetRating && { targetRating }),
       },
     });
   }
@@ -155,6 +164,14 @@ async function calculateScorePercentage(answers: any[]) {
     ) {
       totalQuestions++;
       if (Number(answer.answer) >= question.targetInt) {
+        exceededTarget++;
+      }
+    } else if (
+      question.type === QuestionType.RATING &&
+      question.targetRating !== null
+    ) {
+      totalQuestions++;
+      if (Number(answer.answer) >= question.targetRating) {
         exceededTarget++;
       }
     }
@@ -249,6 +266,7 @@ export async function copyLibraryQuestions(questionIds: string[]) {
     libraryQuestionId: libQ.id,
     targetInt: libQ.type === 'INTEGER' ? libQ.targetInt : undefined,
     targetBool: libQ.type === 'BOOLEAN' ? libQ.targetBool : undefined,
+    targetRating: libQ.type === 'RATING' ? libQ.targetRating : undefined,
   }));
 
   await prisma.question.createMany({
@@ -373,7 +391,8 @@ export async function updateUserDetails(data: {
 }
 
 export async function createLibraryQuestion(formData: any) {
-  const { title, type, targetBool, targetInt, categoryId } = formData;
+  const { title, type, targetBool, targetInt, targetRating, categoryId } =
+    formData;
 
   const newLibraryQuestion = await prisma.libraryQuestion.create({
     data: {
@@ -381,6 +400,7 @@ export async function createLibraryQuestion(formData: any) {
       type,
       targetBool: targetBool === 'true',
       targetInt: parseInt(targetInt),
+      targetRating: parseInt(targetRating),
       categoryId,
     },
   });
@@ -390,7 +410,8 @@ export async function createLibraryQuestion(formData: any) {
 }
 
 export async function updateLibraryQuestion(id: string, formData: any) {
-  const { title, type, targetBool, targetInt, categoryId } = formData;
+  const { title, type, targetBool, targetInt, targetRating, categoryId } =
+    formData;
 
   const updatedLibraryQuestion = await prisma.libraryQuestion.update({
     where: { id },
@@ -399,6 +420,7 @@ export async function updateLibraryQuestion(id: string, formData: any) {
       type,
       targetBool: targetBool === 'true',
       targetInt: parseInt(targetInt),
+      targetRating: parseInt(targetRating),
       categoryId,
     },
   });
