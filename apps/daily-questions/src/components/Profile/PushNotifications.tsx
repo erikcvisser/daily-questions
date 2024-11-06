@@ -56,8 +56,21 @@ export function PushNotificationManager() {
   const [notificationTime, setNotificationTime] = useState('20:00'); // Default to 8 PM
 
   useEffect(() => {
+    // Check notification permission status
+    if ('Notification' in window) {
+      console.log('Notification permission:', Notification.permission);
+    } else {
+      console.log('Notifications not supported');
+    }
+  }, []);
+
+  useEffect(() => {
     async function initializeSubscription() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('Push notifications not supported:', {
+          serviceWorker: 'serviceWorker' in navigator,
+          pushManager: 'PushManager' in window,
+        });
         setIsLoading(false);
         return;
       }
@@ -65,13 +78,19 @@ export function PushNotificationManager() {
       setIsSupported(true);
       try {
         // Wait for service worker to be ready (already registered by Serwist)
+        console.log('Waiting for service worker...');
         const registration = await navigator.serviceWorker.ready;
+        console.log('Service worker ready');
 
         // Check browser subscription
+        console.log('Checking browser subscription...');
         const browserSub = await registration.pushManager.getSubscription();
+        console.log('Browser subscription:', browserSub ? 'exists' : 'none');
 
         // Check database subscription
+        console.log('Checking database subscription...');
         const dbSub = await getSubscription();
+        console.log('Database subscription:', dbSub ? 'exists' : 'none');
 
         if (browserSub && !dbSub) {
           // Browser is subscribed but not in DB - clean up
@@ -86,6 +105,12 @@ export function PushNotificationManager() {
         }
       } catch (error) {
         console.error('Failed to initialize subscription:', error);
+        // Log more details about the error
+        if (error instanceof Error) {
+          console.error('Error name:', error.name);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
       } finally {
         setIsLoading(false);
       }
