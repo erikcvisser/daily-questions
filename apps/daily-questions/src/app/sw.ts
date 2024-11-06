@@ -33,17 +33,8 @@ self.addEventListener('push', function (event) {
     const data = event.data.json();
     console.log('Push notification data:', data);
 
-    // Check if this is a scheduled notification
-    if (data.scheduledTime) {
-      const scheduledTime = new Date(data.scheduledTime).getTime();
-      const now = Date.now();
-
-      // Only show notification if we're within 1 minute of scheduled time
-      if (Math.abs(now - scheduledTime) > 60000) {
-        return;
-      }
-    }
-
+    // Remove the time check and always show the notification
+    // Let the server handle scheduling instead
     const options = {
       body: data.body,
       icon: data.icon || '/android-chrome-192x192.png',
@@ -52,7 +43,7 @@ self.addEventListener('push', function (event) {
       data: {
         dateOfArrival: Date.now(),
         primaryKey: '2',
-        url: 'https://dailyquestions.app',
+        url: data.url || 'https://dailyquestions.app',
       },
     };
     event.waitUntil(self.registration.showNotification(data.title, options));

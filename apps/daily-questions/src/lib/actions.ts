@@ -10,6 +10,7 @@ import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
 import webpush from 'web-push';
+import { notificationQueue, scheduleUserNotification } from './queue';
 
 webpush.setVapidDetails(
   'mailto:mail@dailyquestions.app',
@@ -580,8 +581,8 @@ export async function scheduleNotification(time: string) {
       data: { notificationTime: time },
     });
 
-    // Schedule next notification
-    await scheduleNextNotification(session.user.id, time);
+    // Schedule the notification using Bull
+    await scheduleUserNotification(session.user.id, time);
 
     return { success: true };
   } catch (error) {
@@ -691,4 +692,60 @@ export async function rescheduleAllNotifications() {
       await scheduleNextNotification(user.id, user.notificationTime);
     }
   }
+}
+
+export async function initializeQueue() {
+  const users = await prisma.user.findMany({
+    where: {
+      NOT: { notificationTime: null },
+    },
+  });
+
+  // Schedule notifications for each user
+  for (const user of users) {
+    if (user.notificationTime) {
+      await scheduleUserNotification(user.id, user.notificationTime);
+    }
+  }
+}
+
+export async function getQueueData() {
+  const [waiting, active, completed, failed, delayed] = await Promise.all([
+    notificationQueue.getWaiting(),
+    notificationQueue.getActive(),
+    notificationQueue.getCompleted(),
+    notificationQueue.getFailed(),
+    notificationQueue.getDelayed(),
+  ]);
+
+  const formatJob = (job: any) => ({
+    id: job.id,
+    data: job.data,
+    timestamp: new Date(job.timestamp).toLocaleString(),
+    processedOn: job.processedOn
+      ? new Date(job.processedOn).toLocaleString()
+      : null,
+    finishedOn: job.finishedOn
+      ? new Date(job.finishedOn).toLocaleString()
+      : null,
+    failedReason: job.failedReason,
+    repeat: job.opts?.repeat || null,
+  });
+
+  return {
+    counts: {
+      waiting: waiting.length,
+      active: active.length,
+      completed: completed.length,
+      failed: failed.length,
+      delayed: delayed.length,
+    },
+    jobs: {
+      waiting: waiting.map(formatJob),
+      active: active.map(formatJob),
+      completed: completed.map(formatJob),
+      failed: failed.map(formatJob),
+      delayed: delayed.map(formatJob),
+    },
+  };
 }
