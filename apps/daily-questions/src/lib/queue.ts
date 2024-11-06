@@ -139,15 +139,17 @@ export async function getQueueJobs() {
     'completed',
     'failed',
   ]);
-  return jobs.map((job) => ({
-    id: job.id,
-    data: job.data,
-    status: job.status,
-    timestamp: job.timestamp,
-    processedOn: job.processedOn,
-    finishedOn: job.finishedOn,
-    failedReason: job.failedReason,
-  }));
+  return Promise.all(
+    jobs.map(async (job) => ({
+      id: job.id,
+      data: job.data,
+      status: await job.getState(),
+      timestamp: job.timestamp,
+      processedOn: job.processedOn,
+      finishedOn: job.finishedOn,
+      failedReason: job.failedReason,
+    }))
+  );
 }
 
 // Add logging to your queue processing

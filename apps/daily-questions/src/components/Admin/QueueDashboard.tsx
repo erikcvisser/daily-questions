@@ -1,6 +1,6 @@
 'use client';
 
-import { Table, Grid, Paper, Title, Text } from '@mantine/core';
+import { Table, Grid, Paper, Title, Text, Box } from '@mantine/core';
 
 function formatRepeatPattern(repeat: any) {
   if (!repeat) return '-';
@@ -46,7 +46,7 @@ export function QueueDashboard({
       {Object.entries(data.jobs).map(
         ([status, jobs]) =>
           jobs.length > 0 && (
-            <div key={status} mb="lg">
+            <Box key={status} mb="lg">
               <Title order={2} tt="capitalize" mb="md">
                 {status} Jobs
               </Title>
@@ -80,7 +80,7 @@ export function QueueDashboard({
                   ))}
                 </Table.Tbody>
               </Table>
-            </div>
+            </Box>
           )
       )}
     </div>
