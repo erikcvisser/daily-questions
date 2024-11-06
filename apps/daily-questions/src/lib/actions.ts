@@ -749,3 +749,25 @@ export async function getQueueData() {
     },
   };
 }
+
+export async function submitFeedback(feedback: string) {
+  const resend = new Resend(process.env.AUTH_RESEND_KEY);
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    await resend.emails.send({
+      from: 'Daily Questions <mail@dailyquestions.app>',
+      to: 'mail@dailyquestions.app',
+      subject: 'New Feedback Submission',
+      text: `Feedback from ${session.user.email}:\n\n${feedback}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending feedback:', error);
+    return { success: false, error: 'Failed to send feedback' };
+  }
+}

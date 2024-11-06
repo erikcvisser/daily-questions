@@ -12,6 +12,7 @@ import {
   IconUserCircle,
   IconUsersGroup,
   IconUserShield,
+  IconMessageCircle2,
 } from '@tabler/icons-react';
 import { LoginLinks } from './AuthComponents';
 
@@ -86,6 +87,14 @@ export function Links({
                 onClick={handleLinkClick}
               />
             )}
+            <NavLink
+              component={Link}
+              label="Feedback"
+              href="/feedback"
+              active={pathname === '/feedback'}
+              leftSection={<IconMessageCircle2 stroke={1} />}
+              onClick={handleLinkClick}
+            />
             <NavLink
               component={Link}
               label="Profile"
