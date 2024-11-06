@@ -654,7 +654,7 @@ async function scheduleNextNotification(userId: string, timeString: string) {
           },
         },
         JSON.stringify({
-          title: 'Time for Daily Questions!',
+          title: 'Time for your Daily Questions!',
           body: "Don't forget to answer your daily questions.",
           icon: '/android-chrome-192x192.png',
           url: '/questions',
