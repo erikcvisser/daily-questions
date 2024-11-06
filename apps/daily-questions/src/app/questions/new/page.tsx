@@ -32,7 +32,7 @@ export default async function AddQuestionPage() {
           label={<Text size="sm">OR</Text>}
           labelPosition="center"
         />
-        <Title order={3}>Browse sample questions from our library</Title>
+        <Title order={4}>Browse sample questions from our library</Title>
         <Grid>
           <GridCol>
             <LibraryQuestionsDisplay libraryQuestions={libraryQuestions} />
