@@ -23,7 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   submissions   Submission[]
-  targetScore   Float @default(0.75)
+  targetScore   Float @default(0.60)
   pushSubscriptions PushSubscription[]
   notificationTime String?  // Store as HH:mm format
 
