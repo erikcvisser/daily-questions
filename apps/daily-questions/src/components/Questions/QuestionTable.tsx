@@ -84,7 +84,7 @@ function SortableTableRow({
           }}
         />
       </TableTd>
-      <TableTd style={{ width: '40px' }} visibleFrom="md">
+      <TableTd style={{ width: '40px' }} hidden>
         <Checkbox
           aria-label="Select row"
           checked={selectedRows.includes(question.id)}
@@ -245,7 +245,7 @@ export default function QuestionTable({
           <TableThead>
             <TableTr>
               <TableTh style={{ width: '40px' }} />
-              <TableTh visibleFrom="md" style={{ width: '40px' }} />
+              <TableTh hidden style={{ width: '40px' }} />
               <TableTh>Question</TableTh>
               <TableTh visibleFrom="md">Type</TableTh>
               <TableTh visibleFrom="md">Target</TableTh>

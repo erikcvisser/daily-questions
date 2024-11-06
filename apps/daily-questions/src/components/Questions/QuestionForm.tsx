@@ -115,13 +115,12 @@ export default function QuestionForm({ question }: { question?: Question }) {
           data={[
             { value: 'BOOLEAN', label: 'Yes/no' },
             { value: 'INTEGER', label: 'Numeric score (1-10)' },
-            { value: 'FREETEXT', label: 'Free text' },
             { value: 'RATING', label: 'Rating (0-5)' },
+            { value: 'FREETEXT', label: 'Free text' },
           ]}
           withAsterisk
           disabled={!isEditing && !!question}
         />
-
         {form.getValues()['type'] == 'INTEGER' && (
           <NumberInput
             label="Target value (0-10)"
@@ -130,21 +129,6 @@ export default function QuestionForm({ question }: { question?: Question }) {
             min={0}
             max={10}
             placeholder="Target value"
-            withAsterisk
-            disabled={!isEditing && !!question}
-          />
-        )}
-        {form.getValues()['type'] == 'BOOLEAN' && (
-          <Select
-            label="Desired value"
-            placeholder="Pick value"
-            key={form.key('targetBool')}
-            {...form.getInputProps('targetBool')}
-            comboboxProps={{ shadow: 'md' }}
-            data={[
-              { value: 'true', label: 'Yes' },
-              { value: 'false', label: 'No' },
-            ]}
             withAsterisk
             disabled={!isEditing && !!question}
           />
@@ -166,6 +150,21 @@ export default function QuestionForm({ question }: { question?: Question }) {
               { value: '4', label: '4. Very good' },
               { value: '5', label: '5. Exceptional' },
             ]}
+            disabled={!isEditing && !!question}
+          />
+        )}
+        {form.getValues()['type'] == 'BOOLEAN' && (
+          <Select
+            label="Desired value"
+            placeholder="Pick value"
+            key={form.key('targetBool')}
+            {...form.getInputProps('targetBool')}
+            comboboxProps={{ shadow: 'md' }}
+            data={[
+              { value: 'true', label: 'Yes' },
+              { value: 'false', label: 'No' },
+            ]}
+            withAsterisk
             disabled={!isEditing && !!question}
           />
         )}

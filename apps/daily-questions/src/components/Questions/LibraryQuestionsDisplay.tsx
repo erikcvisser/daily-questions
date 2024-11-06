@@ -97,6 +97,7 @@ export default function LibraryQuestionsDisplay({
                 onClick={(e) => e.stopPropagation()}
               />
               <Text
+                size="sm"
                 style={{
                   flex: 1,
                   cursor: 'pointer',
