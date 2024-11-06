@@ -14,6 +14,8 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+console.log('Service Worker Initializing');
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
@@ -23,8 +25,13 @@ const serwist = new Serwist({
 });
 
 self.addEventListener('push', function (event) {
+  console.log(
+    'Push event received:',
+    event.data ? event.data.text() : 'no data'
+  );
   if (event.data) {
     const data = event.data.json();
+    console.log('Push notification data:', data);
 
     // Check if this is a scheduled notification
     if (data.scheduledTime) {
