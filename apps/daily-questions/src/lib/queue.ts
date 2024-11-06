@@ -24,14 +24,10 @@ async function initializeQueue() {
 }
 
 // Create the notification queue
-export const notificationQueue = new Queue('notifications', {
-  redis: {
-    host: process.env.AUTH_REDIS_HOST,
-    port: parseInt(process.env.AUTH_REDIS_PORT!),
-    username: process.env.AUTH_REDIS_USERNAME,
-    password: process.env.AUTH_REDIS_PASSWORD,
-  },
-});
+export const notificationQueue = new Queue(
+  'notifications',
+  process.env.AUTH_REDIS_URL!
+);
 
 // Initialize queue when the module is imported
 initializeQueue();
