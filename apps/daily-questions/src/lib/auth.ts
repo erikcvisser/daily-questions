@@ -6,6 +6,7 @@ import Google from 'next-auth/providers/google';
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
 import Resend from 'next-auth/providers/resend';
 import bcrypt from 'bcryptjs';
+import { identifyPostHogUser } from '@/app/providers';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
@@ -85,6 +86,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     session: ({ session, token }) => {
+      if (typeof window !== 'undefined') {
+        identifyPostHogUser(session.user);
+      }
+
       return {
         ...session,
         user: {
