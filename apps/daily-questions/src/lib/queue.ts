@@ -1,6 +1,6 @@
 import Queue from 'bull';
 import prisma from './prisma';
-import { sendNotification } from './actions';
+import webpush from 'web-push';
 
 // Initialize function
 async function initializeQueue() {
@@ -34,7 +34,7 @@ initializeQueue();
 
 // Process the notifications
 notificationQueue.process(async (job) => {
-  const { userId } = job.data;
+  const { userId, timeString } = job.data;
 
   try {
     // Check if user has already submitted today
@@ -58,13 +58,52 @@ notificationQueue.process(async (job) => {
       return;
     }
 
-    // Send the notification
-    await sendNotification(
-      'Time for your Daily Questions!',
-      "Don't forget to answer your daily questions.",
-      '/questions'
+    // Get user's push subscriptions directly from the database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        pushSubscriptions: true,
+      },
+    });
+
+    if (!user?.pushSubscriptions.length) {
+      console.log('No push subscriptions found for user');
+      return;
+    }
+
+    // Send notifications to all subscribed devices
+    const notificationPayload = JSON.stringify({
+      title: 'Time for your Daily Questions!',
+      body: "Don't forget to answer your daily questions.",
+      icon: '/android-chrome-192x192.png',
+      url: '/questions',
+      scheduledTime: new Date().toISOString(),
+    });
+
+    const notificationPromises = user.pushSubscriptions.map((subscription) =>
+      webpush
+        .sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            keys: {
+              auth: subscription.auth,
+              p256dh: subscription.p256dh,
+            },
+          },
+          notificationPayload
+        )
+        .catch((error) => {
+          if (error.statusCode === 410) {
+            // Subscription has expired or is invalid
+            return prisma.pushSubscription.delete({
+              where: { id: subscription.id },
+            });
+          }
+          throw error;
+        })
     );
 
+    await Promise.all(notificationPromises);
     return { success: true };
   } catch (error) {
     console.error('Error processing notification:', error);
