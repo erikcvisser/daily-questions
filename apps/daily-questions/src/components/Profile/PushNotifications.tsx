@@ -165,6 +165,7 @@ export function PushNotificationManager({ user }: { user: User }) {
       }
 
       setSubscriptions((prev) => [...prev, sub]);
+      setCurrentDeviceEndpoint(sub.endpoint);
     } catch (error) {
       console.error('Failed to subscribe:', error);
       const registration = await navigator.serviceWorker.ready;
@@ -194,6 +195,10 @@ export function PushNotificationManager({ user }: { user: User }) {
       setSubscriptions((prev) =>
         prev.filter((sub) => sub.endpoint !== endpoint)
       );
+
+      if (endpoint === currentDeviceEndpoint) {
+        setCurrentDeviceEndpoint(null);
+      }
     } catch (error) {
       console.error('Failed to unsubscribe:', error);
     }
@@ -267,6 +272,7 @@ export function PushNotificationManager({ user }: { user: User }) {
         <Stack>
           {subscriptions.map((sub) => {
             const deviceUrl = new URL(sub.endpoint);
+            const isCurrentDevice = currentDeviceEndpoint === sub.endpoint;
 
             return (
               <Paper key={sub.endpoint} p="xs" withBorder>
@@ -295,24 +301,35 @@ export function PushNotificationManager({ user }: { user: User }) {
                         }
                       })()}
                     </Text>
-                    {currentDeviceEndpoint === sub.endpoint && (
+                    {isCurrentDevice && (
                       <Badge size="sm" variant="light">
                         Current Device
                       </Badge>
                     )}
                   </Group>
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() => unsubscribeFromPush(sub.endpoint)}
-                    size="sm"
-                  >
-                    <IconTrash size="1rem" />
-                  </ActionIcon>
+                  <Group gap="xs">
+                    <ActionIcon
+                      color="red"
+                      variant="subtle"
+                      onClick={() => unsubscribeFromPush(sub.endpoint)}
+                      size="sm"
+                    >
+                      <IconTrash size="1rem" />
+                    </ActionIcon>
+                  </Group>
                 </Group>
               </Paper>
             );
           })}
+          {!currentDeviceEndpoint && (
+            <Button
+              variant="light"
+              onClick={subscribeToPush}
+              leftSection={<IconDeviceLaptop size="1rem" />}
+            >
+              Subscribe This Device
+            </Button>
+          )}
         </Stack>
       </Stack>
       {user.email === 'erikcvisser@gmail.com' && (

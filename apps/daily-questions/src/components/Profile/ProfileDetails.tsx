@@ -89,16 +89,24 @@ export default function ProfileDetails({ user }: { user: User }) {
         Your profile
       </Title>
       <Stack>
-        <TextInput label="Email" value={user.email || ''} readOnly disabled />
+        <TextInput
+          maw="500px"
+          label="Email"
+          value={user.email || ''}
+          readOnly
+          disabled
+        />
         {isEditing ? (
           <>
             <TextInput
+              maw="500px"
               label="Name"
               value={name || ''}
               onChange={(e) => setName(e.target.value)}
               required
             />
             <NumberInput
+              maw="500px"
               label="Target score (%)"
               value={targetScore}
               onChange={(value) =>
@@ -111,8 +119,15 @@ export default function ProfileDetails({ user }: { user: User }) {
           </>
         ) : (
           <>
-            <TextInput label="Name" value={user.name || ''} readOnly disabled />
+            <TextInput
+              maw="500px"
+              label="Name"
+              value={user.name || ''}
+              readOnly
+              disabled
+            />
             <NumberInput
+              maw="500px"
               label="Target score (%)"
               value={user.targetScore * 100}
               readOnly
