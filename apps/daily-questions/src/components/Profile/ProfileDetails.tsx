@@ -16,10 +16,11 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
-import { InstallPrompt, PushNotificationManager } from './PushNotifications';
+import { PushNotificationManager } from '@/components/Profile/PushNotifications';
+import InstallPrompt from '@/components/Profile/InstallPrompt';
+import { User } from '@prisma/client';
 
-export default function ProfileDetails({ session }: { session: any }) {
-  const user = session?.user;
+export default function ProfileDetails({ user }: { user: User }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,7 +58,7 @@ export default function ProfileDetails({ session }: { session: any }) {
   const handleSave = async () => {
     try {
       const result = await updateUserDetails({
-        name,
+        name: name || '',
         targetScore: targetScore / 100,
       });
       if (result.success) {
@@ -88,12 +89,12 @@ export default function ProfileDetails({ session }: { session: any }) {
         Your profile
       </Title>
       <Stack>
-        <TextInput label="Email" value={user.email} readOnly disabled />
+        <TextInput label="Email" value={user.email || ''} readOnly disabled />
         {isEditing ? (
           <>
             <TextInput
               label="Name"
-              value={name}
+              value={name || ''}
               onChange={(e) => setName(e.target.value)}
               required
             />
@@ -110,7 +111,7 @@ export default function ProfileDetails({ session }: { session: any }) {
           </>
         ) : (
           <>
-            <TextInput label="Name" value={user.name} readOnly disabled />
+            <TextInput label="Name" value={user.name || ''} readOnly disabled />
             <NumberInput
               label="Target score (%)"
               value={user.targetScore * 100}
@@ -134,12 +135,8 @@ export default function ProfileDetails({ session }: { session: any }) {
       </Group>
       <Divider my="xl" />
 
-      {user.email === 'erikcvisser@gmail.com' && (
-        <>
-          <InstallPrompt />
-          <Divider my="xl" />
-        </>
-      )}
+      <InstallPrompt />
+      <Divider my="xl" />
 
       <Title order={4} mb="md">
         Notifications
@@ -148,7 +145,9 @@ export default function ProfileDetails({ session }: { session: any }) {
         Configure push or email notifications, as reminders to answers your
         daily questions.
       </Text>
-      {user.email === 'erikcvisser@gmail.com' && <PushNotificationManager />}
+      {user.email === 'erikcvisser@gmail.com' && (
+        <PushNotificationManager user={user} />
+      )}
       <Divider my="xl" />
 
       <Title order={4} mb="md">

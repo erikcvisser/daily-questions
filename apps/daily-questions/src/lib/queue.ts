@@ -34,7 +34,7 @@ initializeQueue();
 
 // Process the notifications
 notificationQueue.process(async (job) => {
-  const { userId, timeString } = job.data;
+  const { userId } = job.data;
 
   try {
     // Check if user has already submitted today

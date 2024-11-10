@@ -518,34 +518,39 @@ export async function unsubscribeUser(endpoint?: string) {
 
   return { success: true };
 }
-
 export async function sendNotification(
   title: string,
   message: string,
   url?: string
 ) {
-  const subscription = await getSubscription();
-  if (!subscription) {
-    throw new Error('No subscription available');
+  const subscriptions = await getSubscriptions();
+  if (!subscriptions || subscriptions.length === 0) {
+    throw new Error('No subscriptions available');
   }
 
   try {
-    await webpush.sendNotification(
-      {
-        endpoint: subscription.endpoint,
-        keys: {
-          auth: subscription.auth,
-          p256dh: subscription.p256dh,
+    const notificationPayload = JSON.stringify({
+      title,
+      body: message,
+      icon: '/android-chrome-192x192.png',
+      url: url || '/',
+      scheduledTime: new Date().toISOString(), // Immediate notification
+    });
+
+    const sendPromises = subscriptions.map((subscription) =>
+      webpush.sendNotification(
+        {
+          endpoint: subscription.endpoint,
+          keys: {
+            auth: subscription.auth,
+            p256dh: subscription.p256dh,
+          },
         },
-      },
-      JSON.stringify({
-        title,
-        body: message,
-        icon: '/android-chrome-192x192.png',
-        url: url || '/',
-        scheduledTime: new Date().toISOString(), // Immediate notification
-      })
+        notificationPayload
+      )
     );
+
+    await Promise.all(sendPromises);
     return { success: true };
   } catch (error) {
     console.error('Error sending push notification:', error);
@@ -553,13 +558,13 @@ export async function sendNotification(
   }
 }
 
-export async function getSubscription() {
+export async function getSubscriptions() {
   const session = await auth();
   if (!session?.user?.id) {
     return null;
   }
 
-  const subscription = await prisma.pushSubscription.findFirst({
+  const subscription = await prisma.pushSubscription.findMany({
     where: {
       userId: session.user.id,
     },
@@ -658,7 +663,7 @@ async function scheduleNextNotification(userId: string, timeString: string) {
           title: 'Time for your Daily Questions!',
           body: "Don't forget to answer your daily questions.",
           icon: '/android-chrome-192x192.png',
-          url: '/questions',
+          url: '/',
           scheduledTime: scheduledTime.toISOString(),
         })
       )

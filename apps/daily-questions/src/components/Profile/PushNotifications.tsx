@@ -5,7 +5,7 @@ import {
   subscribeUser,
   unsubscribeUser,
   sendNotification,
-  getSubscription,
+  getSubscriptions,
   scheduleNotification,
 } from '@/lib/actions';
 import {
@@ -15,12 +15,19 @@ import {
   Stack,
   TextInput,
   Container,
-  List,
-  ListItem,
   Group,
   Switch,
+  Badge,
+  Paper,
+  ActionIcon,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
+import {
+  IconDeviceLaptop,
+  IconDeviceMobile,
+  IconTrash,
+} from '@tabler/icons-react';
+import { User } from '@prisma/client';
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -37,7 +44,6 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
-// Add this interface
 interface SerializedSubscription {
   endpoint: string;
   keys: {
@@ -46,23 +52,15 @@ interface SerializedSubscription {
   };
 }
 
-export function PushNotificationManager() {
+export function PushNotificationManager({ user }: { user: User }) {
   const [isSupported, setIsSupported] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [subscription, setSubscription] = useState<PushSubscription | null>(
-    null
-  );
+  const [subscriptions, setSubscriptions] = useState<PushSubscription[]>([]);
   const [message, setMessage] = useState('');
-  const [notificationTime, setNotificationTime] = useState('20:00'); // Default to 8 PM
-
-  useEffect(() => {
-    // Check notification permission status
-    if ('Notification' in window) {
-      console.log('Notification permission:', Notification.permission);
-    } else {
-      console.log('Notifications not supported');
-    }
-  }, []);
+  const [notificationTime, setNotificationTime] = useState('');
+  const [currentDeviceEndpoint, setCurrentDeviceEndpoint] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     async function initializeSubscription() {
@@ -77,47 +75,62 @@ export function PushNotificationManager() {
 
       setIsSupported(true);
       try {
-        // Wait for service worker to be ready (already registered by Serwist)
         console.log('Waiting for service worker...');
         const registration = await navigator.serviceWorker.ready;
         console.log('Service worker ready');
 
-        // Check browser subscription
-        console.log('Checking browser subscription...');
+        console.log(
+          'Setting notification time from user preferences:',
+          user.notificationTime
+        );
+        setNotificationTime(user.notificationTime || '20:00');
+
+        console.log('Fetching database subscriptions...');
+        const dbSubs = await getSubscriptions();
+        console.log(`Database subscriptions count: ${dbSubs?.length}`);
+
         const browserSub = await registration.pushManager.getSubscription();
         console.log('Browser subscription:', browserSub ? 'exists' : 'none');
 
-        // Check database subscription
-        console.log('Checking database subscription...');
-        const dbSub = await getSubscription();
-        console.log('Database subscription:', dbSub ? 'exists' : 'none');
+        if (browserSub) {
+          setCurrentDeviceEndpoint(browserSub.endpoint);
+          const serializedSub: SerializedSubscription = {
+            endpoint: browserSub.endpoint,
+            keys: {
+              p256dh: arrayBufferToBase64(await browserSub.getKey('p256dh')!),
+              auth: arrayBufferToBase64(await browserSub.getKey('auth')!),
+            },
+          };
 
-        if (browserSub && !dbSub) {
-          // Browser is subscribed but not in DB - clean up
-          await browserSub.unsubscribe();
-          setSubscription(null);
-        } else if (!browserSub && dbSub) {
-          // DB has subscription but browser doesn't - clean up
-          await unsubscribeUser();
-          setSubscription(null);
-        } else {
-          setSubscription(browserSub);
+          const isInDB = dbSubs?.some(
+            (sub) => sub.endpoint === serializedSub.endpoint
+          );
+          console.log(
+            'Is current browser subscription in DB?',
+            isInDB ? 'Yes' : 'No'
+          );
+
+          if (!isInDB) {
+            console.log('Registering new subscription to the server...');
+            const subResult = await subscribeUser(serializedSub);
+            if (!subResult.success) {
+              throw new Error(`Failed to save subscription`);
+            }
+            console.log('Subscription successfully saved to the server.');
+          }
         }
+
+        // @ts-expect-error this can be empty
+        setSubscriptions(dbSubs || []);
       } catch (error) {
         console.error('Failed to initialize subscription:', error);
-        // Log more details about the error
-        if (error instanceof Error) {
-          console.error('Error name:', error.name);
-          console.error('Error message:', error.message);
-          console.error('Error stack:', error.stack);
-        }
       } finally {
         setIsLoading(false);
       }
     }
 
     initializeSubscription();
-  }, []);
+  }, [user.notificationTime]);
 
   async function subscribeToPush() {
     try {
@@ -137,26 +150,50 @@ export function PushNotificationManager() {
         },
       };
 
-      setSubscription(sub);
+      console.log('New Subscription:', serializedSub);
 
-      // Subscribe to push notifications and schedule daily notification
       const subResult = await subscribeUser(serializedSub);
-      const scheduleResult = await scheduleNotification(notificationTime);
-
-      if (!subResult.success || !scheduleResult.success) {
-        throw new Error('Failed to save subscription or schedule notification');
+      if (!subResult.success) {
+        throw new Error(`Failed to save subscription`);
       }
+
+      const scheduleResult = await scheduleNotification(notificationTime);
+      if (!scheduleResult.success) {
+        throw new Error(
+          `Failed to schedule notification: ${scheduleResult.error}`
+        );
+      }
+
+      setSubscriptions((prev) => [...prev, sub]);
     } catch (error) {
       console.error('Failed to subscribe:', error);
-      setSubscription(null);
+      const registration = await navigator.serviceWorker.ready;
+      const browserSub = await registration.pushManager.getSubscription();
+      if (browserSub) {
+        await browserSub.unsubscribe();
+      }
+      setSubscriptions((prev) =>
+        prev.filter((sub) => sub.endpoint !== browserSub?.endpoint)
+      );
     }
   }
 
-  async function unsubscribeFromPush() {
+  async function unsubscribeFromPush(endpoint: string) {
     try {
-      await subscription?.unsubscribe();
-      await unsubscribeUser();
-      setSubscription(null);
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager
+        .getSubscription()
+        .then((sub) => (sub && sub.endpoint === endpoint ? sub : null));
+
+      if (subscription) {
+        await subscription.unsubscribe();
+      }
+
+      await unsubscribeUser(endpoint);
+
+      setSubscriptions((prev) =>
+        prev.filter((sub) => sub.endpoint !== endpoint)
+      );
     } catch (error) {
       console.error('Failed to unsubscribe:', error);
     }
@@ -175,7 +212,7 @@ export function PushNotificationManager() {
 
   async function sendTestNotification() {
     const title = 'Daily Questions';
-    if (subscription) {
+    if (subscriptions.length > 0) {
       await sendNotification(title, message);
       setMessage('');
     }
@@ -195,13 +232,21 @@ export function PushNotificationManager() {
         <Group align="center">
           <Text>Push notifications</Text>
           <Switch
-            checked={!!subscription}
-            onChange={subscription ? unsubscribeFromPush : subscribeToPush}
-            label={subscription ? 'Enabled' : 'Disabled'}
+            checked={subscriptions.length > 0}
+            onChange={
+              subscriptions.length > 0
+                ? () => {
+                    subscriptions.forEach((sub) =>
+                      unsubscribeFromPush(sub.endpoint)
+                    );
+                  }
+                : subscribeToPush
+            }
+            label={subscriptions.length > 0 ? 'Enabled' : 'Disabled'}
           />
         </Group>
 
-        {subscription && (
+        {subscriptions.length > 0 && (
           <>
             <Group align="center">
               <Text>Daily notification time:</Text>
@@ -212,135 +257,83 @@ export function PushNotificationManager() {
                 }
               />
             </Group>
-
-            <TextInput
-              placeholder="Enter notification message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <Button onClick={sendTestNotification}>
-              Send Test Notification
-            </Button>
           </>
         )}
       </Stack>
+      <Stack>
+        <Title order={4} mt="md">
+          Manage Subscriptions
+        </Title>
+        <Stack>
+          {subscriptions.map((sub) => {
+            const deviceUrl = new URL(sub.endpoint);
+
+            return (
+              <Paper key={sub.endpoint} p="xs" withBorder>
+                <Group justify="space-between">
+                  <Group>
+                    {/fcm\.googleapis\.com|apple|android\.googleapis\.com/i.test(
+                      deviceUrl.hostname
+                    ) ? (
+                      <IconDeviceMobile size="1.2rem" stroke={1.5} />
+                    ) : (
+                      <IconDeviceLaptop size="1.2rem" stroke={1.5} />
+                    )}
+                    <Text size="sm" c="dimmed">
+                      {(() => {
+                        switch (true) {
+                          case /fcm\.googleapis\.com/i.test(deviceUrl.hostname):
+                            return 'Android Device';
+                          case /apple/i.test(deviceUrl.hostname):
+                            return 'iOS Device';
+                          case /mozilla/i.test(deviceUrl.hostname):
+                            return 'Firefox Browser';
+                          case /chrome/i.test(deviceUrl.hostname):
+                            return 'Chrome Browser';
+                          default:
+                            return 'Web Browser';
+                        }
+                      })()}
+                    </Text>
+                    {currentDeviceEndpoint === sub.endpoint && (
+                      <Badge size="sm" variant="light">
+                        Current Device
+                      </Badge>
+                    )}
+                  </Group>
+                  <ActionIcon
+                    color="red"
+                    variant="subtle"
+                    onClick={() => unsubscribeFromPush(sub.endpoint)}
+                    size="sm"
+                  >
+                    <IconTrash size="1rem" />
+                  </ActionIcon>
+                </Group>
+              </Paper>
+            );
+          })}
+        </Stack>
+      </Stack>
+      {user.email === 'erikcvisser@gmail.com' && (
+        <Stack>
+          <Title order={4} mt="md">
+            Send Test Notification
+          </Title>
+          <TextInput
+            placeholder="Enter notification message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <Button onClick={sendTestNotification} w="fit-content">
+            Send Test Notification
+          </Button>
+        </Stack>
+      )}
     </Container>
   );
 }
 
-export function InstallPrompt() {
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isAndroid, setIsAndroid] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-    );
-    setIsAndroid(/Android/.test(navigator.userAgent));
-    setIsDesktop(
-      !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      )
-    );
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
-
-    // Listen for the beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
-      e.preventDefault();
-      // Stash the event so it can be triggered later
-      setDeferredPrompt(e);
-    });
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    // Show the install prompt
-    deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-
-    // Clear the saved prompt since it can't be used again
-    setDeferredPrompt(null);
-  };
-
-  if (isStandalone) return null;
-  return (
-    <>
-      <Title order={4} mb="md">
-        Install app
-      </Title>
-      <Text mb="md">
-        Install the app on your phone for easier access and notifications.
-      </Text>
-      <Stack>
-        {isIOS && (
-          <>
-            <Text>To install on iOS:</Text>
-            <List>
-              <ListItem>
-                Tap the share button{' '}
-                <span role="img" aria-label="share icon">
-                  ⎋
-                </span>
-              </ListItem>
-              <ListItem>
-                Scroll down and tap &quot;Add to Home Screen&quot;{' '}
-                <span role="img" aria-label="plus icon">
-                  ➕
-                </span>
-              </ListItem>
-              <ListItem>Tap &quot;Add&quot; to confirm</ListItem>
-            </List>
-          </>
-        )}
-        {isAndroid && (
-          <>
-            <Text>To install on Android:</Text>
-            <List>
-              <ListItem>Tap the menu (⋮) in your browser</ListItem>
-              <ListItem>
-                Tap &quot;Install app&quot; or &quot;Add to Home Screen&quot;
-              </ListItem>
-              <ListItem>Follow the installation prompts</ListItem>
-            </List>
-          </>
-        )}
-        {isDesktop && deferredPrompt && (
-          <Button onClick={handleInstallClick} size="compact">
-            Install App
-          </Button>
-        )}
-        {isDesktop && (
-          <>
-            <Text>To install on Desktop:</Text>
-            <List>
-              <ListItem>
-                Look for the install icon{' '}
-                <span role="img" aria-label="install icon">
-                  ⊕
-                </span>{' '}
-                in your browser&apos;s address bar
-              </ListItem>
-              <ListItem>Click it and select &quot;Install&quot;</ListItem>
-              <ListItem>
-                Or use Chrome menu (⋮) → &quot;Install [App Name]&quot;
-              </ListItem>
-            </List>
-          </>
-        )}
-      </Stack>
-    </>
-  );
-}
-
-// Add these helper functions
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   return btoa(String.fromCharCode.apply(null, Array.from(bytes)));
