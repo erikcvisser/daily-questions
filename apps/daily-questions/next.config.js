@@ -40,6 +40,11 @@ module.exports = async (phase) => {
 
       return config;
     },
+    compiler: {
+      // Remove console logs only in production, excluding error logs
+      removeConsole:
+        process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+    },
   };
 
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
