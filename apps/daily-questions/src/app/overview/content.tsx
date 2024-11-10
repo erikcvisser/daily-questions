@@ -1,58 +1,41 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { Title, Flex, Stack, Space, Box, Card } from '@mantine/core';
-import CalendarComp from '@/components/Overview/Calendar';
-import SubmissionsTable from '@/components/Overview/Table';
-import { SummarySection } from '@/components/Overview/Summary';
+import { Title, Stack, Card } from '@mantine/core';
 import { Button, Text } from '@mantine/core';
 import { IconInfoSquare } from '@tabler/icons-react';
 import Link from 'next/link';
+import { FilteredOverview } from '@/components/Overview/FilteredOverview';
 
 export default async function OverviewContent() {
   const session = await auth();
   // @ts-expect-error lalala
   const personalTarget = session?.user?.targetScore;
-  const questions = await prisma.question.findMany({
-    where: {
-      userId: session?.user?.id,
-    },
-  });
-  const submissions = await prisma.submission.findMany({
-    include: {
-      answers: {
-        include: { question: true },
-        orderBy: { question: { position: 'asc' } },
+
+  const [questions, submissions] = await Promise.all([
+    prisma.question.findMany({
+      where: {
+        userId: session?.user?.id,
       },
-    },
-    where: { userId: session?.user?.id },
-    orderBy: { date: 'desc' },
-  });
+    }),
+    prisma.submission.findMany({
+      include: {
+        answers: {
+          include: { question: true },
+          orderBy: { question: { position: 'asc' } },
+        },
+      },
+      where: { userId: session?.user?.id },
+      orderBy: { date: 'desc' },
+    }),
+  ]);
 
   return (
     <>
       {submissions.length > 0 ? (
-        <Flex
-          gap="md"
-          direction={{ base: 'column', md: 'row' }}
-          align={{ base: 'stretch', md: 'flex-start' }}
-        >
-          <Box
-            w={{ base: '100%', md: 300 }}
-            miw={300}
-            style={{ display: 'flex', justifyContent: 'center' }}
-          >
-            <CalendarComp
-              submissions={submissions}
-              personalTarget={personalTarget}
-            />
-          </Box>
-          <Box style={{ flex: 1 }}>
-            <SummarySection
-              submissions={submissions}
-              personalTarget={personalTarget}
-            />
-          </Box>
-        </Flex>
+        <FilteredOverview
+          submissions={submissions}
+          personalTarget={personalTarget}
+        />
       ) : (
         <Card shadow="sm" padding="lg" withBorder>
           <Stack align="center" gap="md">
@@ -86,8 +69,6 @@ export default async function OverviewContent() {
           </Stack>
         </Card>
       )}
-      <Space h="md" />
-      {submissions.length > 0 && <SubmissionsTable submissions={submissions} />}
     </>
   );
 }

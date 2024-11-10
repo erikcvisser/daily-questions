@@ -7,21 +7,25 @@ import {
   Group,
   Pagination,
   ScrollArea,
+  Button,
 } from '@mantine/core';
 import { Submission, Answer, Question } from '@prisma/client';
-import { IconX, IconEdit } from '@tabler/icons-react';
+import { IconX, IconEdit, IconDownload } from '@tabler/icons-react';
 import { deleteSubmission } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
 
 export default function SubmissionsTable({
   submissions,
+  isFiltered = false,
 }: {
   submissions: (Submission & {
     answers: (Answer & {
       question: Question;
     })[];
   })[];
+  isFiltered?: boolean;
 }) {
   const router = useRouter();
   const [activePage, setActivePage] = useState(1);
@@ -36,7 +40,9 @@ export default function SubmissionsTable({
   const rows = paginatedSubmissions.map((submission) => (
     <Table.Tr key={submission.id}>
       <Table.Td>{formatDate(submission.date)}</Table.Td>
-      <Table.Td>{submission.scorePercentage?.toFixed()}%</Table.Td>
+      {!isFiltered && (
+        <Table.Td>{submission.scorePercentage?.toFixed()}%</Table.Td>
+      )}
       <Table.Td style={{ maxWidth: '400px' }} visibleFrom="md">
         <ScrollArea h={60} scrollHideDelay={200}>
           <div style={{ display: 'flex', gap: '16px', padding: '8px 0' }}>
@@ -74,13 +80,44 @@ export default function SubmissionsTable({
     </Table.Tr>
   ));
 
+  const exportToExcel = () => {
+    const exportData = submissions.map((submission) => ({
+      Date: formatDate(submission.date),
+      Score: isFiltered ? 'N/A' : `${submission.scorePercentage?.toFixed()}%`,
+      ...submission.answers.reduce(
+        (acc, answer) => ({
+          ...acc,
+          [answer.question.title]: answer.answer,
+        }),
+        {}
+      ),
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Submissions');
+
+    XLSX.writeFile(wb, 'submissions.xlsx');
+  };
+
   return (
     <>
+      <Group justify="right">
+        <Button
+          variant="light"
+          color="blue"
+          onClick={exportToExcel}
+          title="Export to Excel"
+          leftSection={<IconDownload size="1rem" />}
+        >
+          Export data to Excel
+        </Button>
+      </Group>
       <Table>
         <Table.Thead>
           <Table.Tr>
             <Table.Th w="100px">Date</Table.Th>
-            <Table.Th w="60px">Score</Table.Th>
+            {!isFiltered && <Table.Th w="60px">Score</Table.Th>}
             <Table.Th visibleFrom="md">Answers</Table.Th>
             <Table.Th w="100px" ta="right">
               Actions
