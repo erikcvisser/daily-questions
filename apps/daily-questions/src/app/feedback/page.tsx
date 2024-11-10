@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Container, Title, Space, Text, Stack, Paper } from '@mantine/core';
+import { Container, Title, Text, Stack, Paper } from '@mantine/core';
 import FeedbackForm from '@/app/feedback/FeedbackForm';
 
 export default function FeedbackPage() {

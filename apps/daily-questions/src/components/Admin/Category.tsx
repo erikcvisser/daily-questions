@@ -1,15 +1,7 @@
 'use client';
 
 import { updateCategory, createCategory, deleteCategory } from '@/lib/actions';
-import {
-  TextInput,
-  Button,
-  Table,
-  Group,
-  Box,
-  Title,
-  Paper,
-} from '@mantine/core';
+import { TextInput, Button, Table, Group, Box } from '@mantine/core';
 import { Category } from '@prisma/client';
 import { useState } from 'react';
 

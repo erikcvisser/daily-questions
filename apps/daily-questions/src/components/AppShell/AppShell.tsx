@@ -29,8 +29,7 @@ export function BasicAppShell({
   children: any;
   session: Session | undefined;
 }) {
-  const [mobileOpened, { toggle: toggleMobile, close: closeMobile }] =
-    useDisclosure(false);
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
   const desktopOpened = session ? true : false;
 
   // Define swipe handlers

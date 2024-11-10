@@ -1,4 +1,4 @@
-import { Card, Container, Title, Stack, Space } from '@mantine/core';
+import { Container, Title, Stack, Space } from '@mantine/core';
 import { CombiForm } from '@/components/Authenticate/CombiForm';
 import { Suspense } from 'react';
 

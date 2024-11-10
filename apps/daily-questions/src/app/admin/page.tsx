@@ -3,11 +3,17 @@ import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { Admin } from '@/components/Admin/Admin';
 import { initializeQueue, getQueueData } from '@/lib/actions';
+import { revalidatePath } from 'next/cache';
 
 export default async function AdminPage() {
   const session = await auth();
   if (session?.user?.email !== 'erikcvisser@gmail.com') {
     redirect('/');
+  }
+
+  async function refresh() {
+    'use server';
+    revalidatePath('/admin');
   }
 
   const [users, libraryQuestions, categories, queueData] = await Promise.all([
@@ -34,6 +40,7 @@ export default async function AdminPage() {
       libraryQuestions={libraryQuestions}
       categories={categories}
       queueData={queueData}
+      refresh={refresh}
     />
   );
 }

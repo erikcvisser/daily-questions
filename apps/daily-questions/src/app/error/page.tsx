@@ -1,9 +1,8 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Container, Title, Text, Button, Group } from '@mantine/core';
+import { Container, Title, Text, Group } from '@mantine/core';
 import classes from '@/components/NotFound/NothingFoundBackground.module.css';
-import Link from 'next/link';
 import { CombiForm } from '@/components/Authenticate/CombiForm';
 
 enum Error {

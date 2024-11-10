@@ -7,7 +7,10 @@ import {
   TabsTab,
   TabsList,
   TabsPanel,
+  Button,
+  Group,
 } from '@mantine/core';
+import { IconRefresh } from '@tabler/icons-react';
 import LibraryQuestionManager from './LibraryQuestion';
 import CategoryManager from './Category';
 import { AdminTable } from './AdminTable';
@@ -25,6 +28,7 @@ interface AdminProps {
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];
   queueData: any;
+  refresh: () => Promise<void>;
 }
 
 export function Admin({
@@ -32,12 +36,20 @@ export function Admin({
   libraryQuestions,
   categories,
   queueData,
+  refresh,
 }: AdminProps) {
   return (
     <Container size="xl" mt="lg">
-      <Title order={2} mb="lg">
-        Admin Dashboard
-      </Title>
+      <Group justify="space-between" mb="lg">
+        <Title order={2}>Admin Dashboard</Title>
+        <Button
+          leftSection={<IconRefresh size={16} />}
+          onClick={() => refresh()}
+          variant="light"
+        >
+          Refresh Data
+        </Button>
+      </Group>
       <Tabs defaultValue="users">
         <TabsList>
           <TabsTab value="users">Users</TabsTab>
