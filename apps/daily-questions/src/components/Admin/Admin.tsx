@@ -51,7 +51,7 @@ export function Admin({
         </Button>
       </Group>
       <Tabs defaultValue="users">
-        <TabsList>
+        <TabsList mb="lg">
           <TabsTab value="users">Users</TabsTab>
           <TabsTab value="library-questions">Library Questions</TabsTab>
           <TabsTab value="categories">Categories</TabsTab>
