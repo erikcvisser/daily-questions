@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { Title, Flex, Stack, Space, Box, Center, Card } from '@mantine/core';
+import { Title, Flex, Stack, Space, Box, Card } from '@mantine/core';
 import CalendarComp from '@/components/Overview/Calendar';
 import SubmissionsTable from '@/components/Overview/Table';
 import { SummarySection } from '@/components/Overview/Summary';
