@@ -205,8 +205,8 @@ export default function QuestionTable({
 
   return (
     <>
-      <Group mb="md" justify="space-between">
-        {selectedRows.length > 0 && (
+      <Group justify="right">
+        {/* {selectedRows.length > 0 && (
           <>
             <Text fw={500}>{selectedRows.length} selected</Text>
             <ActionIcon
@@ -225,7 +225,7 @@ export default function QuestionTable({
               <IconX size="1.2rem" />
             </ActionIcon>
           </>
-        )}
+        )} */}
         <Switch
           label={
             showInactive

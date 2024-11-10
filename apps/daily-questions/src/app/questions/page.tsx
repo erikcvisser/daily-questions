@@ -7,7 +7,7 @@ export default function QuestionPage() {
   return (
     <Container size="xl" mt="lg">
       <Stack>
-        <Group justify="space-between" align="center">
+        <Group justify="space-between" align="center" mb="lg">
           <Title order={2}>My Daily Questions</Title>
           <Button
             component={Link}
@@ -19,7 +19,6 @@ export default function QuestionPage() {
             Add Question
           </Button>
         </Group>
-        <Space h="md" />
         <Suspense fallback={<div>Loading...</div>}>
           <QuestionPageContent />
         </Suspense>
