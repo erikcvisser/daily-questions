@@ -15,6 +15,7 @@ export default async function InternalHomeWrapper() {
               {' '}
               to Daily Questions
             </Text>
+            !
           </Title>
 
           <Button
