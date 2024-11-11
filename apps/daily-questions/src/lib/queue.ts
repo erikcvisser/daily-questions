@@ -34,14 +34,27 @@ initializeQueue();
 
 // Process the notifications
 notificationQueue.process(async (job) => {
-  const { userId } = job.data;
+  const { userId, localTime } = job.data;
 
   try {
-    // Check if user has already submitted today
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        pushSubscriptions: true,
+      },
+    });
+
+    if (!user?.pushSubscriptions.length) {
+      console.log('No push subscriptions found for user');
+      return;
+    }
+
+    // Check for submission for today's date (in UTC)
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
+
     const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
     const existingSubmission = await prisma.submission.findFirst({
       where: {
@@ -58,26 +71,12 @@ notificationQueue.process(async (job) => {
       return;
     }
 
-    // Get user's push subscriptions directly from the database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        pushSubscriptions: true,
-      },
-    });
-
-    if (!user?.pushSubscriptions.length) {
-      console.log('No push subscriptions found for user');
-      return;
-    }
-
-    // Send notifications to all subscribed devices
     const notificationPayload = JSON.stringify({
       title: 'Time for your Daily Questions!',
       body: "Don't forget to answer your daily questions.",
       icon: '/android-chrome-192x192.png',
       url: '/questions',
-      scheduledTime: new Date().toISOString(),
+      targetTime: localTime, // For service worker timing check
     });
 
     const notificationPromises = user.pushSubscriptions.map((subscription) =>
@@ -92,19 +91,24 @@ notificationQueue.process(async (job) => {
           },
           notificationPayload
         )
-        .catch((error) => {
-          if (error.statusCode === 410) {
-            // Subscription has expired or is invalid
-            return prisma.pushSubscription.delete({
-              where: { id: subscription.id },
+        .catch(async (error) => {
+          if (error.statusCode === 404 || error.statusCode === 410) {
+            // Subscription is no longer valid, remove it
+            await prisma.pushSubscription.delete({
+              where: {
+                endpoint: subscription.endpoint,
+              },
             });
+            console.log(
+              `Removed invalid subscription: ${subscription.endpoint}`
+            );
+          } else {
+            console.error('Push notification error:', error);
           }
-          throw error;
         })
     );
 
     await Promise.all(notificationPromises);
-    return { success: true };
   } catch (error) {
     console.error('Error processing notification:', error);
     throw error;
@@ -116,7 +120,7 @@ export async function scheduleUserNotification(
   userId: string,
   timeString: string
 ) {
-  // Remove any existing scheduled notifications for this user
+  // Remove existing jobs
   const existingJobs = await notificationQueue.getJobs(['delayed']);
   for (const job of existingJobs) {
     if (job.data.userId === userId) {
@@ -124,32 +128,25 @@ export async function scheduleUserNotification(
     }
   }
 
-  // Calculate the next notification time
+  // Parse the time in UTC
   const [hours, minutes] = timeString.split(':').map(Number);
-  const now = new Date();
-  const scheduledTime = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    hours,
-    minutes
-  );
 
-  // If the time has passed today, schedule for tomorrow
-  if (scheduledTime.getTime() < now.getTime()) {
-    scheduledTime.setDate(scheduledTime.getDate() + 1);
-  }
+  // Create cron expression in UTC
+  // Convert local time to UTC for cron
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  const utcHours = date.getUTCHours();
+  const utcMinutes = date.getUTCMinutes();
+
+  const cronExpression = `${utcMinutes} ${utcHours} * * *`;
 
   // Schedule the notification
-  const delay = scheduledTime.getTime() - now.getTime();
-
-  // Schedule the initial notification
   await notificationQueue.add(
-    { userId },
+    { userId, localTime: timeString }, // Store local time in job data
     {
-      delay,
       repeat: {
-        cron: `${minutes} ${hours} * * *`, // Daily at the specified time
+        cron: cronExpression,
+        tz: 'UTC', // Explicitly set timezone to UTC
       },
     }
   );

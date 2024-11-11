@@ -160,9 +160,7 @@ export default function ProfileDetails({ user }: { user: User }) {
         Configure push or email notifications, as reminders to answers your
         daily questions.
       </Text>
-      {user.email === 'erikcvisser@gmail.com' && (
-        <PushNotificationManager user={user} />
-      )}
+      <PushNotificationManager user={user} />
       <Divider my="xl" />
 
       <Title order={4} mb="md">

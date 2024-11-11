@@ -25,28 +25,42 @@ const serwist = new Serwist({
 });
 
 self.addEventListener('push', function (event) {
-  console.log(
-    'Push event received:',
-    event.data ? event.data.text() : 'no data'
-  );
   if (event.data) {
     const data = event.data.json();
     console.log('Push notification data:', data);
 
-    // Remove the time check and always show the notification
-    // Let the server handle scheduling instead
-    const options = {
-      body: data.body,
-      icon: data.icon || '/android-chrome-192x192.png',
-      badge: '/android-chrome-192x192.png',
-      vibrate: [100, 50, 100],
-      data: {
-        dateOfArrival: Date.now(),
-        primaryKey: '2',
-        url: data.url || 'https://dailyquestions.app',
-      },
-    };
-    event.waitUntil(self.registration.showNotification(data.title, options));
+    // Extract hours and minutes from the target time
+    const [targetHours, targetMinutes] = data.targetTime.split(':').map(Number);
+
+    // Get current local time
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+
+    // Only show notification if we're within 2 minutes of the target time
+    const currentTotalMinutes = currentHours * 60 + currentMinutes;
+    const targetTotalMinutes = targetHours * 60 + targetMinutes;
+    const minuteDifference = Math.abs(currentTotalMinutes - targetTotalMinutes);
+
+    if (minuteDifference <= 2 || minuteDifference >= 24 * 60 - 2) {
+      const options = {
+        body: data.body,
+        icon: data.icon || '/android-chrome-192x192.png',
+        badge: '/android-chrome-192x192.png',
+        vibrate: [100, 50, 100],
+        data: {
+          dateOfArrival: Date.now(),
+          primaryKey: '2',
+          url: data.url || 'https://dailyquestions.app',
+        },
+      };
+
+      event.waitUntil(self.registration.showNotification(data.title, options));
+    } else {
+      console.log(
+        'Notification received outside target time window, suppressing display'
+      );
+    }
   }
 });
 
