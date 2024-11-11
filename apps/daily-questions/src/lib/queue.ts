@@ -128,25 +128,19 @@ export async function scheduleUserNotification(
     }
   }
 
-  // Parse the time in UTC
+  // Parse the time
   const [hours, minutes] = timeString.split(':').map(Number);
 
-  // Create cron expression in UTC
-  // Convert local time to UTC for cron
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  const utcHours = date.getUTCHours();
-  const utcMinutes = date.getUTCMinutes();
-
-  const cronExpression = `${utcMinutes} ${utcHours} * * *`;
+  // Create cron expression directly from the desired local time
+  const cronExpression = `${minutes} ${hours} * * *`;
 
   // Schedule the notification
   await notificationQueue.add(
-    { userId, localTime: timeString }, // Store local time in job data
+    { userId, localTime: timeString },
     {
       repeat: {
         cron: cronExpression,
-        tz: 'UTC', // Explicitly set timezone to UTC
+        tz: 'Europe/Amsterdam', // Use the correct timezone instead of UTC
       },
     }
   );
