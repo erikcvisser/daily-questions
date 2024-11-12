@@ -5,15 +5,25 @@ import webpush from 'web-push';
 // Initialize function
 async function initializeQueue() {
   try {
-    const users = await prisma.user.findMany({
+    const subscriptions = await prisma.pushSubscription.findMany({
+      include: {
+        user: true,
+      },
       where: {
-        NOT: { notificationTime: null },
+        user: {
+          NOT: { notificationTime: null },
+        },
       },
     });
 
-    for (const user of users) {
-      if (user.notificationTime) {
-        await scheduleUserNotification(user.id, user.notificationTime);
+    for (const subscription of subscriptions) {
+      if (subscription.user.notificationTime) {
+        await scheduleUserNotification(
+          subscription.user.id,
+          subscription.user.notificationTime,
+          subscription.id,
+          subscription.timezone
+        );
       }
     }
 
@@ -34,34 +44,35 @@ initializeQueue();
 
 // Process the notifications
 notificationQueue.process(async (job) => {
-  const { userId, localTime } = job.data;
+  const { userId, localTime, subscriptionId } = job.data;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        pushSubscriptions: true,
-      },
+    const subscription = await prisma.pushSubscription.findUnique({
+      where: { id: subscriptionId },
+      include: { user: true },
     });
 
-    if (!user?.pushSubscriptions.length) {
-      console.log('No push subscriptions found for user');
+    if (!subscription) {
+      console.log('No subscription found');
       return;
     }
 
-    // Check for submission for today's date (in UTC)
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    // Check for submission for today's date (in subscription's timezone)
+    const userTz = subscription.timezone;
+    const todayInTz = new Date(
+      new Date().toLocaleString('en-US', { timeZone: userTz })
+    );
+    todayInTz.setHours(0, 0, 0, 0);
 
-    const tomorrow = new Date(today);
-    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const tomorrowInTz = new Date(todayInTz);
+    tomorrowInTz.setDate(tomorrowInTz.getDate() + 1);
 
     const existingSubmission = await prisma.submission.findFirst({
       where: {
         userId,
         date: {
-          gte: today,
-          lt: tomorrow,
+          gte: todayInTz,
+          lt: tomorrowInTz,
         },
       },
     });
@@ -76,39 +87,30 @@ notificationQueue.process(async (job) => {
       body: "Don't forget to answer your daily questions.",
       icon: '/android-chrome-192x192.png',
       url: '/questions',
-      targetTime: localTime, // For service worker timing check
+      targetTime: localTime,
     });
 
-    const notificationPromises = user.pushSubscriptions.map((subscription) =>
-      webpush
-        .sendNotification(
-          {
-            endpoint: subscription.endpoint,
-            keys: {
-              auth: subscription.auth,
-              p256dh: subscription.p256dh,
-            },
+    await webpush
+      .sendNotification(
+        {
+          endpoint: subscription.endpoint,
+          keys: {
+            auth: subscription.auth,
+            p256dh: subscription.p256dh,
           },
-          notificationPayload
-        )
-        .catch(async (error) => {
-          if (error.statusCode === 404 || error.statusCode === 410) {
-            // Subscription is no longer valid, remove it
-            await prisma.pushSubscription.delete({
-              where: {
-                endpoint: subscription.endpoint,
-              },
-            });
-            console.log(
-              `Removed invalid subscription: ${subscription.endpoint}`
-            );
-          } else {
-            console.error('Push notification error:', error);
-          }
-        })
-    );
-
-    await Promise.all(notificationPromises);
+        },
+        notificationPayload
+      )
+      .catch(async (error) => {
+        if (error.statusCode === 404 || error.statusCode === 410) {
+          await prisma.pushSubscription.delete({
+            where: { id: subscription.id },
+          });
+          console.log(`Removed invalid subscription: ${subscription.endpoint}`);
+        } else {
+          console.error('Push notification error:', error);
+        }
+      });
   } catch (error) {
     console.error('Error processing notification:', error);
     throw error;
@@ -118,29 +120,23 @@ notificationQueue.process(async (job) => {
 // Helper function to schedule a notification
 export async function scheduleUserNotification(
   userId: string,
-  timeString: string
+  timeString: string,
+  subscriptionId: string,
+  timezone: string
 ) {
-  // Remove existing jobs
-  const existingJobs = await notificationQueue.getJobs(['delayed']);
-  for (const job of existingJobs) {
-    if (job.data.userId === userId) {
-      await job.remove();
-    }
-  }
-
   // Parse the time
   const [hours, minutes] = timeString.split(':').map(Number);
 
-  // Create cron expression directly from the desired local time
+  // Create cron expression for the specified time in user's timezone
   const cronExpression = `${minutes} ${hours} * * *`;
 
   // Schedule the notification
   await notificationQueue.add(
-    { userId, localTime: timeString },
+    { userId, localTime: timeString, subscriptionId },
     {
       repeat: {
         cron: cronExpression,
-        tz: 'Europe/Amsterdam', // Use the correct timezone instead of UTC
+        tz: timezone,
       },
     }
   );

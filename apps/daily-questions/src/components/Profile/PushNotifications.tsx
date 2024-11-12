@@ -7,6 +7,7 @@ import {
   sendNotification,
   getSubscriptions,
   scheduleNotification,
+  updateSubscriptionTimezone,
 } from '@/lib/actions';
 import {
   Title,
@@ -61,6 +62,7 @@ export function PushNotificationManager({ user }: { user: User }) {
   const [currentDeviceEndpoint, setCurrentDeviceEndpoint] = useState<
     string | null
   >(null);
+  const [currentTimezone, setCurrentTimezone] = useState('');
 
   useEffect(() => {
     async function initializeSubscription() {
@@ -131,6 +133,29 @@ export function PushNotificationManager({ user }: { user: User }) {
 
     initializeSubscription();
   }, [user.notificationTime]);
+
+  useEffect(() => {
+    // Check timezone periodically
+    const checkTimezone = async () => {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (timezone !== currentTimezone) {
+        setCurrentTimezone(timezone);
+
+        // Update timezone for current device if subscribed
+        if (currentDeviceEndpoint) {
+          await updateSubscriptionTimezone(currentDeviceEndpoint, timezone);
+        }
+      }
+    };
+
+    // Check immediately
+    checkTimezone();
+
+    // Check every hour
+    const interval = setInterval(checkTimezone, 60 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [currentTimezone, currentDeviceEndpoint]);
 
   async function subscribeToPush() {
     try {
