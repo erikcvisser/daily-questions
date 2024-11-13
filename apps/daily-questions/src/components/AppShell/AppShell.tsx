@@ -32,7 +32,6 @@ export function BasicAppShell({
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
   const desktopOpened = session ? true : false;
 
-  // Define swipe handlers
   const handlers = useSwipeable({
     onSwipedRight: (eventData) => {
       eventData.event.preventDefault();

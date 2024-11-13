@@ -1,7 +1,14 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import QuestionnaireForm from './QuestionnaireForm';
+import { Container } from '@mantine/core';
+import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
+
+// Dynamic imports for the form components
+const QuestionnaireForm = dynamic(() => import('./QuestionnaireForm'));
+const QuestionnaireMobileForm = dynamic(
+  () => import('./QuestionnaireMobileForm')
+);
 
 export default async function Questionnaire({ id }: { id?: string }) {
   const session = await auth();
@@ -29,7 +36,15 @@ export default async function Questionnaire({ id }: { id?: string }) {
 
   return (
     <>
-      <QuestionnaireForm questions={questions} submission={submission} />
+      <Container visibleFrom="sm">
+        <QuestionnaireForm questions={questions} submission={submission} />
+      </Container>
+      <Container hiddenFrom="sm" p={0}>
+        <QuestionnaireMobileForm
+          questions={questions}
+          submission={submission}
+        />
+      </Container>
     </>
   );
 }
