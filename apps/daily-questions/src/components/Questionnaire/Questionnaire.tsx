@@ -36,15 +36,15 @@ export default async function Questionnaire({ id }: { id?: string }) {
 
   return (
     <>
-      <Container visibleFrom="sm">
-        <QuestionnaireForm questions={questions} submission={submission} />
-      </Container>
-      <Container hiddenFrom="sm" p={0}>
+      {/* <Container> */}
+      <QuestionnaireForm questions={questions} submission={submission} />
+      {/* </Container> */}
+      {/* <Container hiddenFrom="sm" p={0}>
         <QuestionnaireMobileForm
           questions={questions}
           submission={submission}
         />
-      </Container>
+      </Container> */}
     </>
   );
 }
