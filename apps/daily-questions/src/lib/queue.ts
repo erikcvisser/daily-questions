@@ -117,27 +117,44 @@ notificationQueue.process(async (job) => {
   }
 });
 
-// Helper function to schedule a notification
+// Add this new function to remove existing jobs for a subscription
+export async function removeExistingJobs(subscriptionId: string) {
+  const repeatableJobs = await notificationQueue.getRepeatableJobs();
+  const jobsToRemove = repeatableJobs.filter(
+    (job) => job.name === 'notification' && job.id?.includes(subscriptionId)
+  );
+
+  for (const job of jobsToRemove) {
+    await notificationQueue.removeRepeatableByKey(job.key);
+  }
+}
+
+// Update the scheduleUserNotification function
 export async function scheduleUserNotification(
   userId: string,
   timeString: string,
   subscriptionId: string,
   timezone: string
 ) {
+  // First remove any existing jobs for this subscription
+  await removeExistingJobs(subscriptionId);
+
   // Parse the time
   const [hours, minutes] = timeString.split(':').map(Number);
 
   // Create cron expression for the specified time in user's timezone
   const cronExpression = `${minutes} ${hours} * * *`;
 
-  // Schedule the notification
+  // Schedule the notification with a unique name
   await notificationQueue.add(
+    'notification', // Add a name for the job
     { userId, localTime: timeString, subscriptionId },
     {
       repeat: {
         cron: cronExpression,
         tz: timezone,
       },
+      jobId: `notification:${subscriptionId}:${timeString}`, // Add a unique jobId
     }
   );
 }

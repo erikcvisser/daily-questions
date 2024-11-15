@@ -10,7 +10,11 @@ import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
 import webpush from 'web-push';
-import { notificationQueue, scheduleUserNotification } from './queue';
+import {
+  notificationQueue,
+  scheduleUserNotification,
+  removeExistingJobs,
+} from './queue';
 
 webpush.setVapidDetails(
   'mailto:mail@dailyquestions.app',
@@ -570,13 +574,16 @@ export async function scheduleNotification(time: string) {
       data: { notificationTime: time },
     });
 
-    // Get all user's subscriptions and schedule for each
+    // Get all user's subscriptions
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId: session.user.id },
     });
 
     // Schedule the notification for each subscription
     for (const subscription of subscriptions) {
+      // Remove existing jobs before scheduling new one
+      await removeExistingJobs(subscription.id);
+
       await scheduleUserNotification(
         session.user.id,
         time,
