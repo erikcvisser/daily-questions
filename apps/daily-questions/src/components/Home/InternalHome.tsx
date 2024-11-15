@@ -18,6 +18,11 @@ export default async function InternalHome() {
   const submissions = session?.user
     ? await prisma.submission.findMany({ where: { userId: session.user.id } })
     : [];
+  const pushSubscriptions = session?.user
+    ? await prisma.pushSubscription.findMany({
+        where: { userId: session.user.id },
+      })
+    : [];
 
   // Check if there's a submission for today
   const today = new Date().toISOString().split('T')[0];
@@ -34,9 +39,19 @@ export default async function InternalHome() {
             <Text size="lg" fw={500} ta="center">
               You&apos;ve already submitted today&apos;s reflection
             </Text>
-            <Text c="dimmed" ta="center">
+            <Text ta="center">
               Great job! Come back tomorrow for your next reflection.
             </Text>
+
+            {pushSubscriptions.length === 0 && (
+              <Text ta="center">
+                Want daily reminders?
+                <br />
+                <Link href="/profile">
+                  Install the app and enable notifications
+                </Link>
+              </Text>
+            )}
             <Button
               color="blue"
               component={Link}
