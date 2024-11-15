@@ -14,9 +14,10 @@ export function AdminTable({
           <Table.Th>Email</Table.Th>
           <Table.Th>UserID</Table.Th>
           <Table.Th>Created on</Table.Th>
-          <Table.Th>Questions Configured</Table.Th>
+          <Table.Th># Questions </Table.Th>
           <Table.Th>Last Submission</Table.Th>
-          <Table.Th>Submissions Count</Table.Th>
+          <Table.Th># Subm</Table.Th>
+          <Table.Th># PushSubs</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -28,6 +29,7 @@ export function AdminTable({
             <Table.Td>{user.questions.length}</Table.Td>
             <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>
             <Table.Td>{user.submissions.length}</Table.Td>
+            <Table.Td>{user.pushSubscriptions.length}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>
