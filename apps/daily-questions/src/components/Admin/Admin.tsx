@@ -21,10 +21,15 @@ import {
   Question,
   LibraryQuestion,
   Category,
+  PushSubscription,
 } from '@prisma/client';
 
 interface AdminProps {
-  users: (User & { submissions: Submission[]; questions: Question[] })[];
+  users: (User & {
+    submissions: Submission[];
+    questions: Question[];
+    pushSubscriptions: PushSubscription[];
+  })[];
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];
   refresh: () => Promise<void>;
