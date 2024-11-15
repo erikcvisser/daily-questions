@@ -12,17 +12,15 @@ import Link from 'next/link';
 export default async function InternalHome() {
   const session = await auth();
 
-  const userQuestions = session?.user
-    ? await prisma.question.findMany({ where: { userId: session.user.id } })
-    : [];
-  const submissions = session?.user
-    ? await prisma.submission.findMany({ where: { userId: session.user.id } })
-    : [];
-  const pushSubscriptions = session?.user
-    ? await prisma.pushSubscription.findMany({
-        where: { userId: session.user.id },
-      })
-    : [];
+  const [userQuestions, submissions, pushSubscriptions] = session?.user
+    ? await Promise.all([
+        prisma.question.findMany({ where: { userId: session.user.id } }),
+        prisma.submission.findMany({ where: { userId: session.user.id } }),
+        prisma.pushSubscription.findMany({
+          where: { userId: session.user.id },
+        }),
+      ])
+    : [[], [], []];
 
   // Check if there's a submission for today
   const today = new Date().toISOString().split('T')[0];
