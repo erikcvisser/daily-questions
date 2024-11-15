@@ -10,6 +10,7 @@ interface ButtonModalProps {
   variant?: string;
   size?: string;
   mt?: string;
+  mb?: string;
 }
 
 export function ButtonModal({
@@ -18,12 +19,13 @@ export function ButtonModal({
   variant = 'filled',
   size = 'lg',
   mt = 'xl',
+  mb = 'sm',
 }: ButtonModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   return (
     <>
-      <Button variant={variant} size={size} mt={mt} onClick={open}>
+      <Button variant={variant} size={size} mt={mt} mb={mb} onClick={open}>
         {buttonText}
       </Button>
 

@@ -260,6 +260,7 @@ export default function PublicHome() {
         <SectionDivider />
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
+          mb="xl"
           buttonText="Join Daily Questions Today"
           modalTitle="Sign in or sign up"
         />
