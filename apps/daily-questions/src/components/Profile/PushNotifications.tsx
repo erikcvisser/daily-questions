@@ -14,6 +14,8 @@ import {
   Button,
   Text,
   Stack,
+  List,
+  ListItem,
   TextInput,
   Container,
   Group,
@@ -29,6 +31,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { User } from '@prisma/client';
+import Link from 'next/link';
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -249,7 +252,29 @@ export function PushNotificationManager({ user }: { user: User }) {
   }
 
   if (!isSupported) {
-    return <p>Push notifications are not supported in this browser.</p>;
+    return (
+      <Stack>
+        <Text>
+          Push notifications are not supported in your current browser. To
+          enable notifications:
+        </Text>
+        <List>
+          <ListItem>Install the app using the instructions above</ListItem>
+          <ListItem>
+            Use a modern browser like Chrome, Firefox, or Safari
+          </ListItem>
+          <ListItem>
+            Make sure you&apos;re not in private/incognito mode
+          </ListItem>
+          <ListItem>
+            Contact support if you continue to have issues &nbsp;
+            <Link href="mailto:mail@dailyquestions.app">
+              mail@dailyquestions.app
+            </Link>
+          </ListItem>
+        </List>
+      </Stack>
+    );
   }
 
   if (isLoading) {
