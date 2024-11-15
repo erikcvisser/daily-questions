@@ -437,11 +437,12 @@ export default async function AboutPage() {
         <SectionDivider />
         <Title order={2}>Embark on Your Journey Today</Title>
         {session ? (
-          <Button component={Link} href="/" size="lg" mt="md">
+          <Button component={Link} href="/" size="lg" mt="md" mb="xl">
             Go to Dashboard
           </Button>
         ) : (
           <ButtonModal
+            mb="xl"
             buttonText="Join Daily Questions Today"
             modalTitle="Sign in or sign up"
           />

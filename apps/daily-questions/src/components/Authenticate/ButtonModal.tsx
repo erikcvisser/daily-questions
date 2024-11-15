@@ -19,7 +19,7 @@ export function ButtonModal({
   variant = 'filled',
   size = 'lg',
   mt = 'xl',
-  mb = 'sm',
+  mb,
 }: ButtonModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
