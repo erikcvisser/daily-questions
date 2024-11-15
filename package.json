@@ -33,6 +33,7 @@
     "bcryptjs": "^2.4.3",
     "bull": "^4.16.4",
     "csv-parser": "^3.0.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "ioredis": "^5.4.1",

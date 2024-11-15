@@ -771,3 +771,48 @@ export async function sendNotification(
     return { success: false, error: 'Failed to send notification' };
   }
 }
+
+export async function getBullQueueData() {
+  'use server';
+  try {
+    const [jobs, repeatableJobs, jobCounts] = await Promise.all([
+      notificationQueue.getJobs(['active', 'waiting', 'completed', 'failed']),
+      notificationQueue.getRepeatableJobs(),
+      notificationQueue.getJobCounts(),
+    ]);
+
+    return {
+      jobs: jobs.map((job) => ({
+        id: job.id,
+        name: job.name,
+        data: job.data,
+        state: job.getState(),
+        timestamp: job.timestamp,
+      })),
+      repeatableJobs,
+      jobCounts,
+    };
+  } catch (error) {
+    console.error('Error fetching queue data:', error);
+    throw new Error('Failed to fetch queue data');
+  }
+}
+
+export async function removeBullJob(
+  jobId: string,
+  type: 'regular' | 'repeatable'
+) {
+  'use server';
+  try {
+    if (type === 'repeatable') {
+      await notificationQueue.removeRepeatableByKey(jobId);
+    } else {
+      const job = await notificationQueue.getJob(jobId);
+      if (job) await job.remove();
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Error removing job:', error);
+    throw new Error('Failed to remove job');
+  }
+}

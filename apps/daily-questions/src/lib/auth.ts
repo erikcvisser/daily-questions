@@ -71,7 +71,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
-      const isAdminRoute = nextUrl.pathname.startsWith('/admin');
+      const adminPaths = ['/admin'];
+      const isAdminRoute = adminPaths.some((path) =>
+        nextUrl.pathname.startsWith(path)
+      );
 
       if (isProtected && !isLoggedIn) {
         const redirectUrl = new URL('/api/auth/signin', nextUrl.origin);

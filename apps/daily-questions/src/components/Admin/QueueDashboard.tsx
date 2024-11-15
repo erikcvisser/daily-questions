@@ -1,88 +1,173 @@
 'use client';
 
-import { Table, Grid, Paper, Title, Text, Box } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  Table,
+  Grid,
+  Paper,
+  Title,
+  Text,
+  Button,
+  Badge,
+  Code,
+  Loader,
+  Group,
+  Stack,
+} from '@mantine/core';
+import { getBullQueueData, removeBullJob } from '@/lib/actions';
 
-function formatRepeatPattern(repeat: any) {
-  if (!repeat) return '-';
-  if (repeat.cron) return `Cron: ${repeat.cron}`;
-  if (repeat.every) return `Every: ${repeat.every}ms`;
-  return JSON.stringify(repeat);
-}
+export function QueueDashboard() {
+  const [queueData, setQueueData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export function QueueDashboard({
-  data,
-}: {
-  data: {
-    counts: Record<string, number>;
-    jobs: Record<
-      string,
-      Array<{
-        id: string;
-        data: { userId: string };
-        timestamp: string;
-        processedOn?: string;
-        finishedOn?: string;
-        repeat?: { cron?: string; every?: number };
-        failedReason?: string;
-      }>
-    >;
+  const fetchData = async () => {
+    try {
+      const data = await getBullQueueData();
+      setQueueData(data);
+    } catch (error) {
+      console.error('Failed to fetch queue data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
-}) {
-  return (
-    <div>
-      <Grid mb="lg">
-        {Object.entries(data.counts).map(([status, count]) => (
-          <Grid.Col span={{ base: 12, xs: 6, md: 2.4 }} key={status}>
-            <Paper shadow="xs" p="md">
-              <Title order={4} tt="capitalize">
-                {status}
-              </Title>
-              <Text size="xl">{count}</Text>
-            </Paper>
-          </Grid.Col>
-        ))}
-      </Grid>
 
-      {Object.entries(data.jobs).map(
-        ([status, jobs]) =>
-          jobs.length > 0 && (
-            <Box key={status} mb="lg">
-              <Title order={2} tt="capitalize" mb="md">
-                {status} Jobs
-              </Title>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>ID</Table.Th>
-                    <Table.Th>User</Table.Th>
-                    <Table.Th>Created</Table.Th>
-                    <Table.Th>Processed</Table.Th>
-                    <Table.Th>Finished</Table.Th>
-                    <Table.Th>Repeat</Table.Th>
-                    {status === 'failed' && <Table.Th>Error</Table.Th>}
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {jobs.map((job: any) => (
-                    <Table.Tr key={job.id}>
-                      <Table.Td>{job.id}</Table.Td>
-                      <Table.Td>{job.data.userId}</Table.Td>
-                      <Table.Td>{job.timestamp}</Table.Td>
-                      <Table.Td>{job.processedOn || '-'}</Table.Td>
-                      <Table.Td>{job.finishedOn || '-'}</Table.Td>
-                      <Table.Td>{formatRepeatPattern(job.repeat)}</Table.Td>
-                      {status === 'failed' && (
-                        <Table.Td className="text-red-500">
-                          {job.failedReason}
-                        </Table.Td>
-                      )}
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Box>
-          )
-      )}
-    </div>
+  const removeJob = async (jobId: string, type: 'regular' | 'repeatable') => {
+    try {
+      await removeBullJob(jobId, type);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to remove job:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <Group justify="center">
+        <Loader />
+        <Text>Loading queue data...</Text>
+      </Group>
+    );
+  }
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      completed: 'green',
+      active: 'blue',
+      waiting: 'yellow',
+      failed: 'red',
+    };
+    return colors[status] || 'gray';
+  };
+
+  return (
+    <Stack gap="xl">
+      <Paper withBorder radius="md" p="md">
+        <Title order={2} size="h3" mb="md">
+          Queue Status
+        </Title>
+        <Grid>
+          {queueData?.jobCounts &&
+            Object.entries(queueData.jobCounts).map(([state, cnt]) => (
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }} key={state}>
+                <Paper withBorder p="md" radius="md">
+                  <Text size="sm" c="dimmed" tt="capitalize">
+                    {state}
+                  </Text>
+                  <Text size="xl" fw={700}>
+                    {cnt as number}
+                  </Text>
+                </Paper>
+              </Grid.Col>
+            ))}
+        </Grid>
+      </Paper>
+
+      <Paper withBorder radius="md" p="md">
+        <Title order={2} size="h3" mb="md">
+          Repeatable Jobs
+        </Title>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>Pattern</Table.Th>
+              <Table.Th>Next Run</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {queueData?.repeatableJobs?.map((job: any) => (
+              <Table.Tr key={job.key}>
+                <Table.Td>{job.id}</Table.Td>
+                <Table.Td>
+                  <Code>{job.cron}</Code>
+                </Table.Td>
+                <Table.Td>{formatDistanceToNow(new Date(job.next))}</Table.Td>
+                <Table.Td>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => removeJob(job.key, 'repeatable')}
+                  >
+                    Remove
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Paper>
+
+      <Paper withBorder radius="md" p="md">
+        <Title order={2} size="h3" mb="md">
+          Recent Jobs
+        </Title>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>State</Table.Th>
+              <Table.Th>Data</Table.Th>
+              <Table.Th>Created</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {queueData?.jobs?.map((job: any) => (
+              <Table.Tr key={job.id}>
+                <Table.Td>{job.id}</Table.Td>
+                <Table.Td>
+                  <Badge color={getStatusColor(job.state)}>{job.state}</Badge>
+                </Table.Td>
+                <Table.Td>
+                  <Code block>{JSON.stringify(job.data, null, 2)}</Code>
+                </Table.Td>
+                <Table.Td>
+                  {formatDistanceToNow(new Date(job.timestamp))}
+                </Table.Td>
+                <Table.Td>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => removeJob(job.id, 'regular')}
+                  >
+                    Remove
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Paper>
+    </Stack>
   );
 }

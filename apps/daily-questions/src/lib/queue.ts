@@ -121,7 +121,8 @@ notificationQueue.process(async (job) => {
 export async function removeExistingJobs(subscriptionId: string) {
   const repeatableJobs = await notificationQueue.getRepeatableJobs();
   const jobsToRemove = repeatableJobs.filter(
-    (job) => job.name === 'notification' && job.id?.includes(subscriptionId)
+    (job) =>
+      job.name === 'daily-notification' && job.key?.includes(subscriptionId)
   );
 
   for (const job of jobsToRemove) {
@@ -145,16 +146,16 @@ export async function scheduleUserNotification(
   // Create cron expression for the specified time in user's timezone
   const cronExpression = `${minutes} ${hours} * * *`;
 
-  // Schedule the notification with a unique name
+  // Schedule the notification with proper repeat options
   await notificationQueue.add(
-    'notification', // Add a name for the job
+    'daily-notification',
     { userId, localTime: timeString, subscriptionId },
     {
       repeat: {
         cron: cronExpression,
         tz: timezone,
       },
-      jobId: `notification:${subscriptionId}:${timeString}`, // Add a unique jobId
+      jobId: subscriptionId, // Simplified jobId
     }
   );
 }
