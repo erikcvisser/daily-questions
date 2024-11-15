@@ -221,7 +221,7 @@ export default function PublicHome() {
       </Container>
 
       {/* Testimonials */}
-      <Container size="lg" mt="xl">
+      {/* <Container size="lg" mt="xl">
         <SectionDivider />
         <Title order={3} ta="center">
           What Our Users Say
@@ -253,10 +253,10 @@ export default function PublicHome() {
             </Text>
           </Card>
         </SimpleGrid>
-      </Container>
+      </Container> */}
 
       {/* Call to Action */}
-      <Container size="md" mt="xl" mb="xl" style={{ textAlign: 'center' }}>
+      <Container size="md" my="xl" mb="xl" style={{ textAlign: 'center' }}>
         <SectionDivider />
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
