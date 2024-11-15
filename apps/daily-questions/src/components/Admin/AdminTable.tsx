@@ -12,6 +12,7 @@ export function AdminTable({
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Email</Table.Th>
+          <Table.Th>UserID</Table.Th>
           <Table.Th>Created on</Table.Th>
           <Table.Th>Questions Configured</Table.Th>
           <Table.Th>Last Submission</Table.Th>
@@ -22,6 +23,7 @@ export function AdminTable({
         {users.map((user) => (
           <Table.Tr key={user.id}>
             <Table.Td>{user.email}</Table.Td>
+            <Table.Td>{user.id}</Table.Td>
             <Table.Td>{formatDate(user.createdAt)}</Table.Td>
             <Table.Td>{user.questions.length}</Table.Td>
             <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>

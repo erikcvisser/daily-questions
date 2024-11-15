@@ -775,10 +775,11 @@ export async function sendNotification(
 export async function getBullQueueData() {
   'use server';
   try {
-    const [jobs, repeatableJobs, jobCounts] = await Promise.all([
+    const [jobs, repeatableJobs, jobCounts, delayedJobs] = await Promise.all([
       notificationQueue.getJobs(['active', 'waiting', 'completed', 'failed']),
       notificationQueue.getRepeatableJobs(),
       notificationQueue.getJobCounts(),
+      notificationQueue.getDelayed(),
     ]);
 
     return {
@@ -791,6 +792,11 @@ export async function getBullQueueData() {
       })),
       repeatableJobs,
       jobCounts,
+      delayedJobs: delayedJobs.map((job) => ({
+        id: job.id,
+        data: job.data,
+        delay: job.timestamp,
+      })),
     };
   } catch (error) {
     console.error('Error fetching queue data:', error);

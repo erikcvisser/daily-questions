@@ -128,6 +128,43 @@ export function QueueDashboard() {
 
       <Paper withBorder radius="md" p="md">
         <Title order={2} size="h3" mb="md">
+          Delayed Jobs
+        </Title>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>Data</Table.Th>
+              <Table.Th>Delayed Until</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {queueData?.delayedJobs?.map((job: any) => (
+              <Table.Tr key={job.id}>
+                <Table.Td>{job.id}</Table.Td>
+                <Table.Td>
+                  <Code block>{JSON.stringify(job.data, null, 2)}</Code>
+                </Table.Td>
+                <Table.Td>{formatDistanceToNow(new Date(job.delay))}</Table.Td>
+                <Table.Td>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => removeJob(job.id, 'regular')}
+                  >
+                    Remove
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Paper>
+
+      <Paper withBorder radius="md" p="md">
+        <Title order={2} size="h3" mb="md">
           Recent Jobs
         </Title>
         <Table>
