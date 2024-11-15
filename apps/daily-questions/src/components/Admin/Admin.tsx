@@ -27,7 +27,6 @@ interface AdminProps {
   users: (User & { submissions: Submission[]; questions: Question[] })[];
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];
-  queueData: any;
   refresh: () => Promise<void>;
 }
 
@@ -35,7 +34,6 @@ export function Admin({
   users,
   libraryQuestions,
   categories,
-  queueData,
   refresh,
 }: AdminProps) {
   return (
@@ -74,7 +72,7 @@ export function Admin({
         </TabsPanel>
 
         <TabsPanel value="queue">
-          <QueueDashboard data={queueData} />
+          <QueueDashboard />
         </TabsPanel>
       </Tabs>
     </Container>

@@ -16,7 +16,7 @@ export default async function AdminContent() {
     revalidatePath('/admin');
   }
 
-  const [users, libraryQuestions, categories, queueData] = await Promise.all([
+  const [users, libraryQuestions, categories] = await Promise.all([
     prisma.user.findMany({
       include: {
         submissions: { orderBy: { date: 'desc' } },
@@ -28,18 +28,13 @@ export default async function AdminContent() {
       include: { category: true },
     }),
     prisma.category.findMany(),
-    getQueueData(),
   ]);
-
-  // Initialize queue on page load
-  await initializeQueue();
 
   return (
     <Admin
       users={users}
       libraryQuestions={libraryQuestions}
       categories={categories}
-      queueData={queueData}
       refresh={refresh}
     />
   );

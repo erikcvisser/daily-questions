@@ -96,7 +96,7 @@ export function QueueDashboard() {
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>ID</Table.Th>
+              <Table.Th>UserID</Table.Th>
               <Table.Th>Pattern</Table.Th>
               <Table.Th>Next Run</Table.Th>
               <Table.Th>Actions</Table.Th>
