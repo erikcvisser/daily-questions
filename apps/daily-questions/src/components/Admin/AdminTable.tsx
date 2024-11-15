@@ -1,11 +1,15 @@
 'use client';
 import { Table } from '@mantine/core';
-import { Question, Submission, User } from '@prisma/client';
+import { Question, Submission, User, PushSubscription } from '@prisma/client';
 
 export function AdminTable({
   users,
 }: {
-  users: (User & { submissions: Submission[]; questions: Question[] })[];
+  users: (User & {
+    submissions: Submission[];
+    questions: Question[];
+    pushSubscriptions: PushSubscription[];
+  })[];
 }) {
   return (
     <Table>
