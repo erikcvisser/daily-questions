@@ -39,9 +39,11 @@ export default function QuestionnaireMobileForm({
   // Form setup
   const dateParam = searchParams.get('date');
   const now = dateParam ? new Date(dateParam) : new Date();
+  const localDate = new Date(now);
+  localDate.setUTCHours(12, 0, 0, 0); // Set to noon UTC to avoid timezone issues
 
   let initialAnswers = {
-    date: new Date(now.setHours(0, 0, 0, 0)),
+    date: localDate,
     answers: {
       ...questions.reduce((acc: { [key: string]: string }, question) => {
         acc[question.id] = '';
@@ -51,8 +53,11 @@ export default function QuestionnaireMobileForm({
   };
 
   if (submission && submission.answers) {
+    const submissionDate = new Date(submission.date);
+    submissionDate.setUTCHours(12, 0, 0, 0); // Ensure consistent UTC time for existing submissions
+
     initialAnswers = {
-      date: new Date(submission.date),
+      date: submissionDate,
       answers: {
         ...submission.answers.reduce(
           (acc: { [key: string]: string }, answer) => {
@@ -225,7 +230,7 @@ export default function QuestionnaireMobileForm({
 
     return (
       <Carousel.Slide key={item.id} h="100%">
-        <Container size="sm" py="xl" h="100%">
+        <Container size="sm" py="sm" h="100%">
           <Stack h="100%" justify="space-between">
             <div>{questionComponent}</div>
             <Group justify="space-between" mb="0">
@@ -263,12 +268,12 @@ export default function QuestionnaireMobileForm({
     <div>
       <form
         onSubmit={form.onSubmit(handleSubmit)}
-        style={{ height: 'calc(100vh - 140px)' }}
+        style={{ height: 'calc(100vh - 160px)' }}
       >
         <Carousel
           getEmblaApi={setEmbla}
           slideSize="100%"
-          height="calc(100vh - 140px)"
+          height="calc(100vh - 160px)"
           draggable
           withControls
           withIndicators
@@ -281,6 +286,7 @@ export default function QuestionnaireMobileForm({
                 currentSlide === questions.length ? 'hidden' : undefined,
 
               width: '40px',
+              marginRight: '-20px',
               height: '40px',
               backgroundColor: 'var(--mantine-color-blue-filled)',
               border: 'none',
@@ -290,9 +296,13 @@ export default function QuestionnaireMobileForm({
           previousControlProps={{
             style: {
               visibility: currentSlide === 0 ? 'hidden' : undefined,
+              marginLeft: '-20px',
             },
           }}
           styles={{
+            root: {
+              maxWidth: '100%',
+            },
             control: {
               '&[dataInactive]': {
                 opacity: 0,
@@ -310,7 +320,7 @@ export default function QuestionnaireMobileForm({
           }}
         >
           <Carousel.Slide h="100%">
-            <Container size="sm" py="xl" h="100%">
+            <Container size="sm" py="sm" h="100%">
               <Stack h="100%" justify="space-between">
                 <div>
                   <DateInput

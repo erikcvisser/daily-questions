@@ -39,9 +39,11 @@ export default function QuestionnaireForm({
 
   const dateParam = searchParams.get('date');
   const now = dateParam ? new Date(dateParam) : new Date();
+  const localDate = new Date(now);
+  localDate.setUTCHours(12, 0, 0, 0); // Set to noon UTC to avoid timezone issues
 
   let initialAnswers = {
-    date: new Date(now.setHours(0, 0, 0, 0)),
+    date: localDate,
     answers: {
       ...questions.reduce((acc: { [key: string]: string }, question) => {
         acc[question.id] = '';

@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { Container } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 
@@ -36,15 +36,15 @@ export default async function Questionnaire({ id }: { id?: string }) {
 
   return (
     <>
-      {/* <Container> */}
-      <QuestionnaireForm questions={questions} submission={submission} />
-      {/* </Container> */}
-      {/* <Container hiddenFrom="sm" p={0}>
+      <Stack visibleFrom="sm">
+        <QuestionnaireForm questions={questions} submission={submission} />
+      </Stack>
+      <Stack hiddenFrom="sm" p={0} maw="100%">
         <QuestionnaireMobileForm
           questions={questions}
           submission={submission}
         />
-      </Container> */}
+      </Stack>
     </>
   );
 }

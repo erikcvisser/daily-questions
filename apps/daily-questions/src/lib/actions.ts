@@ -195,12 +195,15 @@ export async function submitQuestionnaire(formData: any) {
     });
   }
 
+  const submissionDate = new Date(formData['date']);
+  submissionDate.setUTCHours(12, 0, 0, 0); // Set to noon UTC
+
   const scorePercentage = await calculateScorePercentage(answers);
 
   await prisma.submission.create({
     data: {
       userId: session?.user?.id || '1',
-      date: formData['date'],
+      date: submissionDate,
       answers: { create: answers },
       scorePercentage,
     },
