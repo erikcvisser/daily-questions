@@ -25,11 +25,11 @@ export default async function InternalHome() {
   // Check if there's a submission for today
   const today = new Date().toISOString().split('T')[0];
   const submittedToday = submissions.some(
-    (submission) => submission.createdAt.toISOString().split('T')[0] === today
+    (submission) => submission.date.toISOString().split('T')[0] === today
   );
 
   return (
-    <Card shadow="sm" padding="lg" withBorder>
+    <Card shadow="sm" padding="lg" withBorder mb={'xl'}>
       {userQuestions.length > 0 ? (
         submittedToday ? (
           <Stack align="center" gap="md">
