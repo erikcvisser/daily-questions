@@ -99,46 +99,36 @@ export async function SummarySection({
 }
 
 function calculateStreak(submissions: Submission[]): number {
-  // Sort submissions by date in descending order
+  // Sort submissions by date descending
   const sortedSubmissions = [...submissions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  let streak = 0;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  if (sortedSubmissions.length === 0) return 0;
 
-  // Start checking from today
-  const currentDate = new Date(today);
+  let currentStreak = 1;
+  let previousDate = new Date(sortedSubmissions[0].date);
 
-  // If there's no submission for today, that's okay - we'll start counting from yesterday
-  // but we won't break the streak just because today isn't done yet
-  if (
-    sortedSubmissions.length === 0 ||
-    new Date(sortedSubmissions[0].date).getTime() < today.getTime()
-  ) {
-    currentDate.setDate(currentDate.getDate() - 1);
-  } else {
-    // If there is a submission for today, count it
-    streak++;
-    currentDate.setDate(currentDate.getDate() - 1);
-  }
+  // Convert to local date strings for comparison
+  for (let i = 1; i < sortedSubmissions.length; i++) {
+    const currentDate = new Date(sortedSubmissions[i].date);
 
-  // Now check previous days
-  for (const submission of sortedSubmissions) {
-    const submissionDate = new Date(submission.date);
-    submissionDate.setHours(0, 0, 0, 0);
+    // Calculate difference in days
+    const diffDays = Math.round(
+      (previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
-    if (submissionDate.getTime() === currentDate.getTime()) {
-      streak++;
-      currentDate.setDate(currentDate.getDate() - 1);
-    } else if (submissionDate.getTime() < currentDate.getTime()) {
-      // If we find a submission before our current date, the streak is broken
+    // If difference is 1 day, continue streak
+    if (diffDays === 1) {
+      currentStreak++;
+      previousDate = currentDate;
+    } else {
+      // Break streak if gap is more than 1 day
       break;
     }
   }
 
-  return streak;
+  return currentStreak;
 }
 
 function calculateMaxStreak(submissions: Submission[]): number {
@@ -148,15 +138,18 @@ function calculateMaxStreak(submissions: Submission[]): number {
 
   let maxStreak = 0;
   let currentStreak = 0;
-  let previousDate: Date | null = null;
+  let previousDate: string | null = null;
 
   for (const submission of sortedSubmissions) {
-    const currentDate = new Date(submission.date);
-    currentDate.setHours(0, 0, 0, 0);
+    const currentDateStr = new Date(submission.date)
+      .toISOString()
+      .split('T')[0];
 
     if (previousDate) {
-      const dayDifference = Math.floor(
-        (currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24)
+      const prevDate = new Date(previousDate);
+      const currDate = new Date(currentDateStr);
+      const dayDifference = Math.round(
+        (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
       );
 
       if (dayDifference === 1) {
@@ -169,7 +162,7 @@ function calculateMaxStreak(submissions: Submission[]): number {
     }
 
     maxStreak = Math.max(maxStreak, currentStreak);
-    previousDate = currentDate;
+    previousDate = currentDateStr;
   }
 
   return maxStreak;

@@ -35,20 +35,28 @@ export default function CalendarComp({
     };
   });
 
+  console.log(subs);
+
   const handleSelect = (date: Date) => {
-    const dateClicked = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
-    )
-      .toISOString()
-      .split('T')[0];
+    const localDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      12
+    );
+    const dateClicked = localDate.toLocaleDateString('en-CA');
 
     const existingSubmission = submissions.find((sub) => {
       const subDate = new Date(sub.date);
-      const utcSubDate = new Date(
-        Date.UTC(subDate.getFullYear(), subDate.getMonth(), subDate.getDate())
+      const localSubDate = new Date(
+        subDate.getFullYear(),
+        subDate.getMonth(),
+        subDate.getDate(),
+        12
       );
-      return utcSubDate.toISOString().split('T')[0] === dateClicked;
+      return localSubDate.toLocaleDateString('en-CA') === dateClicked;
     });
+
     if (existingSubmission) {
       setSelectedDate(dateClicked);
       setModalOpen(true);
@@ -75,11 +83,22 @@ export default function CalendarComp({
         renderDay={(date) => {
           const day = date.getDate();
           const dateWithSubmission = subs.find((submission) => {
-            const submissionDate = new Date(submission.date);
-            submissionDate.setUTCHours(0, 0, 0, 0);
-            const selectedDate = new Date(date);
-            selectedDate.setUTCHours(0, 0, 0, 0);
-            return submissionDate.getTime() === selectedDate.getTime();
+            const subDate = new Date(submission.date);
+            const localSubDate = new Date(
+              subDate.getFullYear(),
+              subDate.getMonth(),
+              subDate.getDate(),
+              12
+            );
+
+            const localCalDate = new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              12
+            );
+
+            return localSubDate.getTime() === localCalDate.getTime();
           });
 
           return (
