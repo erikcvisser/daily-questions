@@ -21,5 +21,9 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "display_override": ["window-controls-overlay", "standalone"],
+  "dir": "ltr",
+  "lang": "en",
+  "categories": ["lifestyle"]
 }
