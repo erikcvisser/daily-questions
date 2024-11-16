@@ -526,24 +526,49 @@ export async function unsubscribeUser(endpoint?: string) {
     throw new Error('Unauthorized');
   }
 
-  if (endpoint) {
-    // Unsubscribe specific device
-    await prisma.pushSubscription.deleteMany({
-      where: {
-        userId: session.user.id,
-        endpoint: endpoint,
-      },
-    });
-  } else {
-    // Unsubscribe all devices
-    await prisma.pushSubscription.deleteMany({
-      where: {
-        userId: session.user.id,
-      },
-    });
-  }
+  try {
+    if (endpoint) {
+      // Get subscription ID before deleting
+      const subscription = await prisma.pushSubscription.findFirst({
+        where: {
+          userId: session.user.id,
+          endpoint: endpoint,
+        },
+      });
 
-  return { success: true };
+      if (subscription) {
+        // Remove Bull jobs first
+        await removeExistingJobs(subscription.id);
+
+        // Then delete the subscription
+        await prisma.pushSubscription.delete({
+          where: { id: subscription.id },
+        });
+      }
+    } else {
+      // Unsubscribe all devices
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: {
+          userId: session.user.id,
+        },
+      });
+
+      // Remove all Bull jobs and subscriptions
+      await Promise.all(
+        subscriptions.map(async (sub) => {
+          await removeExistingJobs(sub.id);
+          await prisma.pushSubscription.delete({
+            where: { id: sub.id },
+          });
+        })
+      );
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error unsubscribing:', error);
+    return { success: false, error: 'Failed to unsubscribe' };
+  }
 }
 
 export async function getSubscriptions() {
