@@ -221,7 +221,6 @@ export default function QuestionnaireMobileForm({
               { value: '5', label: '5. Exceptional' },
             ]}
             withAsterisk
-            searchable
             {...commonProps}
           />
         );
