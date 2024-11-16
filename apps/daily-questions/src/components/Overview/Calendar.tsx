@@ -35,8 +35,6 @@ export default function CalendarComp({
     };
   });
 
-  console.log(subs);
-
   const handleSelect = (date: Date) => {
     const localDate = new Date(
       date.getFullYear(),
