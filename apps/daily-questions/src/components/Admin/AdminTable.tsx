@@ -1,6 +1,20 @@
 'use client';
 import { Table } from '@mantine/core';
 import { Question, Submission, User, PushSubscription } from '@prisma/client';
+import { useState } from 'react';
+
+type SortConfig = {
+  key:
+    | keyof (User & {
+        submissions: Submission[];
+        questions: Question[];
+        pushSubscriptions: PushSubscription[];
+      })
+    | 'submissionCount'
+    | 'lastSubmission'
+    | 'pushSubCount';
+  direction: 'asc' | 'desc';
+};
 
 export function AdminTable({
   users,
@@ -11,21 +25,108 @@ export function AdminTable({
     pushSubscriptions: PushSubscription[];
   })[];
 }) {
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+
+  const sortedUsers = [...users].sort((a, b) => {
+    if (!sortConfig) return 0;
+
+    let aValue, bValue;
+    switch (sortConfig.key) {
+      case 'submissionCount':
+        aValue = a.submissions.length;
+        bValue = b.submissions.length;
+        break;
+      case 'lastSubmission':
+        aValue = a.submissions[0]?.createdAt || new Date(0);
+        bValue = b.submissions[0]?.createdAt || new Date(0);
+        break;
+      case 'pushSubCount':
+        aValue = a.pushSubscriptions.length;
+        bValue = b.pushSubscriptions.length;
+        break;
+      default:
+        aValue = a[sortConfig.key];
+        bValue = b[sortConfig.key];
+    }
+
+    if (aValue === null || bValue === null) return 0;
+    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const handleSort = (key: SortConfig['key']) => {
+    setSortConfig((current) => ({
+      key,
+      direction:
+        current?.key === key && current?.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
   return (
     <Table>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>Email</Table.Th>
-          <Table.Th>UserID</Table.Th>
-          <Table.Th>Created on</Table.Th>
-          <Table.Th># Questions </Table.Th>
-          <Table.Th>Last Submission</Table.Th>
-          <Table.Th># Subm</Table.Th>
-          <Table.Th># PushSubs</Table.Th>
+          <Table.Th
+            onClick={() => handleSort('email')}
+            style={{ cursor: 'pointer' }}
+          >
+            Email{' '}
+            {sortConfig?.key === 'email' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('id')}
+            style={{ cursor: 'pointer' }}
+          >
+            UserID{' '}
+            {sortConfig?.key === 'id' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('createdAt')}
+            style={{ cursor: 'pointer' }}
+          >
+            Created on{' '}
+            {sortConfig?.key === 'createdAt' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('questions')}
+            style={{ cursor: 'pointer' }}
+          >
+            # Questions{' '}
+            {sortConfig?.key === 'questions' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('lastSubmission')}
+            style={{ cursor: 'pointer' }}
+          >
+            Last Submission{' '}
+            {sortConfig?.key === 'lastSubmission' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('submissionCount')}
+            style={{ cursor: 'pointer' }}
+          >
+            # Subm{' '}
+            {sortConfig?.key === 'submissionCount' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('pushSubCount')}
+            style={{ cursor: 'pointer' }}
+          >
+            # PushSubs{' '}
+            {sortConfig?.key === 'pushSubCount' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        {users.map((user) => (
+        {sortedUsers.map((user) => (
           <Table.Tr key={user.id}>
             <Table.Td>{user.email}</Table.Td>
             <Table.Td>{user.id}</Table.Td>
