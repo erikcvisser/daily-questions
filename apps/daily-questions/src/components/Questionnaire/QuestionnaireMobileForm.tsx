@@ -267,12 +267,12 @@ export default function QuestionnaireMobileForm({
     <div>
       <form
         onSubmit={form.onSubmit(handleSubmit)}
-        style={{ height: 'calc(100vh - 160px)' }}
+        style={{ height: 'calc(100vh - 250px)' }}
       >
         <Carousel
           getEmblaApi={setEmbla}
           slideSize="100%"
-          height="calc(100vh - 160px)"
+          height="calc(100vh - 250px)"
           draggable
           withControls
           withIndicators
