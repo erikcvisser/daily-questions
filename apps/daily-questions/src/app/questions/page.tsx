@@ -2,6 +2,7 @@ import { Button, Container, Title, Group, Stack, Space } from '@mantine/core';
 import { Suspense } from 'react';
 import QuestionPageContent from './content';
 import Link from 'next/link';
+import { IconPlus } from '@tabler/icons-react';
 
 export default function QuestionPage() {
   return (
@@ -12,7 +13,7 @@ export default function QuestionPage() {
           <Button
             component={Link}
             href="/questions/new"
-            size="md"
+            leftSection={<IconPlus />}
             variant="filled"
             color="blue"
           >
