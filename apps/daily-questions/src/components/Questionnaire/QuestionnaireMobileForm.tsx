@@ -19,10 +19,11 @@ import { zodResolver } from 'mantine-form-zod-resolver';
 import { notifications } from '@mantine/notifications';
 import { Question, Answer, Submission } from '@prisma/client';
 import { IconArrowRight, IconSend } from '@tabler/icons-react';
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { submitQuestionnaire, updateQuestionnaire } from '@/lib/actions';
 import { useSearchParams } from 'next/navigation';
 import { Carousel, Embla } from '@mantine/carousel';
+import posthog from 'posthog-js';
 
 export default function QuestionnaireMobileForm({
   questions,
@@ -82,8 +83,19 @@ export default function QuestionnaireMobileForm({
     try {
       if (submission) {
         await updateQuestionnaire(submission.id, values);
+        posthog.capture('questionnaire_updated', {
+          submission_id: submission.id,
+          questions_count: questions.length,
+          date: values.date,
+          platform: 'mobile',
+        });
       } else {
         await submitQuestionnaire(values);
+        posthog.capture('questionnaire_submitted', {
+          questions_count: questions.length,
+          date: values.date,
+          platform: 'mobile',
+        });
       }
       notifications.show({
         message: 'Questionnaire saved successfully!',
@@ -93,6 +105,11 @@ export default function QuestionnaireMobileForm({
       notifications.show({
         message: 'Something went wrong saving this questionnaire',
         color: 'red',
+      });
+      posthog.capture('questionnaire_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        type: submission ? 'update' : 'create',
+        platform: 'mobile',
       });
     }
     setSubmitting(false);
@@ -133,6 +150,10 @@ export default function QuestionnaireMobileForm({
 
   const handleSlideChange = (index: number) => {
     setCurrentSlide(index);
+    posthog.capture('questionnaire_slide_change', {
+      slide_number: index + 1,
+      total_slides: questions.length + 1,
+    });
   };
 
   const handleInputChange = (index: number) => {

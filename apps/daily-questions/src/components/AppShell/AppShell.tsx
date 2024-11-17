@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { Session } from 'next-auth';
 import { LoginLinkUnstyled } from '@/components/Header/AuthComponents';
 import { useSwipeable } from 'react-swipeable';
+import { identifyPostHogUser } from '@/app/providers';
 
 export function BasicAppShell({
   children,
@@ -31,6 +32,7 @@ export function BasicAppShell({
 }) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
   const desktopOpened = session ? true : false;
+  identifyPostHogUser(session?.user);
 
   const handlers = useSwipeable({
     onSwipedRight: (eventData) => {

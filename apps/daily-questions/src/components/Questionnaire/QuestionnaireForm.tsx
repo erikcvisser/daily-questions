@@ -21,6 +21,7 @@ import { IconSend } from '@tabler/icons-react';
 import { useState } from 'react';
 import { submitQuestionnaire, updateQuestionnaire } from '@/lib/actions';
 import { useSearchParams } from 'next/navigation';
+import posthog from 'posthog-js';
 
 export default function QuestionnaireForm({
   questions,
@@ -77,11 +78,28 @@ export default function QuestionnaireForm({
   const handleSubmit = async (values: typeof form.values) => {
     setSubmitting(true);
 
-    if (submission) {
-      await updateQuestionnaire(submission.id, values);
-    } else {
-      await submitQuestionnaire(values);
+    try {
+      if (submission) {
+        await updateQuestionnaire(submission.id, values);
+        posthog.capture('questionnaire_updated', {
+          submission_id: submission.id,
+          questions_count: questions.length,
+          date: values.date,
+        });
+      } else {
+        await submitQuestionnaire(values);
+        posthog.capture('questionnaire_submitted', {
+          questions_count: questions.length,
+          date: values.date,
+        });
+      }
+    } catch (error) {
+      posthog.capture('questionnaire_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        type: submission ? 'update' : 'create',
+      });
     }
+
     setSubmitting(false);
   };
 

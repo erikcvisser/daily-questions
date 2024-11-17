@@ -29,6 +29,7 @@ import {
   createUserSchema,
 } from '@/lib/definitions';
 import { registerUser } from '@/lib/actions';
+import posthog from 'posthog-js';
 
 export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -62,14 +63,28 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           title: 'Success!',
           message: 'You have successfully signed in! 🌟',
         });
+        posthog.capture('user_login_success', {
+          method: 'credentials',
+          email: values.email,
+        });
         router.push(callbackUrl);
         router.refresh();
       } else {
         loginMethods.reset({ password: '' });
         setError('Invalid email or password');
+        posthog.capture('user_login_failed', {
+          method: 'credentials',
+          error: 'Invalid credentials',
+          email: values.email,
+        });
       }
     } catch (error: any) {
       setError(error.message);
+      posthog.capture('user_login_error', {
+        method: 'credentials',
+        error: error.message,
+        email: values.email,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -93,26 +108,45 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
             title: 'Success!',
             message: 'You have successfully registered and signed in! 🎉',
           });
+          posthog.capture('user_registration_success', {
+            method: 'credentials',
+            email: values.email,
+          });
           router.push(callbackUrl);
           router.refresh();
         } else {
           setError('Failed to sign in after registration');
+          posthog.capture('user_registration_signin_failed', {
+            method: 'credentials',
+            email: values.email,
+          });
         }
       } else {
         setError('Registration failed');
+        posthog.capture('user_registration_failed', {
+          method: 'credentials',
+          email: values.email,
+        });
       }
     } catch (error: any) {
       setError(error.message);
+      posthog.capture('user_registration_error', {
+        method: 'credentials',
+        error: error.message,
+        email: values.email,
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleGoogleSignIn = () => {
+    posthog.capture('auth_provider_selected', { provider: 'google' });
     signIn('google', { callbackUrl });
   };
 
   const handleMicrosoftSignIn = () => {
+    posthog.capture('auth_provider_selected', { provider: 'microsoft' });
     signIn('microsoft-entra-id', { callbackUrl });
   };
 
@@ -134,14 +168,28 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           message: 'Check your email for the login link.',
           color: 'green',
         });
+        posthog.capture('magic_link_sent', { email });
       } else {
         setError('Failed to send magic link. Please try again.');
+        posthog.capture('magic_link_failed', {
+          email,
+          error: 'Failed to send magic link',
+        });
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
+      posthog.capture('magic_link_error', {
+        email,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleModeChange = (value: 'login' | 'register') => {
+    setMode(value);
+    posthog.capture('auth_mode_changed', { mode: value });
   };
 
   return (
@@ -149,7 +197,7 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
       <Stack>
         <SegmentedControl
           value={mode}
-          onChange={(value) => setMode(value as 'login' | 'register')}
+          onChange={(value) => handleModeChange(value as 'login' | 'register')}
           data={[
             { label: 'Login', value: 'login' },
             { label: 'Register', value: 'register' },

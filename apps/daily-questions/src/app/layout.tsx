@@ -12,8 +12,6 @@ import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { auth } from '@/lib/auth';
 import type { Metadata, Viewport } from 'next';
-// import { Analytics } from '@vercel/analytics/react';
-// import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CSPostHogProvider } from './providers';
 
 const APP_NAME = 'Daily Questions';
@@ -24,7 +22,6 @@ const APP_DESCRIPTION = 'Your guide to a better day every day';
 export const metadata: Metadata = {
   applicationName: APP_NAME,
   manifest: '/manifest.json',
-  // viewport: 'width=device-width, initial-scale=1',
   icons: [
     { rel: 'icon', url: '/favicon.ico' },
     { rel: 'apple-touch-icon', url: '/android-chrome-192x192.png' },
@@ -76,7 +73,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-
   return (
     <html lang="en">
       <CSPostHogProvider>
