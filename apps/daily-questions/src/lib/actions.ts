@@ -479,9 +479,6 @@ export async function subscribeUser(sub: any) {
   }
 
   try {
-    // Get user's timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
     // Check if this subscription already exists
     const existingSub = await prisma.pushSubscription.findFirst({
       where: {
@@ -497,7 +494,7 @@ export async function subscribeUser(sub: any) {
           p256dh: sub.keys.p256dh,
           auth: sub.keys.auth,
           userId: session.user.id,
-          timezone,
+          timezone: sub.timezone,
         },
       });
 
@@ -511,7 +508,7 @@ export async function subscribeUser(sub: any) {
           session.user.id,
           user.notificationTime,
           newSub.id,
-          timezone
+          newSub.timezone
         );
       }
     }

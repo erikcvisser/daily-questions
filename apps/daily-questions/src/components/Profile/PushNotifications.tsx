@@ -54,6 +54,7 @@ interface SerializedSubscription {
     p256dh: string;
     auth: string;
   };
+  timezone: string;
 }
 
 export function PushNotificationManager({ user }: { user: User }) {
@@ -105,6 +106,7 @@ export function PushNotificationManager({ user }: { user: User }) {
               p256dh: arrayBufferToBase64(await browserSub.getKey('p256dh')!),
               auth: arrayBufferToBase64(await browserSub.getKey('auth')!),
             },
+            timezone: currentTimezone,
           };
 
           const isInDB = dbSubs?.some(
@@ -176,6 +178,7 @@ export function PushNotificationManager({ user }: { user: User }) {
           p256dh: arrayBufferToBase64(await sub.getKey('p256dh')!),
           auth: arrayBufferToBase64(await sub.getKey('auth')!),
         },
+        timezone: currentTimezone,
       };
 
       console.log('New Subscription:', serializedSub);
