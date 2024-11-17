@@ -18,77 +18,73 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-/** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
-module.exports = async (phase) => {
-  /**
-   * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
-   **/
-  const nextConfig = {
-    experimental: {
-      swrDelta: 31536000,
-    },
-    output: 'standalone',
-    nx: {
-      // Set this to true if you would like to use SVGR
-      // See: https://github.com/gregberge/svgr
-      svgr: false,
-    },
-    webpack: (config, { isServer }) => {
-      if (isServer) {
-        config.plugins = [...config.plugins, new PrismaPlugin()];
-      }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    swrDelta: 31536000,
+  },
+  output: 'standalone',
+  nx: {
+    // Set this to true if you would like to use SVGR
+    // See: https://github.com/gregberge/svgr
+    svgr: false,
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins, new PrismaPlugin()];
+    }
 
-      return config;
-    },
-    compiler: {
-      // Remove console logs only in production, excluding error logs
-      removeConsole:
-        process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
-    },
-    async headers() {
-      return [
-        {
-          source: '/(.*)',
-          headers: [
-            {
-              key: 'X-Content-Type-Options',
-              value: 'nosniff',
-            },
-            {
-              key: 'X-Frame-Options',
-              value: 'DENY',
-            },
-            {
-              key: 'Referrer-Policy',
-              value: 'strict-origin-when-cross-origin',
-            },
-          ],
-        },
-        {
-          source: '/sw.js',
-          headers: [
-            {
-              key: 'Content-Type',
-              value: 'application/javascript; charset=utf-8',
-            },
-            {
-              key: 'Cache-Control',
-              value: 'no-cache, no-store, must-revalidate',
-            },
-            {
-              key: 'Content-Security-Policy',
-              value: "default-src 'self'; script-src 'self'",
-            },
-          ],
-        },
-      ];
-    },
-  };
+    return config;
+  },
+  compiler: {
+    // Remove console logs only in production, excluding error logs
+    removeConsole:
+      process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self'",
+          },
+        ],
+      },
+    ];
+  },
+};
 
+// Compose the configuration with plugins
+const buildConfig = async (phase) => {
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
     const withSerwist = (await import('@serwist/next')).default({
-      // Note: This is only an example. If you use Pages Router,
-      // use something else that works, such as "service-worker/index.ts".
       swSrc: 'src/app/sw.ts',
       swDest: 'public/sw.js',
     });
@@ -99,3 +95,6 @@ module.exports = async (phase) => {
 
   return composePlugins(...plugins)(nextConfig);
 };
+
+// Export the config
+module.exports = buildConfig;
