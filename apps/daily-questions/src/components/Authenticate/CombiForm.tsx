@@ -28,7 +28,7 @@ import {
   CreateUserInput,
   createUserSchema,
 } from '@/lib/definitions';
-import { registerUser } from '@/lib/actions';
+import { registerUser, requestPasswordReset } from '@/lib/actions';
 import posthog from 'posthog-js';
 
 export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
@@ -38,6 +38,7 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const loginMethods = useForm<LoginUserInput>({
     resolver: zodResolver(loginUserSchema),
@@ -192,6 +193,40 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
     posthog.capture('auth_mode_changed', { mode: value });
   };
 
+  const handleForgotPassword = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    const email = event.currentTarget.email.value;
+    setSubmitting(true);
+    try {
+      const result = await requestPasswordReset(email);
+      if (result.success) {
+        notifications.show({
+          title: 'Reset Link Sent',
+          message: 'Check your email for the password reset link.',
+          color: 'green',
+        });
+        setShowForgotPassword(false);
+        posthog.capture('password_reset_requested', { email });
+      } else {
+        setError('Failed to send reset link. Please try again.');
+        posthog.capture('password_reset_failed', {
+          email,
+          error: 'Failed to send reset link',
+        });
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+      posthog.capture('password_reset_error', {
+        email,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Paper p="md" withBorder>
       <Stack>
@@ -209,25 +244,53 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>
         )}
 
-        {mode === 'login' ? (
-          <form onSubmit={loginMethods.handleSubmit(onLoginSubmit)}>
+        {mode === 'login' && !showForgotPassword ? (
+          <>
+            <form onSubmit={loginMethods.handleSubmit(onLoginSubmit)}>
+              <Stack>
+                <TextInput
+                  label="Email"
+                  placeholder="your@email.com"
+                  required
+                  {...loginMethods.register('email')}
+                  error={loginMethods.formState.errors.email?.message}
+                />
+                <PasswordInput
+                  label="Password"
+                  required
+                  placeholder="Password"
+                  {...loginMethods.register('password')}
+                  error={loginMethods.formState.errors.password?.message}
+                />
+                <Button type="submit" loading={submitting}>
+                  {submitting ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </Stack>
+            </form>
+            <Button
+              variant="subtle"
+              onClick={() => setShowForgotPassword(true)}
+            >
+              Forgot Password?
+            </Button>
+          </>
+        ) : showForgotPassword ? (
+          <form onSubmit={handleForgotPassword}>
             <Stack>
               <TextInput
+                name="email"
                 label="Email"
                 placeholder="your@email.com"
                 required
-                {...loginMethods.register('email')}
-                error={loginMethods.formState.errors.email?.message}
-              />
-              <PasswordInput
-                label="Password"
-                required
-                placeholder="Password"
-                {...loginMethods.register('password')}
-                error={loginMethods.formState.errors.password?.message}
               />
               <Button type="submit" loading={submitting}>
-                {submitting ? 'Signing In...' : 'Sign In'}
+                {submitting ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+              <Button
+                variant="subtle"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                Back to Login
               </Button>
             </Stack>
           </form>

@@ -26,6 +26,8 @@ model User {
   targetScore   Float @default(0.60)
   pushSubscriptions PushSubscription[]
   notificationTime String?  // Store as HH:mm format
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
 
   @@map(name: "users")
 }

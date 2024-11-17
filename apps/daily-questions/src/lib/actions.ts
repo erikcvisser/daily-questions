@@ -15,6 +15,7 @@ import {
   scheduleUserNotification,
   removeExistingJobs,
 } from './queue';
+import crypto from 'crypto';
 
 webpush.setVapidDetails(
   'mailto:mail@dailyquestions.app',
@@ -845,5 +846,90 @@ export async function removeBullJob(
   } catch (error) {
     console.error('Error removing job:', error);
     throw new Error('Failed to remove job');
+  }
+}
+
+export async function requestPasswordReset(email: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    if (!user) {
+      // Return success even if user doesn't exist (security best practice)
+      return { success: true };
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+    // Save hashed token in database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: resetToken,
+        resetTokenExpiry: resetTokenExpiry,
+      },
+    });
+
+    // Send reset email
+    const resend = new Resend(process.env.AUTH_RESEND_KEY);
+    await resend.emails.send({
+      from: 'Daily Questions <mail@dailyquestions.app>',
+      to: user.email || '',
+      subject: 'Reset Your Password',
+      html: `
+        <p>Hello ${user.name},</p>
+        <p>You requested to reset your password. Click the link below to reset it:</p>
+        <p><a href="${process.env.NEXTAUTH_URL}/reset-password/${resetToken}">Reset Password</a></p>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    return {
+      success: false,
+      error: 'Failed to process password reset request',
+    };
+  }
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  try {
+    // Find user with valid reset token
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error('Invalid or expired reset token');
+    }
+
+    // Hash new password
+    const hashedPassword = await hash(newPassword, 12);
+
+    // Update password and clear reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return { success: false, error: 'Failed to reset password' };
   }
 }
