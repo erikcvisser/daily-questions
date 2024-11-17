@@ -1,6 +1,6 @@
 'use client';
 
-import { Indicator, Modal, Button, Group } from '@mantine/core';
+import { Indicator, Modal, Button, Group, Paper } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { Submission, Answer, Question } from '@prisma/client';
 import { useRouter } from 'next/navigation';
@@ -72,46 +72,60 @@ export default function CalendarComp({
 
   return (
     <>
-      <Calendar
-        highlightToday={true}
-        maxDate={new Date()}
-        getDayProps={(date) => ({
-          onClick: () => handleSelect(date),
-        })}
-        renderDay={(date) => {
-          const day = date.getDate();
-          const dateWithSubmission = subs.find((submission) => {
-            const subDate = new Date(submission.date);
-            const localSubDate = new Date(
-              subDate.getFullYear(),
-              subDate.getMonth(),
-              subDate.getDate(),
-              12
-            );
-
-            const localCalDate = new Date(
-              date.getFullYear(),
-              date.getMonth(),
-              date.getDate(),
-              12
-            );
-
-            return localSubDate.getTime() === localCalDate.getTime();
-          });
-
-          return (
-            <Indicator
-              size={15}
-              color={dateWithSubmission ? dateWithSubmission.color : 'blue'}
-              offset={-2}
-              zIndex={18}
-              disabled={!dateWithSubmission}
-            >
-              <div>{day}</div>
-            </Indicator>
-          );
+      <Paper
+        withBorder
+        px="lg"
+        py="sm"
+        radius="md"
+        w="100%"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
-      />
+      >
+        <Calendar
+          mx="auto"
+          highlightToday={true}
+          maxDate={new Date()}
+          getDayProps={(date) => ({
+            onClick: () => handleSelect(date),
+          })}
+          renderDay={(date) => {
+            const day = date.getDate();
+            const dateWithSubmission = subs.find((submission) => {
+              const subDate = new Date(submission.date);
+              const localSubDate = new Date(
+                subDate.getFullYear(),
+                subDate.getMonth(),
+                subDate.getDate(),
+                12
+              );
+
+              const localCalDate = new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                12
+              );
+
+              return localSubDate.getTime() === localCalDate.getTime();
+            });
+
+            return (
+              <Indicator
+                size={15}
+                color={dateWithSubmission ? dateWithSubmission.color : 'blue'}
+                offset={-2}
+                zIndex={18}
+                disabled={!dateWithSubmission}
+              >
+                <div>{day}</div>
+              </Indicator>
+            );
+          }}
+        />
+      </Paper>
       <Modal
         opened={modalOpen}
         onClose={() => setModalOpen(false)}

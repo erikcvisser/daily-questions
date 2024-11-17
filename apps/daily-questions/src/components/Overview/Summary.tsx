@@ -16,7 +16,7 @@ export async function SummarySection({
     personalTarget * 100
   );
   return (
-    <Flex direction={{ base: 'column', md: 'row' }} gap="md">
+    <Flex direction={{ base: 'column', sm: 'row' }} gap="md">
       <Paper
         withBorder
         p="md"
@@ -24,7 +24,7 @@ export async function SummarySection({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          height: '220px',
+          minHeight: '220px',
           flex: 1,
         }}
       >
@@ -39,6 +39,7 @@ export async function SummarySection({
             justifyContent: 'center',
             alignItems: 'center',
             gap: '0.5rem',
+            padding: '1rem 0',
           }}
         >
           <Text ta="center" fw={700} size="xl">
@@ -68,7 +69,6 @@ export async function SummarySection({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          height: '220px',
           minHeight: '220px',
           flex: 1,
         }}
@@ -76,7 +76,7 @@ export async function SummarySection({
         <Text size="lg" fw={500} mb="xs">
           Weekly Target Achievement
         </Text>
-        <div style={{ height: '220px', minWidth: '220px' }}>
+        <div style={{ flex: 1, minWidth: '220px' }}>
           <LineChart
             h="100%"
             w="100%"

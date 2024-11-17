@@ -108,11 +108,7 @@ export function FilteredOverview({
         direction={{ base: 'column', md: 'row' }}
         align={{ base: 'stretch', md: 'flex-start' }}
       >
-        <Box
-          w={{ base: '100%', md: 300 }}
-          miw={300}
-          style={{ display: 'flex', justifyContent: 'center' }}
-        >
+        <Box w={{ base: '100%', md: 300 }} miw={'300px'}>
           <Suspense fallback={<LoadingCalendar />}>
             <CalendarComp
               submissions={filteredSubmissions}
