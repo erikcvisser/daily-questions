@@ -43,7 +43,7 @@ export const notificationQueue = new Queue(
 initializeQueue();
 
 // Process the notifications
-notificationQueue.process(async (job) => {
+notificationQueue.process('daily-notification', async (job) => {
   const { userId, localTime, subscriptionId } = job.data;
 
   try {
