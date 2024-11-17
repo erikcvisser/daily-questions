@@ -325,7 +325,7 @@ export async function registerUser(formData: CreateUserInput) {
       subject: 'Welcome to Daily Questions!',
       html: `<p>Hello ${user.name},</p>
              <p>Welcome to Daily Questions! We're excited to have you on board.</p>
-             <p>Start tracking your daily progress now!<br />
+             <p>Start tracking your daily questions now!<br />
              Open the <a href="https://dailyquestions.app">Daily Questions</a> app to get started.</p>
              <p>Best regards,<br>Erik</p>`,
     });
