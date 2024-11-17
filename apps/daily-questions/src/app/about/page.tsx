@@ -443,7 +443,7 @@ export default async function AboutPage() {
         ) : (
           <ButtonModal
             mb="xl"
-            buttonText="Join Daily Questions Today"
+            buttonText="Join Daily Questions - It's Free!"
             modalTitle="Sign in or sign up"
           />
         )}
