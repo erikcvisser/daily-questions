@@ -44,7 +44,7 @@ initializeQueue();
 
 // Process the notifications
 notificationQueue.process('daily-notification', async (job) => {
-  const { userId, localTime, subscriptionId } = job.data;
+  const { userId, localTime, subscriptionId, timezone } = job.data;
 
   try {
     const subscription = await prisma.pushSubscription.findUnique({
@@ -57,8 +57,8 @@ notificationQueue.process('daily-notification', async (job) => {
       return;
     }
 
-    // Check for submission for today's date (in subscription's timezone)
-    const userTz = subscription.timezone;
+    // Use the timezone from the job data
+    const userTz = timezone;
     const todayInTz = new Date(
       new Date().toLocaleString('en-US', { timeZone: userTz })
     );
@@ -137,25 +137,29 @@ export async function scheduleUserNotification(
   subscriptionId: string,
   timezone: string
 ) {
-  // First remove any existing jobs for this subscription
   await removeExistingJobs(subscriptionId);
 
-  // Parse the time
+  // Parse the time in the user's timezone
   const [hours, minutes] = timeString.split(':').map(Number);
 
-  // Create cron expression for the specified time in user's timezone
+  // Create cron expression for the specified time
   const cronExpression = `${minutes} ${hours} * * *`;
 
-  // Schedule the notification with proper repeat options
+  // Add timezone info to the job data
   await notificationQueue.add(
     'daily-notification',
-    { userId, localTime: timeString, subscriptionId },
+    {
+      userId,
+      localTime: timeString,
+      subscriptionId,
+      timezone, // Add timezone to job data
+    },
     {
       repeat: {
         cron: cronExpression,
-        tz: timezone,
+        tz: timezone, // Ensure timezone is used for the cron schedule
       },
-      jobId: subscriptionId, // Simplified jobId
+      jobId: subscriptionId,
     }
   );
 }

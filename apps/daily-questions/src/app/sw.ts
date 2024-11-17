@@ -32,10 +32,19 @@ self.addEventListener('push', function (event) {
     // Extract hours and minutes from the target time
     const [targetHours, targetMinutes] = data.targetTime.split(':').map(Number);
 
-    // Get current local time
+    // Get current time in user's timezone
     const now = new Date();
-    const currentHours = now.getHours();
-    const currentMinutes = now.getMinutes();
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const localTime = new Date(
+      now.toLocaleString('en-US', { timeZone: userTimezone })
+    );
+
+    const currentHours = localTime.getHours();
+    const currentMinutes = localTime.getMinutes();
+
+    console.log(`Target time: ${targetHours}:${targetMinutes}`);
+    console.log(`Current time: ${currentHours}:${currentMinutes}`);
+    console.log(`Timezone: ${userTimezone}`);
 
     // Only show notification if we're within 2 minutes of the target time
     const currentTotalMinutes = currentHours * 60 + currentMinutes;
@@ -58,7 +67,7 @@ self.addEventListener('push', function (event) {
       event.waitUntil(self.registration.showNotification(data.title, options));
     } else {
       console.log(
-        'Notification received outside target time window, suppressing display'
+        `Notification suppressed: Target=${targetHours}:${targetMinutes}, Current=${currentHours}:${currentMinutes}, Difference=${minuteDifference} minutes`
       );
     }
   }
