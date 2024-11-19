@@ -43,10 +43,12 @@ export default async function InternalHome() {
 
             {pushSubscriptions.length === 0 && (
               <Text ta="center">
-                Want daily reminders?
+                Want to receive daily reminders so that you don&apos;t forget to
+                reflect?
                 <br />
                 <Link href="/profile">
-                  Install the app and enable notifications
+                  Click here for instructions on how to install the app and
+                  enable push notifications
                 </Link>
               </Text>
             )}
