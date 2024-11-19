@@ -2,7 +2,6 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { Admin } from '@/components/Admin/Admin';
-import { initializeQueue, getQueueData } from '@/lib/actions';
 import { revalidatePath } from 'next/cache';
 
 export default async function AdminContent() {
