@@ -106,12 +106,28 @@ function calculateStreak(submissions: Submission[]): number {
 
   if (sortedSubmissions.length === 0) return 0;
 
-  let currentStreak = 1;
-  let previousDate = new Date(sortedSubmissions[0].date);
+  // Get today and yesterday dates (at midnight)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
 
-  // Convert to local date strings for comparison
+  // Get the most recent submission date (at midnight)
+  const mostRecentDate = new Date(sortedSubmissions[0].date);
+  mostRecentDate.setHours(0, 0, 0, 0);
+
+  // If most recent submission is before yesterday, return 0
+  if (mostRecentDate < yesterday) {
+    return 0;
+  }
+
+  // Calculate streak
+  let currentStreak = 1;
+  let previousDate = mostRecentDate;
+
   for (let i = 1; i < sortedSubmissions.length; i++) {
     const currentDate = new Date(sortedSubmissions[i].date);
+    currentDate.setHours(0, 0, 0, 0);
 
     // Calculate difference in days
     const diffDays = Math.round(
