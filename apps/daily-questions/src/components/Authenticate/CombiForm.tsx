@@ -32,20 +32,31 @@ import { registerUser, requestPasswordReset } from '@/lib/actions';
 import posthog from 'posthog-js';
 
 export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const searchParams = useSearchParams();
+  const action = searchParams.get('action');
+  const email = searchParams.get('email');
+
+  const [mode, setMode] = useState<'login' | 'register'>(
+    action === 'register' ? 'register' : 'login'
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const loginMethods = useForm<LoginUserInput>({
     resolver: zodResolver(loginUserSchema),
+    defaultValues: {
+      email: email || '',
+    },
   });
 
   const registerMethods = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: email || '',
+    },
   });
 
   const onLoginSubmit: SubmitHandler<LoginUserInput> = async (values) => {
@@ -230,6 +241,13 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   return (
     <Paper p="md" withBorder>
       <Stack>
+        {email ? (
+          <Text ta="center">
+            You were invited to view a shared overview. Please{' '}
+            {mode === 'login' ? 'sign in' : 'register'} to continue.
+          </Text>
+        ) : null}
+
         <SegmentedControl
           value={mode}
           onChange={(value) => handleModeChange(value as 'login' | 'register')}
@@ -245,56 +263,29 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
         )}
 
         {mode === 'login' && !showForgotPassword ? (
-          <>
-            <form onSubmit={loginMethods.handleSubmit(onLoginSubmit)}>
-              <Stack>
-                <TextInput
-                  label="Email"
-                  placeholder="your@email.com"
-                  required
-                  {...loginMethods.register('email')}
-                  error={loginMethods.formState.errors.email?.message}
-                />
-                <PasswordInput
-                  label="Password"
-                  required
-                  placeholder="Password"
-                  {...loginMethods.register('password')}
-                  error={loginMethods.formState.errors.password?.message}
-                />
-                <Button type="submit" loading={submitting}>
-                  {submitting ? 'Signing In...' : 'Sign In'}
-                </Button>
-              </Stack>
-            </form>
-            <Button
-              variant="subtle"
-              onClick={() => setShowForgotPassword(true)}
-            >
-              Forgot Password?
-            </Button>
-          </>
-        ) : showForgotPassword ? (
-          <form onSubmit={handleForgotPassword}>
+          <form onSubmit={loginMethods.handleSubmit(onLoginSubmit)}>
             <Stack>
               <TextInput
-                name="email"
                 label="Email"
                 placeholder="your@email.com"
                 required
+                {...loginMethods.register('email')}
+                error={loginMethods.formState.errors.email?.message}
+                disabled={!!email}
+              />
+              <PasswordInput
+                label="Password"
+                required
+                placeholder="Password"
+                {...loginMethods.register('password')}
+                error={loginMethods.formState.errors.password?.message}
               />
               <Button type="submit" loading={submitting}>
-                {submitting ? 'Sending...' : 'Send Reset Link'}
-              </Button>
-              <Button
-                variant="subtle"
-                onClick={() => setShowForgotPassword(false)}
-              >
-                Back to Login
+                {submitting ? 'Signing In...' : 'Sign In'}
               </Button>
             </Stack>
           </form>
-        ) : (
+        ) : mode === 'register' ? (
           <form onSubmit={registerMethods.handleSubmit(onRegisterSubmit)}>
             <Stack>
               <TextInput
@@ -310,6 +301,7 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
                 required
                 {...registerMethods.register('email')}
                 error={registerMethods.formState.errors.email?.message}
+                disabled={!!email}
               />
               <PasswordInput
                 label="Password"
@@ -332,7 +324,27 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
               </Button>
             </Stack>
           </form>
-        )}
+        ) : showForgotPassword ? (
+          <form onSubmit={handleForgotPassword}>
+            <Stack>
+              <TextInput
+                name="email"
+                label="Email"
+                placeholder="your@email.com"
+                required
+              />
+              <Button type="submit" loading={submitting}>
+                {submitting ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+              <Button
+                variant="subtle"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                Back to Login
+              </Button>
+            </Stack>
+          </form>
+        ) : null}
 
         <Divider
           my="xs"

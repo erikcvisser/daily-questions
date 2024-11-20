@@ -6,8 +6,9 @@ export default async function LoginPage() {
   return (
     <Container size="sm" mt="lg">
       <Stack>
-        <Title order={1}>Login</Title>
-        <Space h="md" />
+        <Title order={2} mb="md">
+          Login
+        </Title>
         <Suspense fallback="Loading...">
           <CombiForm />
         </Suspense>

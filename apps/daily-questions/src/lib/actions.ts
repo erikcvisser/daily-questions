@@ -724,7 +724,7 @@ export async function updateSubscriptionTimezone(
 
   try {
     const subscription = await prisma.pushSubscription.findUnique({
-      where: { endpoint },
+      where: { userId_endpoint: { userId: session.user.id, endpoint } },
     });
 
     if (!subscription) {
@@ -733,7 +733,7 @@ export async function updateSubscriptionTimezone(
 
     // Update timezone and reschedule notification
     await prisma.pushSubscription.update({
-      where: { endpoint },
+      where: { userId_endpoint: { userId: session.user.id, endpoint } },
       data: { timezone },
     });
 
@@ -931,5 +931,240 @@ export async function resetPassword(token: string, newPassword: string) {
   } catch (error) {
     console.error('Password reset error:', error);
     return { success: false, error: 'Failed to reset password' };
+  }
+}
+
+export async function shareOverview(recipientEmail: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Check if sharing already exists
+    const existingShare = await prisma.sharedOverview.findUnique({
+      where: {
+        ownerId_email: {
+          ownerId: session.user.id,
+          email: recipientEmail.toLowerCase(),
+        },
+      },
+    });
+
+    if (existingShare) {
+      // If it exists but was revoked, we can reactivate it
+      if (existingShare.status === 'REVOKED') {
+        const recipientUser = await prisma.user.findUnique({
+          where: { email: recipientEmail.toLowerCase() },
+        });
+
+        await prisma.sharedOverview.update({
+          where: { id: existingShare.id },
+          data: {
+            status: recipientUser ? 'ACTIVE' : 'PENDING',
+            recipientId: recipientUser?.id,
+          },
+        });
+
+        // Send email notification about reactivation
+        const resend = new Resend(process.env.AUTH_RESEND_KEY);
+        if (recipientUser) {
+          await resend.emails.send({
+            from: 'Daily Questions <mail@dailyquestions.app>',
+            to: recipientEmail,
+            subject: `${session.user.name} has reshared their Daily Questions overview with you`,
+            html: `
+              <p>Hello,</p>
+              <p>${session.user.name} has reshared their Daily Questions overview with you.</p>
+              <p>You can view their overview by logging into your account and visiting the Overview page.</p>
+              <p><a href="${process.env.NEXTAUTH_URL}/overview">View Overview</a></p>
+            `,
+          });
+        } else {
+          await resend.emails.send({
+            from: 'Daily Questions <mail@dailyquestions.app>',
+            to: recipientEmail,
+            subject: `${session.user.name} invited you to Daily Questions`,
+            html: `
+              <p>Hello,</p>
+              <p>${
+                session.user.name
+              } has shared their Daily Questions overview with you.</p>
+              <p>Create an account to view their overview:</p>
+              <p><a href="${
+                process.env.NEXTAUTH_URL
+              }/login?action=register&email=${encodeURIComponent(
+              recipientEmail
+            )}">Create Account</a></p>
+            `,
+          });
+        }
+
+        return { success: true };
+      }
+      return { success: false, error: 'Already shared with this email' };
+    }
+
+    // Check if recipient exists
+    const recipientUser = await prisma.user.findUnique({
+      where: { email: recipientEmail.toLowerCase() },
+    });
+
+    // Create share record
+    const share = await prisma.sharedOverview.create({
+      data: {
+        ownerId: session.user.id,
+        email: recipientEmail.toLowerCase(),
+        recipientId: recipientUser?.id,
+        status: recipientUser ? 'ACTIVE' : 'PENDING',
+      },
+    });
+
+    // Send email
+    const resend = new Resend(process.env.AUTH_RESEND_KEY);
+
+    if (recipientUser) {
+      // Send notification to existing user
+      await resend.emails.send({
+        from: 'Daily Questions <mail@dailyquestions.app>',
+        to: recipientEmail,
+        subject: `${session.user.name} shared their Daily Questions overview with you`,
+        html: `
+          <p>Hello,</p>
+          <p>${session.user.name} has shared their Daily Questions overview with you.</p>
+          <p>You can view their overview by logging into your account and visiting the Overview page.</p>
+          <p><a href="${process.env.NEXTAUTH_URL}/overview">View Overview</a></p>
+        `,
+      });
+    } else {
+      // Send invitation to new user
+      await resend.emails.send({
+        from: 'Daily Questions <mail@dailyquestions.app>',
+        to: recipientEmail,
+        subject: `${session.user.name} invited you to Daily Questions`,
+        html: `
+          <p>Hello,</p>
+          <p>${
+            session.user.name
+          } has shared their Daily Questions overview with you.</p>
+          <p>Create an account to view their overview:</p>
+          <p><a href="${
+            process.env.NEXTAUTH_URL
+          }/login?action=register&email=${encodeURIComponent(
+          recipientEmail
+        )}">Create Account</a></p>
+        `,
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error sharing overview:', error);
+    return { success: false, error: 'Failed to share overview' };
+  }
+}
+
+export async function revokeSharedOverview(sharedOverviewId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const sharedOverview = await prisma.sharedOverview.findUnique({
+      where: { id: sharedOverviewId },
+      include: {
+        owner: {
+          select: { name: true, email: true },
+        },
+        recipient: {
+          select: { email: true },
+        },
+      },
+    });
+
+    if (!sharedOverview) {
+      throw new Error('Shared overview not found');
+    }
+
+    // Verify the user has permission to revoke
+    if (
+      sharedOverview.ownerId !== session.user.id &&
+      sharedOverview.recipientId !== session.user.id
+    ) {
+      throw new Error('Unauthorized to revoke this share');
+    }
+
+    // Update the status to revoked
+    await prisma.sharedOverview.update({
+      where: { id: sharedOverviewId },
+      data: {
+        status: 'REVOKED',
+        // If recipient is revoking, clear their ID to allow future resharing
+        ...(sharedOverview.recipientId === session.user.id && {
+          recipientId: null,
+        }),
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error revoking shared overview:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to revoke access',
+    };
+  }
+}
+
+export async function acceptSharedOverview(sharedOverviewId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Find the shared overview and verify it's for this user
+    const sharedOverview = await prisma.sharedOverview.findUnique({
+      where: {
+        id: sharedOverviewId,
+      },
+      select: {
+        email: true,
+        status: true,
+        recipientId: true,
+      },
+    });
+
+    if (!sharedOverview) {
+      throw new Error('Shared overview not found');
+    }
+
+    // Verify the current user is the intended recipient
+    if (
+      sharedOverview.email.toLowerCase() !== session.user.email?.toLowerCase()
+    ) {
+      throw new Error('Unauthorized: This share is not intended for you');
+    }
+
+    // Update the shared overview
+    await prisma.sharedOverview.update({
+      where: {
+        id: sharedOverviewId,
+      },
+      data: {
+        status: 'ACTIVE',
+        recipientId: session.user.id,
+      },
+    });
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Error accepting shared overview:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+    };
   }
 }

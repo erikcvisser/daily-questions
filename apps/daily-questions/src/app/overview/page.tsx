@@ -1,15 +1,17 @@
 import OverviewContent from './content';
-import { Stack, Container, Title, Space } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 
-export default function OverviewPage() {
+export default function OverviewPage({
+  searchParams,
+}: {
+  searchParams: { view?: string };
+}) {
   return (
     <Container size="xl" mt="lg">
-      <Stack>
-        <Title order={2} mb="md">
-          Overview of your submissions
-        </Title>
-        <OverviewContent />
-      </Stack>
+      <Title order={2} mb="md">
+        Overview of your submissions
+      </Title>
+      <OverviewContent searchParams={searchParams} />
     </Container>
   );
 }

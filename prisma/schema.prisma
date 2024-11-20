@@ -28,6 +28,8 @@ model User {
   notificationTime String?  // Store as HH:mm format
   resetToken       String?   @unique
   resetTokenExpiry DateTime?
+  sharedByMe      SharedOverview[] @relation("SharedByUser")
+  sharedWithMe    SharedOverview[] @relation("SharedWithUser")
 
   @@map(name: "users")
 }
@@ -158,7 +160,7 @@ model Category {
 
 model PushSubscription {
   id        String   @id @default(cuid())
-  endpoint  String   @unique
+  endpoint  String
   p256dh    String
   auth      String
   userId    String
@@ -167,5 +169,29 @@ model PushSubscription {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, endpoint])
   @@index([userId])
+}
+
+model SharedOverview {
+  id          String    @id @default(cuid())
+  ownerId     String    
+  recipientId String?   
+  email       String    
+  status      SharedOverviewStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expiresAt   DateTime? 
+  owner       User      @relation("SharedByUser", fields: [ownerId], references: [id], onDelete: Cascade)
+  recipient   User?     @relation("SharedWithUser", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, email])
+  @@index([email])
+}
+
+enum SharedOverviewStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  REVOKED
 }

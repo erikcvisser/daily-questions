@@ -1,19 +1,53 @@
 import { auth } from '@/lib/auth';
-import ProfileDetails from '@/components/Profile/ProfileDetails';
-import { Container, Title, Space } from '@mantine/core';
 import prisma from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+import ProfileDetails from '@/components/Profile/ProfileDetails';
 
 export default async function ProfilePage() {
   const session = await auth();
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
   const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
+    where: { id: session.user.id },
+    include: {
+      sharedByMe: {
+        where: { status: 'ACTIVE' },
+        include: {
+          recipient: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+      sharedWithMe: {
+        where: { status: 'ACTIVE' },
+        include: {
+          owner: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const sharedOverviews = await prisma.sharedOverview.findMany({
+    where: {
+      email: user?.email || '',
+    },
+    include: {
+      owner: true,
+    },
   });
 
-  return (
-    <Container size="xl" mt="lg">
-      <Title order={2}>Profile</Title>
-      <Space h="xl" />
-      {user && <ProfileDetails user={user} />}
-    </Container>
-  );
+  if (!user) {
+    redirect('/login');
+  }
+
+  return <ProfileDetails user={user} sharedOverviews={sharedOverviews} />;
 }
