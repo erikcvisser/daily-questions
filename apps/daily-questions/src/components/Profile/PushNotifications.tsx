@@ -32,6 +32,7 @@ import {
 } from '@tabler/icons-react';
 import { User } from '@prisma/client';
 import Link from 'next/link';
+import { notifications } from '@mantine/notifications';
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -67,6 +68,7 @@ export function PushNotificationManager({ user }: { user: User }) {
     string | null
   >(null);
   const [currentTimezone, setCurrentTimezone] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   useEffect(() => {
     async function initializeSubscription() {
@@ -163,8 +165,21 @@ export function PushNotificationManager({ user }: { user: User }) {
   }, [currentTimezone, currentDeviceEndpoint]);
 
   async function subscribeToPush() {
+    setIsSubscribing(true);
     try {
       const registration = await navigator.serviceWorker.ready;
+
+      // Check if permission is denied
+      const permission = await Notification.requestPermission();
+      if (permission === 'denied') {
+        notifications.show({
+          title: 'Permission Denied',
+          message: 'Please enable notifications in your browser settings',
+          color: 'red',
+        });
+        return;
+      }
+
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
@@ -199,6 +214,12 @@ export function PushNotificationManager({ user }: { user: User }) {
       setCurrentDeviceEndpoint(sub.endpoint);
     } catch (error) {
       console.error('Failed to subscribe:', error);
+      notifications.show({
+        title: 'Subscription Failed',
+        message: 'Failed to enable notifications. Please try again.',
+        color: 'red',
+      });
+
       const registration = await navigator.serviceWorker.ready;
       const browserSub = await registration.pushManager.getSubscription();
       if (browserSub) {
@@ -207,6 +228,8 @@ export function PushNotificationManager({ user }: { user: User }) {
       setSubscriptions((prev) =>
         prev.filter((sub) => sub.endpoint !== browserSub?.endpoint)
       );
+    } finally {
+      setIsSubscribing(false);
     }
   }
 
@@ -301,6 +324,7 @@ export function PushNotificationManager({ user }: { user: User }) {
                 : subscribeToPush
             }
             label={subscriptions.length > 0 ? 'Enabled' : 'Disabled'}
+            disabled={isSubscribing}
           />
         </Group>
 
