@@ -121,7 +121,7 @@ export async function updateQuestion(id: string, formData: any) {
 }
 
 export async function deleteQuestion(question: Question) {
-  console.log('delete question', question);
+  // console.log('delete question', question);
   await prisma.question.delete({
     where: {
       id: question.id,
@@ -132,7 +132,7 @@ export async function deleteQuestion(question: Question) {
 }
 
 export async function archiveQuestion(question: Question) {
-  console.log('archive question', question);
+  // console.log('archive question', question);
   await prisma.question.update({
     where: {
       id: question.id,
@@ -385,7 +385,6 @@ export async function updateUserDetails(data: {
         targetScore: data.targetScore,
       },
     });
-    console.log(updatedUser);
 
     if (!updatedUser) {
       throw new Error('User update failed');

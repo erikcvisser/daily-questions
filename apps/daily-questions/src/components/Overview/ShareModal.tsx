@@ -44,7 +44,7 @@ export function ShareModal({ opened, onClose }: ShareModalProps) {
       setLoading(false);
     }
   };
-  console.log('opened', opened);
+
   return (
     <Modal opened={opened} onClose={onClose} title="Share Overview">
       <form onSubmit={handleSubmit}>

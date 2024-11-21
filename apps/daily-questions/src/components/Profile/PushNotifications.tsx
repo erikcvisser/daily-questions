@@ -196,7 +196,7 @@ export function PushNotificationManager({ user }: { user: User }) {
         timezone: currentTimezone,
       };
 
-      console.log('New Subscription:', serializedSub);
+      console.log('New Subscription:'); //, serializedSub);
 
       const subResult = await subscribeUser(serializedSub);
       if (!subResult.success) {
