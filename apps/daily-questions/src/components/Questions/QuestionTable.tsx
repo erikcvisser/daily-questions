@@ -163,11 +163,13 @@ export default function QuestionTable({
   deleteQuestionAction,
   archiveQuestionAction,
   updateQuestionPositions,
+  hasSubmissionToday,
 }: {
   questions: Question[];
   deleteQuestionAction: (question: Question) => void;
   archiveQuestionAction: (question: Question) => void;
   updateQuestionPositions: (updatedQuestions: Question[]) => void;
+  hasSubmissionToday: boolean;
 }) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [showInactive, setShowInactive] = useState(false);
@@ -252,44 +254,56 @@ export default function QuestionTable({
         </>
       )}
       {questions.length > 0 && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <Table highlightOnHover>
-            <TableThead>
-              <TableTr>
-                <TableTh style={{ width: '40px' }} />
-                <TableTh hidden style={{ width: '40px' }} />
-                <TableTh>Question</TableTh>
-                <TableTh visibleFrom="md">Type</TableTh>
-                <TableTh visibleFrom="md">Target</TableTh>
-                <TableTh w="100px" ta="right">
-                  Actions
-                </TableTh>
-              </TableTr>
-            </TableThead>
-            <SortableContext
-              items={filteredQuestions.map((q) => q.id)}
-              strategy={verticalListSortingStrategy}
+        <>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table highlightOnHover>
+              <TableThead>
+                <TableTr>
+                  <TableTh style={{ width: '40px' }} />
+                  <TableTh hidden style={{ width: '40px' }} />
+                  <TableTh>Question</TableTh>
+                  <TableTh visibleFrom="md">Type</TableTh>
+                  <TableTh visibleFrom="md">Target</TableTh>
+                  <TableTh w="100px" ta="right">
+                    Actions
+                  </TableTh>
+                </TableTr>
+              </TableThead>
+              <SortableContext
+                items={filteredQuestions.map((q) => q.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <TableTbody>
+                  {filteredQuestions.map((question) => (
+                    <SortableTableRow
+                      key={question.id}
+                      question={question}
+                      selectedRows={selectedRows}
+                      setSelectedRows={setSelectedRows}
+                      deleteQuestionAction={deleteQuestionAction}
+                      archiveQuestionAction={archiveQuestionAction}
+                      router={router}
+                    />
+                  ))}
+                </TableTbody>
+              </SortableContext>
+            </Table>
+          </DndContext>
+          {questions.length > 0 && !hasSubmissionToday && (
+            <Button
+              size="sm"
+              mt="md"
+              mx="auto"
+              onClick={() => router.push('/submission/new')}
             >
-              <TableTbody>
-                {filteredQuestions.map((question) => (
-                  <SortableTableRow
-                    key={question.id}
-                    question={question}
-                    selectedRows={selectedRows}
-                    setSelectedRows={setSelectedRows}
-                    deleteQuestionAction={deleteQuestionAction}
-                    archiveQuestionAction={archiveQuestionAction}
-                    router={router}
-                  />
-                ))}
-              </TableTbody>
-            </SortableContext>
-          </Table>
-        </DndContext>
+              Answer today's questions now!
+            </Button>
+          )}
+        </>
       )}
     </>
   );
