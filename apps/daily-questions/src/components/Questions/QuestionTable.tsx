@@ -2,6 +2,7 @@
 
 import {
   ActionIcon,
+  Button,
   TableTbody,
   TableTd,
   TableTh,
@@ -15,6 +16,7 @@ import {
   IconEdit,
   IconX,
   IconGripVertical,
+  IconPlus,
 } from '@tabler/icons-react';
 import { Table, Checkbox, Group, Text, Switch } from '@mantine/core';
 import { useState } from 'react';
@@ -236,44 +238,59 @@ export default function QuestionTable({
           onChange={(event) => setShowInactive(event.currentTarget.checked)}
         />
       </Group>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <Table highlightOnHover>
-          <TableThead>
-            <TableTr>
-              <TableTh style={{ width: '40px' }} />
-              <TableTh hidden style={{ width: '40px' }} />
-              <TableTh>Question</TableTh>
-              <TableTh visibleFrom="md">Type</TableTh>
-              <TableTh visibleFrom="md">Target</TableTh>
-              <TableTh w="100px" ta="right">
-                Actions
-              </TableTh>
-            </TableTr>
-          </TableThead>
-          <SortableContext
-            items={filteredQuestions.map((q) => q.id)}
-            strategy={verticalListSortingStrategy}
+      {questions.length === 0 && (
+        <>
+          <Text>You have no questions configured yet.</Text>
+          <Button
+            size="sm"
+            mr="auto"
+            leftSection={<IconPlus size={24} />}
+            onClick={() => router.push('/questions/new')}
           >
-            <TableTbody>
-              {filteredQuestions.map((question) => (
-                <SortableTableRow
-                  key={question.id}
-                  question={question}
-                  selectedRows={selectedRows}
-                  setSelectedRows={setSelectedRows}
-                  deleteQuestionAction={deleteQuestionAction}
-                  archiveQuestionAction={archiveQuestionAction}
-                  router={router}
-                />
-              ))}
-            </TableTbody>
-          </SortableContext>
-        </Table>
-      </DndContext>
+            Add a question
+          </Button>
+        </>
+      )}
+      {questions.length > 0 && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <Table highlightOnHover>
+            <TableThead>
+              <TableTr>
+                <TableTh style={{ width: '40px' }} />
+                <TableTh hidden style={{ width: '40px' }} />
+                <TableTh>Question</TableTh>
+                <TableTh visibleFrom="md">Type</TableTh>
+                <TableTh visibleFrom="md">Target</TableTh>
+                <TableTh w="100px" ta="right">
+                  Actions
+                </TableTh>
+              </TableTr>
+            </TableThead>
+            <SortableContext
+              items={filteredQuestions.map((q) => q.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <TableTbody>
+                {filteredQuestions.map((question) => (
+                  <SortableTableRow
+                    key={question.id}
+                    question={question}
+                    selectedRows={selectedRows}
+                    setSelectedRows={setSelectedRows}
+                    deleteQuestionAction={deleteQuestionAction}
+                    archiveQuestionAction={archiveQuestionAction}
+                    router={router}
+                  />
+                ))}
+              </TableTbody>
+            </SortableContext>
+          </Table>
+        </DndContext>
+      )}
     </>
   );
 }
