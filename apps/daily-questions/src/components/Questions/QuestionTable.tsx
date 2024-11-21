@@ -300,7 +300,7 @@ export default function QuestionTable({
               mx="auto"
               onClick={() => router.push('/submission/new')}
             >
-              Answer today's questions now!
+              Answer today&apos;s questions now!
             </Button>
           )}
         </>
