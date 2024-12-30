@@ -75,12 +75,22 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+enum QuestionFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
 model Question {
   id            String    @id @default(cuid())
   position      Int       @default(autoincrement())  
   title         String
   type          QuestionType
   status        QuestionStatus
+  frequency     QuestionFrequency @default(DAILY)
+  frequencyInterval Int?          // For weekly: every N weeks
+  dayOfWeek     Int?             // 0-6, where 0 is Sunday
+  monthlyTrigger String?         // For monthly: either day number or pattern like LAST_DAY
   targetInt     Int?      @map("target_int")
   targetBool    Boolean?  @map("target_bool")
   targetRating  Int?      @map("target_rating")

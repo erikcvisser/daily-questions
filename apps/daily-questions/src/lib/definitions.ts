@@ -1,50 +1,107 @@
-import { TypeOf, object, string, z } from 'zod';
+import { z } from 'zod';
 
-export const createQuestionSchema = object({
-  title: z
-    .string({ required_error: 'Question is required' })
-    .min(5, 'Minimum 5 charachters'),
-  type: z.enum(['INTEGER', 'BOOLEAN', 'FREETEXT', 'RATING']),
-  targetInt: z.coerce.number().optional(),
-  targetBool: z.coerce.boolean().optional(),
-  targetRating: z.coerce.number().optional(),
-});
+export const createQuestionSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    type: z.enum(['INTEGER', 'BOOLEAN', 'RATING', 'FREETEXT']),
+    targetInt: z.coerce.number().optional(),
+    targetBool: z.string().optional(),
+    targetRating: z.string().optional(),
+    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
+    frequencyInterval: z.coerce.number().optional(),
+    dayOfWeek: z.string().optional(),
+    monthlyTrigger: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // Make targetInt required when type is INTEGER
+      if (data.type === 'INTEGER') {
+        return data.targetInt !== undefined;
+      }
+      return true;
+    },
+    {
+      message: 'Target value is required for numeric questions',
+      path: ['targetInt'],
+    }
+  )
+  .refine(
+    (data) => {
+      // Make targetBool required when type is BOOLEAN
+      if (data.type === 'BOOLEAN') {
+        return data.targetBool !== '';
+      }
+      return true;
+    },
+    {
+      message: 'Target value is required for yes/no questions',
+      path: ['targetBool'],
+    }
+  )
+  .refine(
+    (data) => {
+      // Make targetRating required when type is RATING
+      if (data.type === 'RATING') {
+        return data.targetRating !== '';
+      }
+      return true;
+    },
+    {
+      message: 'Target rating is required for rating questions',
+      path: ['targetRating'],
+    }
+  )
+  .refine(
+    (data) => {
+      // Make dayOfWeek required when frequency is WEEKLY
+      if (data.frequency === 'WEEKLY') {
+        return data.dayOfWeek !== '';
+      }
+      return true;
+    },
+    {
+      message: 'Day of week is required for weekly questions',
+      path: ['dayOfWeek'],
+    }
+  )
+  .refine(
+    (data) => {
+      // Make monthlyTrigger required when frequency is MONTHLY
+      if (data.frequency === 'MONTHLY') {
+        return data.monthlyTrigger !== '';
+      }
+      return true;
+    },
+    {
+      message: 'Monthly trigger is required for monthly questions',
+      path: ['monthlyTrigger'],
+    }
+  );
 
-export const submitQuestionnaireSchema = object({
-  date: z.date({ required_error: 'Date is required' }),
-  answers: z.record(z.union([z.string(), z.number(), z.boolean()])),
-});
-export const createUserSchema = object({
-  name: string({ required_error: 'Name is required' }).min(
-    1,
-    'Name is required'
+export const submitQuestionnaireSchema = z.object({
+  date: z.date(),
+  answers: z.record(
+    z.union([z.string(), z.number().transform((n) => n.toString())])
   ),
-  email: string({ required_error: 'Email is required' })
-    .min(1, 'Email is required')
-    .email('Invalid email'),
-  photo: string().optional(),
-  password: string({ required_error: 'Password is required' })
-    .min(1, 'Password is required')
-    .min(8, 'Password must be more than 8 characters')
-    .max(32, 'Password must be less than 32 characters'),
-  passwordConfirm: string({
-    required_error: 'Please confirm your password',
-  }).min(1, 'Please confirm your password'),
-}).refine((data) => data.password === data.passwordConfirm, {
-  path: ['passwordConfirm'],
-  message: 'Passwords do not match',
 });
 
-export const loginUserSchema = object({
-  email: string({ required_error: 'Email is required' })
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+
+export const createUserSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const loginUserSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
     .min(1, 'Email is required')
     .email('Invalid email or password'),
-  password: string({ required_error: 'Password is required' }).min(
-    1,
-    'Password is required'
-  ),
+  password: z
+    .string({ required_error: 'Password is required' })
+    .min(1, 'Password is required'),
 });
 
-export type CreateQuestionInput = TypeOf<typeof createQuestionSchema>;
-export type LoginUserInput = TypeOf<typeof loginUserSchema>;
-export type CreateUserInput = TypeOf<typeof createUserSchema>;
+export type CreateQuestionInput = z.TypeOf<typeof createQuestionSchema>;
+export type LoginUserInput = z.TypeOf<typeof loginUserSchema>;

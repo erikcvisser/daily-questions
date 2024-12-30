@@ -26,22 +26,42 @@ webpush.setVapidDetails(
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
   const session = await auth();
-  const { title, type, targetBool, targetInt, targetRating } =
-    CreateQuestion.parse({
-      title: formData['title'],
-      type: formData['type'],
-      targetBool: formData['targetBool'] || undefined,
-      targetInt: formData['targetInt'] || undefined,
-      targetRating: formData['targetRating'] || undefined,
-      userId: session?.user?.id || '1',
-    });
+  const {
+    title,
+    type,
+    targetBool,
+    targetInt,
+    targetRating,
+    frequency,
+    frequencyInterval,
+    dayOfWeek,
+    monthlyTrigger,
+  } = CreateQuestion.parse({
+    title: formData['title'],
+    type: formData['type'],
+    targetBool: formData['targetBool'] || undefined,
+    targetInt: formData['targetInt'] || undefined,
+    targetRating: formData['targetRating'] || undefined,
+    frequency: formData['frequency'] || 'DAILY',
+    frequencyInterval: formData['frequencyInterval'] || undefined,
+    dayOfWeek: formData['dayOfWeek'] || undefined,
+    monthlyTrigger: formData['monthlyTrigger'] || undefined,
+    userId: session?.user?.id || '1',
+  });
+
   await prisma.question.create({
     data: {
       title,
       type,
-      ...(targetBool && { targetBool }),
-      ...(targetInt && { targetInt }),
-      ...(targetRating && { targetRating }),
+      ...(targetBool && { targetBool: targetBool === 'true' }),
+      ...(targetInt && { targetInt: parseInt(targetInt) }),
+      ...(targetRating && { targetRating: parseInt(targetRating) }),
+      frequency,
+      ...(frequencyInterval && {
+        frequencyInterval: parseInt(frequencyInterval),
+      }),
+      ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+      ...(monthlyTrigger && { monthlyTrigger }),
       status: 'ACTIVE',
       userId: session?.user?.id || '1',
     },
@@ -62,26 +82,48 @@ export async function updateQuestion(id: string, formData: any) {
     include: { libraryQuestion: true },
   });
 
+  const parsedData = CreateQuestion.parse({
+    title: formData['title'],
+    type: formData['type'],
+    targetBool: formData['targetBool'] || undefined,
+    targetInt: formData['targetInt'] || undefined,
+    targetRating: formData['targetRating'] || undefined,
+    frequency: formData['frequency'] || 'DAILY',
+    frequencyInterval: formData['frequencyInterval'] || undefined,
+    dayOfWeek: formData['dayOfWeek'] || undefined,
+    monthlyTrigger: formData['monthlyTrigger'] || undefined,
+    userId: session.user.id,
+  });
+
+  const {
+    title,
+    type,
+    targetBool,
+    targetInt,
+    targetRating,
+    frequency,
+    frequencyInterval,
+    dayOfWeek,
+    monthlyTrigger,
+  } = parsedData;
+
   if (existingQuestion?.libraryQuestion) {
     // If linked to a library question, create a new question and archive the current one
-    const { title, type, targetBool, targetInt, targetRating } =
-      CreateQuestion.parse({
-        title: formData['title'],
-        type: formData['type'],
-        targetBool: formData['targetBool'] || undefined,
-        targetInt: formData['targetInt'] || undefined,
-        targetRating: formData['targetRating'] || undefined,
-      });
-
     await prisma.$transaction([
       // Create new question
       prisma.question.create({
         data: {
           title,
           type,
-          ...(targetBool && { targetBool }),
-          ...(targetInt && { targetInt }),
-          ...(targetRating && { targetRating }),
+          ...(targetBool && { targetBool: targetBool === 'true' }),
+          ...(targetInt && { targetInt: parseInt(targetInt) }),
+          ...(targetRating && { targetRating: parseInt(targetRating) }),
+          frequency,
+          ...(frequencyInterval && {
+            frequencyInterval: parseInt(frequencyInterval),
+          }),
+          ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+          ...(monthlyTrigger && { monthlyTrigger }),
           status: 'ACTIVE',
           userId: session.user.id,
           position: existingQuestion.position, // Maintain the same position
@@ -94,24 +136,21 @@ export async function updateQuestion(id: string, formData: any) {
       }),
     ]);
   } else {
-    // If not linked to a library question, update as before
-    const { title, type, targetBool, targetInt, targetRating } =
-      CreateQuestion.parse({
-        title: formData['title'],
-        type: formData['type'],
-        targetBool: formData['targetBool'] || undefined,
-        targetInt: formData['targetInt'] || undefined,
-        targetRating: formData['targetRating'] || undefined,
-      });
-
+    // If not linked to a library question, update as normal
     await prisma.question.update({
       where: { id },
       data: {
         title,
         type,
-        ...(targetBool && { targetBool }),
-        ...(targetInt && { targetInt }),
-        ...(targetRating && { targetRating }),
+        ...(targetBool && { targetBool: targetBool === 'true' }),
+        ...(targetInt && { targetInt: parseInt(targetInt) }),
+        ...(targetRating && { targetRating: parseInt(targetRating) }),
+        frequency,
+        ...(frequencyInterval && {
+          frequencyInterval: parseInt(frequencyInterval),
+        }),
+        ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+        ...(monthlyTrigger && { monthlyTrigger }),
       },
     });
   }

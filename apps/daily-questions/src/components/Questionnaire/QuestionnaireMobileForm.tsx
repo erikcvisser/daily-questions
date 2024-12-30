@@ -233,6 +233,7 @@ export default function QuestionnaireMobileForm({
             label={item.title}
             size="md"
             description="Rate from 0 to 5"
+            allowDeselect={false}
             data={[
               { value: '0', label: '0. Not done' },
               { value: '1', label: '1. Marginal effort' },

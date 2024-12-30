@@ -174,6 +174,7 @@ export default function QuestionnaireForm({
               key={form.key(`answers.${item.id}`)}
               withAsterisk
               searchable
+              allowDeselect={false}
               {...form.getInputProps(`answers.${item.id}`)}
               radius="md"
             />
