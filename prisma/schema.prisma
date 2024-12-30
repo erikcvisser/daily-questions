@@ -26,6 +26,8 @@ model User {
   targetScore   Float @default(0.60)
   pushSubscriptions PushSubscription[]
   notificationTime String?  // Store as HH:mm format
+  timezone         String   @default("Europe/Amsterdam")
+  emailNotificationsEnabled Boolean @default(false)
   resetToken       String?   @unique
   resetTokenExpiry DateTime?
   sharedByMe      SharedOverview[] @relation("SharedByUser")

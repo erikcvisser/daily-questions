@@ -6,6 +6,7 @@ import {
   updateUserDetails,
   revokeSharedOverview,
   acceptSharedOverview,
+  scheduleNotification,
 } from '@/lib/actions';
 import {
   Text,
@@ -22,12 +23,14 @@ import {
   Container,
   Paper,
 } from '@mantine/core';
+import { TimeInput } from '@mantine/dates';
 import { IconAlertCircle, IconX } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
 import { PushNotificationManager } from '@/components/Profile/PushNotifications';
 import { notifications } from '@mantine/notifications';
 import InstallPrompt from '@/components/Profile/InstallPrompt';
 import { User, SharedOverview } from '@prisma/client';
+import { EmailNotifications } from '@/components/Profile/EmailNotifications';
 
 interface ProfileDetailsProps {
   user: User & {
@@ -37,6 +40,7 @@ interface ProfileDetailsProps {
     sharedWithMe: (SharedOverview & {
       owner: { name: string | null; email: string | null };
     })[];
+    pushSubscriptions: { id: string }[];
   };
   sharedOverviews: (SharedOverview & {
     owner: User;
@@ -54,6 +58,9 @@ export default function ProfileDetails({
   const [targetScore, setTargetScore] = useState(user.targetScore * 100);
   const [error, setError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notificationTime, setNotificationTime] = useState(
+    user.notificationTime || '20:00'
+  );
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -153,6 +160,28 @@ export default function ProfileDetails({
     }
   };
 
+  const handleNotificationTimeChange = async (newTime: string) => {
+    try {
+      const result = await scheduleNotification(newTime);
+      if (result.success) {
+        setNotificationTime(newTime);
+      } else {
+        notifications.show({
+          title: 'Error',
+          message: 'Failed to update notification time',
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update notification time:', error);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update notification time',
+        color: 'red',
+      });
+    }
+  };
+
   return (
     <>
       <Container size="xl" my="xl">
@@ -241,7 +270,30 @@ export default function ProfileDetails({
           Configure push or email notifications, as reminders to answers your
           daily questions.
         </Text>
-        <PushNotificationManager user={user} />
+        {(user.emailNotificationsEnabled ||
+          user.pushSubscriptions.length > 0) && (
+          <Group align="center" mt="md" mb="md">
+            <Text>Daily notification time:</Text>
+            <TimeInput
+              value={notificationTime}
+              onChange={(event) =>
+                handleNotificationTimeChange(event.currentTarget.value)
+              }
+            />
+          </Group>
+        )}
+        <Stack>
+          <PushNotificationManager
+            user={user}
+            notificationTime={notificationTime}
+            onNotificationTimeChange={handleNotificationTimeChange}
+          />
+          <Divider my="md" />
+          <EmailNotifications
+            initialEnabled={user.emailNotificationsEnabled}
+            userEmail={user.email}
+          />
+        </Stack>
         <Divider my="xl" />
 
         <Title order={4} mb="md">

@@ -16,6 +16,7 @@ import {
   removeExistingJobs,
 } from './queue';
 import crypto from 'crypto';
+import { emailQueue } from './emailQueue';
 
 webpush.setVapidDetails(
   'mailto:mail@dailyquestions.app',
@@ -54,13 +55,13 @@ export async function createQuestion(formData: any) {
       title,
       type,
       ...(targetBool && { targetBool: targetBool === 'true' }),
-      ...(targetInt && { targetInt: parseInt(targetInt) }),
+      ...(targetInt && { targetInt: targetInt }),
       ...(targetRating && { targetRating: parseInt(targetRating) }),
       frequency,
       ...(frequencyInterval && {
-        frequencyInterval: parseInt(frequencyInterval),
+        frequencyInterval: frequencyInterval,
       }),
-      ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+      ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
       ...(monthlyTrigger && { monthlyTrigger }),
       status: 'ACTIVE',
       userId: session?.user?.id || '1',
@@ -116,13 +117,13 @@ export async function updateQuestion(id: string, formData: any) {
           title,
           type,
           ...(targetBool && { targetBool: targetBool === 'true' }),
-          ...(targetInt && { targetInt: parseInt(targetInt) }),
+          ...(targetInt && { targetInt: targetInt }),
           ...(targetRating && { targetRating: parseInt(targetRating) }),
           frequency,
           ...(frequencyInterval && {
-            frequencyInterval: parseInt(frequencyInterval),
+            frequencyInterval: frequencyInterval,
           }),
-          ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+          ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
           ...(monthlyTrigger && { monthlyTrigger }),
           status: 'ACTIVE',
           userId: session.user.id,
@@ -143,13 +144,13 @@ export async function updateQuestion(id: string, formData: any) {
         title,
         type,
         ...(targetBool && { targetBool: targetBool === 'true' }),
-        ...(targetInt && { targetInt: parseInt(targetInt) }),
+        ...(targetInt && { targetInt: targetInt }),
         ...(targetRating && { targetRating: parseInt(targetRating) }),
         frequency,
         ...(frequencyInterval && {
-          frequencyInterval: parseInt(frequencyInterval),
+          frequencyInterval: frequencyInterval,
         }),
-        ...(dayOfWeek && { dayOfWeek: parseInt(dayOfWeek) }),
+        ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
         ...(monthlyTrigger && { monthlyTrigger }),
       },
     });
@@ -625,6 +626,67 @@ export async function getSubscriptions() {
   return subscription;
 }
 
+async function scheduleUserEmailNotification(
+  userId: string,
+  time: string,
+  timezone: string
+) {
+  const [hours, minutes] = time.split(':').map(Number);
+
+  const cronPattern = `${minutes} ${hours} * * *`;
+
+  const jobId = `email:${userId}`;
+
+  await emailQueue.add(
+    'daily-email',
+    {
+      userId,
+      localTime: time,
+      timezone,
+    },
+    {
+      jobId,
+      repeat: { cron: cronPattern, tz: timezone },
+    }
+  );
+}
+
+export async function updateEmailNotifications(enabled: boolean) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { emailNotificationsEnabled: enabled },
+    });
+
+    if (enabled && user.notificationTime) {
+      await scheduleUserEmailNotification(
+        session.user.id,
+        user.notificationTime,
+        user.timezone
+      );
+    } else {
+      const [hours, minutes] =
+        user?.notificationTime?.split(':').map(Number) || [];
+      const cronPattern = `${minutes} ${hours} * * *`;
+
+      await emailQueue.removeRepeatable('daily-email', {
+        cron: cronPattern,
+        tz: user.timezone,
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating email notifications:', error);
+    return { success: false, error: 'Failed to update email notifications' };
+  }
+}
+
 export async function scheduleNotification(time: string) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -632,28 +694,36 @@ export async function scheduleNotification(time: string) {
   }
 
   try {
-    // Store the notification preference
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: session.user.id },
       data: { notificationTime: time },
     });
 
-    // Get all user's subscriptions
+    // Schedule push notifications
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId: session.user.id },
     });
 
-    // Schedule the notification for each subscription
     for (const subscription of subscriptions) {
-      // Remove existing jobs before scheduling new one
       await removeExistingJobs(subscription.id);
-
       await scheduleUserNotification(
         session.user.id,
         time,
         subscription.id,
         subscription.timezone
       );
+    }
+
+    // Schedule email notification if enabled
+    if (user.emailNotificationsEnabled) {
+      const [hours, minutes] = time.split(':').map(Number);
+      const cronPattern = `${minutes} ${hours} * * *`;
+
+      await emailQueue.removeRepeatable('daily-email', {
+        cron: cronPattern,
+        tz: user.timezone,
+      });
+      await scheduleUserEmailNotification(session.user.id, time, user.timezone);
     }
 
     return { success: true };

@@ -58,12 +58,21 @@ interface SerializedSubscription {
   timezone: string;
 }
 
-export function PushNotificationManager({ user }: { user: User }) {
+interface PushNotificationManagerProps {
+  user: User;
+  notificationTime: string;
+  onNotificationTimeChange: (time: string) => void;
+}
+
+export function PushNotificationManager({
+  user,
+  notificationTime,
+  onNotificationTimeChange,
+}: PushNotificationManagerProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [subscriptions, setSubscriptions] = useState<PushSubscription[]>([]);
   const [message, setMessage] = useState('');
-  const [notificationTime, setNotificationTime] = useState('');
   const [currentDeviceEndpoint, setCurrentDeviceEndpoint] = useState<
     string | null
   >(null);
@@ -86,12 +95,6 @@ export function PushNotificationManager({ user }: { user: User }) {
         console.log('Waiting for service worker...');
         const registration = await navigator.serviceWorker.ready;
         console.log('Service worker ready');
-
-        console.log(
-          'Setting notification time from user preferences:',
-          user.notificationTime
-        );
-        setNotificationTime(user.notificationTime || '20:00');
 
         console.log('Fetching database subscriptions...');
         const dbSubs = await getSubscriptions();
@@ -139,7 +142,7 @@ export function PushNotificationManager({ user }: { user: User }) {
     }
 
     initializeSubscription();
-  }, [user.notificationTime]);
+  }, []);
 
   useEffect(() => {
     // Check timezone periodically
@@ -258,17 +261,6 @@ export function PushNotificationManager({ user }: { user: User }) {
     }
   }
 
-  async function updateNotificationTime(newTime: string) {
-    try {
-      const result = await scheduleNotification(newTime);
-      if (result.success) {
-        setNotificationTime(newTime);
-      }
-    } catch (error) {
-      console.error('Failed to update notification time:', error);
-    }
-  }
-
   async function sendTestNotification() {
     const title = 'Daily Questions';
     if (subscriptions.length > 0) {
@@ -327,20 +319,6 @@ export function PushNotificationManager({ user }: { user: User }) {
             disabled={isSubscribing}
           />
         </Group>
-
-        {subscriptions.length > 0 && (
-          <>
-            <Group align="center">
-              <Text>Daily notification time:</Text>
-              <TimeInput
-                value={notificationTime}
-                onChange={(event) =>
-                  updateNotificationTime(event.currentTarget.value)
-                }
-              />
-            </Group>
-          </>
-        )}
       </Stack>
       <Stack>
         <Title order={4} mt="md">

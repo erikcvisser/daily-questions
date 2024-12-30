@@ -9,7 +9,7 @@ export const createQuestionSchema = z
     targetRating: z.string().optional(),
     frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
     frequencyInterval: z.coerce.number().optional(),
-    dayOfWeek: z.string().optional(),
+    dayOfWeek: z.coerce.number().optional(),
     monthlyTrigger: z.string().optional(),
   })
   .refine(
@@ -55,7 +55,7 @@ export const createQuestionSchema = z
     (data) => {
       // Make dayOfWeek required when frequency is WEEKLY
       if (data.frequency === 'WEEKLY') {
-        return data.dayOfWeek !== '';
+        return data.dayOfWeek !== undefined;
       }
       return true;
     },
@@ -87,11 +87,17 @@ export const submitQuestionnaireSchema = z.object({
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 
-export const createUserSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email(),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
+export const createUserSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    passwordConfirm: z.string(),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "Passwords don't match",
+    path: ['passwordConfirm'],
+  });
 
 export const loginUserSchema = z.object({
   email: z

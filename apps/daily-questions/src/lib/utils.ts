@@ -6,7 +6,7 @@ export function shouldShowQuestion(question: Question, date: Date): boolean {
 
   if (question.frequency === 'WEEKLY' && question.dayOfWeek !== null) {
     // Get the start of the week for the given date
-    const weekNumber = getWeek(date, { weekStartsOn: 0 }) + 1;
+    const weekNumber = getWeek(date, { weekStartsOn: 0 });
 
     // Check if this week matches the frequency interval
     console.log(weekNumber);
