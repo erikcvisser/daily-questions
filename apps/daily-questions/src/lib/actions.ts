@@ -37,7 +37,7 @@ export async function createQuestion(formData: any) {
     targetRating,
     frequency,
     frequencyInterval,
-    dayOfWeek,
+    daysOfWeek,
     monthlyTrigger,
   } = CreateQuestion.parse({
     title: formData['title'],
@@ -47,7 +47,8 @@ export async function createQuestion(formData: any) {
     targetRating: formData['targetRating'] || undefined,
     frequency: formData['frequency'] || 'DAILY',
     frequencyInterval: formData['frequencyInterval'] || undefined,
-    dayOfWeek: formData['dayOfWeek'] || undefined,
+    daysOfWeek:
+      formData['daysOfWeek']?.map((day: string) => parseInt(day)) || [],
     monthlyTrigger: formData['monthlyTrigger'] || undefined,
     userId: session?.user?.id || '1',
   });
@@ -63,7 +64,7 @@ export async function createQuestion(formData: any) {
       ...(frequencyInterval && {
         frequencyInterval: frequencyInterval,
       }),
-      ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
+      daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
       ...(monthlyTrigger && { monthlyTrigger }),
       status: 'ACTIVE',
       userId: session?.user?.id || '1',
@@ -93,7 +94,8 @@ export async function updateQuestion(id: string, formData: any) {
     targetRating: formData['targetRating'] || undefined,
     frequency: formData['frequency'] || 'DAILY',
     frequencyInterval: formData['frequencyInterval'] || undefined,
-    dayOfWeek: formData['dayOfWeek'] || undefined,
+    daysOfWeek:
+      formData['daysOfWeek']?.map((day: string) => parseInt(day)) || [],
     monthlyTrigger: formData['monthlyTrigger'] || undefined,
     userId: session.user.id,
   });
@@ -106,7 +108,7 @@ export async function updateQuestion(id: string, formData: any) {
     targetRating,
     frequency,
     frequencyInterval,
-    dayOfWeek,
+    daysOfWeek,
     monthlyTrigger,
   } = parsedData;
 
@@ -125,7 +127,7 @@ export async function updateQuestion(id: string, formData: any) {
           ...(frequencyInterval && {
             frequencyInterval: frequencyInterval,
           }),
-          ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
+          daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
           ...(monthlyTrigger && { monthlyTrigger }),
           status: 'ACTIVE',
           userId: session.user.id,
@@ -152,7 +154,7 @@ export async function updateQuestion(id: string, formData: any) {
         ...(frequencyInterval && {
           frequencyInterval: frequencyInterval,
         }),
-        ...(dayOfWeek && { dayOfWeek: dayOfWeek }),
+        daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
         ...(monthlyTrigger && { monthlyTrigger }),
       },
     });

@@ -4,15 +4,15 @@ import { startOfWeek, getWeek, isLastDayOfMonth, endOfMonth } from 'date-fns';
 export function shouldShowQuestion(question: Question, date: Date): boolean {
   if (question.frequency === 'DAILY') return true;
 
-  if (question.frequency === 'WEEKLY' && question.dayOfWeek !== null) {
+  if (question.frequency === 'WEEKLY' && question.daysOfWeek?.length > 0) {
     // Get the start of the week for the given date
     const weekNumber = getWeek(date, { weekStartsOn: 0 });
 
     // Check if this week matches the frequency interval
     const isMatchingWeek = weekNumber % (question.frequencyInterval || 1) === 0;
 
-    // Check if today is the configured day of the week
-    const isMatchingDay = date.getDay() === question.dayOfWeek;
+    // Check if today is one of the configured days of the week
+    const isMatchingDay = question.daysOfWeek.includes(date.getDay());
 
     return isMatchingWeek && isMatchingDay;
   }

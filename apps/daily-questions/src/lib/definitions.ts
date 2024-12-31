@@ -9,7 +9,9 @@ export const createQuestionSchema = z
     targetRating: z.string().optional(),
     frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
     frequencyInterval: z.coerce.number().optional(),
-    dayOfWeek: z.coerce.number().optional(),
+    daysOfWeek: z
+      .array(z.string())
+      .transform((days) => days.map((day) => parseInt(day))),
     monthlyTrigger: z.string().optional(),
   })
   .refine(
@@ -53,15 +55,15 @@ export const createQuestionSchema = z
   )
   .refine(
     (data) => {
-      // Make dayOfWeek required when frequency is WEEKLY
+      // Make daysOfWeek required when frequency is WEEKLY
       if (data.frequency === 'WEEKLY') {
-        return data.dayOfWeek !== undefined;
+        return data.daysOfWeek && data.daysOfWeek.length > 0;
       }
       return true;
     },
     {
-      message: 'Day of week is required for weekly questions',
-      path: ['dayOfWeek'],
+      message: 'At least one day of week is required for weekly questions',
+      path: ['daysOfWeek'],
     }
   )
   .refine(

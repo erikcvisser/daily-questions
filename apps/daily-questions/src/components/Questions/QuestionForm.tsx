@@ -9,6 +9,7 @@ import {
   Alert,
   Stack,
   Grid,
+  MultiSelect,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
@@ -44,7 +45,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
       targetRating: question?.targetRating?.toString() || '',
       frequency: question?.frequency || 'DAILY',
       frequencyInterval: question?.frequencyInterval?.toString() || '1',
-      dayOfWeek: question?.dayOfWeek?.toString() || '0',
+      daysOfWeek: question?.daysOfWeek?.map((day) => day.toString()) || [],
       monthlyTrigger: question?.monthlyTrigger || '1',
     },
     validateInputOnChange: true,
@@ -209,10 +210,10 @@ export default function QuestionForm({ question }: { question?: Question }) {
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, xs: 8 }}>
-                <Select
-                  label="Day of week"
-                  placeholder="Select day of week"
-                  {...form.getInputProps('dayOfWeek')}
+                <MultiSelect
+                  label="Days of week"
+                  placeholder="Select days of week"
+                  {...form.getInputProps('daysOfWeek')}
                   data={[
                     { value: '0', label: 'Sunday' },
                     { value: '1', label: 'Monday' },
@@ -223,7 +224,6 @@ export default function QuestionForm({ question }: { question?: Question }) {
                     { value: '6', label: 'Saturday' },
                   ]}
                   disabled={!isEditing && !!question}
-                  allowDeselect={false}
                 />
               </Grid.Col>
             </Grid>
