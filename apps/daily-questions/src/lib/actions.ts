@@ -698,9 +698,27 @@ export async function scheduleNotification(time: string) {
   }
 
   try {
+    // Validate time format
+    const [hours, minutes] = time.split(':').map(Number);
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      throw new Error('Invalid time format. Expected HH:mm');
+    }
+
+    // Format time to ensure HH:mm format
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
+
     const user = await prisma.user.update({
       where: { id: session.user.id },
-      data: { notificationTime: time },
+      data: { notificationTime: formattedTime },
     });
 
     // Schedule push notifications
@@ -712,7 +730,7 @@ export async function scheduleNotification(time: string) {
       await removeExistingJobs(subscription.id);
       await scheduleUserNotification(
         session.user.id,
-        time,
+        formattedTime,
         subscription.id,
         subscription.timezone
       );
@@ -720,20 +738,27 @@ export async function scheduleNotification(time: string) {
 
     // Schedule email notification if enabled
     if (user.emailNotificationsEnabled) {
-      const [hours, minutes] = time.split(':').map(Number);
-      const cronPattern = `${minutes} ${hours} * * *`;
-
       await emailQueue.removeRepeatable('daily-email', {
-        cron: cronPattern,
+        cron: `${minutes} ${hours} * * *`,
         tz: user.timezone,
       });
-      await scheduleUserEmailNotification(session.user.id, time, user.timezone);
+      await scheduleUserEmailNotification(
+        session.user.id,
+        formattedTime,
+        user.timezone
+      );
     }
 
     return { success: true };
   } catch (error) {
     console.error('Error scheduling notification:', error);
-    return { success: false, error: 'Failed to schedule notification' };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to schedule notification',
+    };
   }
 }
 

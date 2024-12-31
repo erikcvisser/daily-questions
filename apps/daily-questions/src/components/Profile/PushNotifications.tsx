@@ -200,14 +200,18 @@ export function PushNotificationManager({
         timezone: currentTimezone,
       };
 
-      console.log('New Subscription:'); //, serializedSub);
-
       const subResult = await subscribeUser(serializedSub);
       if (!subResult.success) {
         throw new Error(`Failed to save subscription`);
       }
 
-      const scheduleResult = await scheduleNotification(notificationTime);
+      // Ensure notification time is in HH:mm format
+      const [hours, minutes] = notificationTime.split(':').map(Number);
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')}`;
+
+      const scheduleResult = await scheduleNotification(formattedTime);
       if (!scheduleResult.success) {
         throw new Error(
           `Failed to schedule notification: ${scheduleResult.error}`

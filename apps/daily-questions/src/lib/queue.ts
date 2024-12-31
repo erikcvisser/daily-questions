@@ -142,6 +142,20 @@ export async function scheduleUserNotification(
   // Parse the time in the user's timezone
   const [hours, minutes] = timeString.split(':').map(Number);
 
+  // Validate hours and minutes
+  if (
+    isNaN(hours) ||
+    isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    throw new Error(
+      `Invalid time format: ${timeString}. Expected HH:mm format.`
+    );
+  }
+
   // Create cron expression for the specified time
   const cronExpression = `${minutes} ${hours} * * *`;
 
@@ -152,14 +166,14 @@ export async function scheduleUserNotification(
       userId,
       localTime: timeString,
       subscriptionId,
-      timezone, // Add timezone to job data
+      timezone,
     },
     {
       repeat: {
         cron: cronExpression,
-        tz: timezone, // Ensure timezone is used for the cron schedule
+        tz: timezone,
       },
-      jobId: subscriptionId,
+      jobId: `notification:${subscriptionId}:${cronExpression}`, // More specific jobId
     }
   );
 }
