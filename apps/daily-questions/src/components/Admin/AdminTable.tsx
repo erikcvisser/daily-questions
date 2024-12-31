@@ -44,6 +44,10 @@ export function AdminTable({
         aValue = a.pushSubscriptions.length;
         bValue = b.pushSubscriptions.length;
         break;
+      case 'emailNotificationsEnabled':
+        aValue = a.emailNotificationsEnabled ? 'Yes' : 'No';
+        bValue = b.emailNotificationsEnabled ? 'Yes' : 'No';
+        break;
       default:
         aValue = a[sortConfig.key];
         bValue = b[sortConfig.key];
@@ -123,6 +127,14 @@ export function AdminTable({
             {sortConfig?.key === 'pushSubCount' &&
               (sortConfig.direction === 'asc' ? '↑' : '↓')}
           </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('emailNotificationsEnabled')}
+            style={{ cursor: 'pointer' }}
+          >
+            Email Not
+            {sortConfig?.key === 'emailNotificationsEnabled' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -135,6 +147,7 @@ export function AdminTable({
             <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>
             <Table.Td>{user.submissions.length}</Table.Td>
             <Table.Td>{user.pushSubscriptions.length}</Table.Td>
+            <Table.Td>{user.emailNotificationsEnabled ? 'Yes' : 'No'}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>

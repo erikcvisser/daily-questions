@@ -1287,17 +1287,18 @@ export async function sendEndOfYearEmailToAllUsers() {
     throw new Error('Unauthorized');
   }
 
+  throw new Error('not sending this email anymore');
   try {
-    const users = await prisma.user.findMany({
-      select: {
-        email: true,
-        name: true,
-      },
-    });
+    // const users = await prisma.user.findMany({
+    //   select: {
+    //     email: true,
+    //     name: true,
+    //   },
+    // });
 
     const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
-    // const users = [{ email: 'erikcvisser@gmail.com', name: 'Erik' }];
+    const users = [{ email: 'erikcvisser@gmail.com', name: 'Erik' }];
     const results = await Promise.all(
       users.map(async (user) => {
         try {
