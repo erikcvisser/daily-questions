@@ -1288,22 +1288,21 @@ export async function sendEndOfYearEmailToAllUsers() {
   }
 
   try {
-    // Get all active users
-    // const users = await prisma.user.findMany({
-    //   where: {
-    //     emailVerified: {
-    //       not: null,
-    //     },
-    //   },
-    //   select: {
-    //     email: true,
-    //     name: true,
-    //   },
-    // });
+    const users = await prisma.user.findMany({
+      where: {
+        emailVerified: {
+          not: null,
+        },
+      },
+      select: {
+        email: true,
+        name: true,
+      },
+    });
 
     const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
-    const users = [{ email: 'erikcvisser@gmail.com', name: 'Erik' }];
+    // const users = [{ email: 'erikcvisser@gmail.com', name: 'Erik' }];
     const results = await Promise.all(
       users.map(async (user) => {
         try {
