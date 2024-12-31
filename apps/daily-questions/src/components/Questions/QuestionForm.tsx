@@ -27,6 +27,8 @@ export default function QuestionForm({ question }: { question?: Question }) {
   const [showLibraryWarning, setShowLibraryWarning] = useState(false);
   const focusTrapRef = useFocusTrap();
   const router = useRouter();
+  const [type, setType] = useState(question?.type || 'INTEGER');
+  const [frequency, setFrequency] = useState(question?.frequency || 'DAILY');
 
   useEffect(() => {
     if (question?.libraryQuestionId) {
@@ -50,6 +52,15 @@ export default function QuestionForm({ question }: { question?: Question }) {
     },
     validateInputOnChange: true,
     validate: zodResolver(createQuestionSchema),
+  });
+
+  // Watch for changes in type and frequency
+  form.watch('type', ({ value }) => {
+    setType(value);
+  });
+
+  form.watch('frequency', ({ value }) => {
+    setFrequency(value);
   });
 
   const handleError = (errors: typeof form.errors) => {
@@ -131,7 +142,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
             allowDeselect={false}
             disabled={!isEditing && !!question}
           />
-          {form.getValues()['type'] == 'INTEGER' && (
+          {type === 'INTEGER' && (
             <NumberInput
               label="Target value (0-10)"
               key={form.key('targetInt')}
@@ -143,7 +154,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
               disabled={!isEditing && !!question}
             />
           )}
-          {form.getValues()['type'] == 'RATING' && (
+          {type === 'RATING' && (
             <Select
               label="Target rating (0-5)"
               key={form.key('targetRating')}
@@ -164,7 +175,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
               allowDeselect={false}
             />
           )}
-          {form.getValues()['type'] == 'BOOLEAN' && (
+          {type === 'BOOLEAN' && (
             <Select
               label="Desired value"
               placeholder="Pick value"
@@ -197,7 +208,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
             allowDeselect={false}
           />
 
-          {form.getValues()['frequency'] === 'WEEKLY' && (
+          {frequency === 'WEEKLY' && (
             <Grid gutter="md">
               <Grid.Col span={{ base: 12, xs: 4 }}>
                 <NumberInput
@@ -228,7 +239,7 @@ export default function QuestionForm({ question }: { question?: Question }) {
               </Grid.Col>
             </Grid>
           )}
-          {form.getValues()['frequency'] === 'MONTHLY' && (
+          {frequency === 'MONTHLY' && (
             <>
               <Select
                 label="Monthly trigger"
