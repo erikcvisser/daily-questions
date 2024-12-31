@@ -47,8 +47,7 @@ export async function createQuestion(formData: any) {
     targetRating: formData['targetRating'] || undefined,
     frequency: formData['frequency'] || 'DAILY',
     frequencyInterval: formData['frequencyInterval'] || undefined,
-    daysOfWeek:
-      formData['daysOfWeek']?.map((day: string) => parseInt(day)) || [],
+    daysOfWeek: formData['daysOfWeek'] || [],
     monthlyTrigger: formData['monthlyTrigger'] || undefined,
     userId: session?.user?.id || '1',
   });
@@ -64,7 +63,7 @@ export async function createQuestion(formData: any) {
       ...(frequencyInterval && {
         frequencyInterval: frequencyInterval,
       }),
-      daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
+      daysOfWeek: daysOfWeek,
       ...(monthlyTrigger && { monthlyTrigger }),
       status: 'ACTIVE',
       userId: session?.user?.id || '1',
@@ -94,8 +93,7 @@ export async function updateQuestion(id: string, formData: any) {
     targetRating: formData['targetRating'] || undefined,
     frequency: formData['frequency'] || 'DAILY',
     frequencyInterval: formData['frequencyInterval'] || undefined,
-    daysOfWeek:
-      formData['daysOfWeek']?.map((day: string) => parseInt(day)) || [],
+    daysOfWeek: formData['daysOfWeek'] || [],
     monthlyTrigger: formData['monthlyTrigger'] || undefined,
     userId: session.user.id,
   });
@@ -127,7 +125,7 @@ export async function updateQuestion(id: string, formData: any) {
           ...(frequencyInterval && {
             frequencyInterval: frequencyInterval,
           }),
-          daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
+          daysOfWeek: daysOfWeek,
           ...(monthlyTrigger && { monthlyTrigger }),
           status: 'ACTIVE',
           userId: session.user.id,
@@ -154,7 +152,7 @@ export async function updateQuestion(id: string, formData: any) {
         ...(frequencyInterval && {
           frequencyInterval: frequencyInterval,
         }),
-        daysOfWeek: daysOfWeek.map((day) => parseInt(day.toString())),
+        daysOfWeek: daysOfWeek,
         ...(monthlyTrigger && { monthlyTrigger }),
       },
     });

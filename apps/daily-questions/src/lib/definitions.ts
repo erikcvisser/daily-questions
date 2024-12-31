@@ -11,7 +11,8 @@ export const createQuestionSchema = z
     frequencyInterval: z.coerce.number().optional(),
     daysOfWeek: z
       .array(z.string())
-      .transform((days) => days.map((day) => parseInt(day))),
+      .transform((days) => days.map((day) => parseInt(day)))
+      .optional(),
     monthlyTrigger: z.string().optional(),
   })
   .refine(
