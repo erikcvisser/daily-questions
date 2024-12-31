@@ -29,11 +29,11 @@ export default function EndOfYearEmail({ userName }: EndOfYearEmailProps) {
             I&apos;m Erik, the guy behind Daily Questions. As 2024 comes to a
             close, I want to take a moment to thank you for using this app.{' '}
             <br />
-            <br />I built Daily Questions to make it as easy as possible for
-            people to reflect daily on the areas that matter most to them.
-            Seeing so many of you using it—especially those I don&apos;t know
-            personally—has been incredibly rewarding. I hope the app is helping
-            you grow, just as it&apos;s helping me.
+            <br />I built Daily Questions a few months ago to make it as easy as
+            possible for people to reflect daily on the areas that matter most
+            to them. Seeing so many of you using it—especially those I
+            don&apos;t know personally—has been incredibly rewarding. I hope the
+            app is helping you grow, just as it&apos;s helping me.
           </Text>
           <Hr style={divider} />
           <Heading style={h2}>Latest additions to the app</Heading>
@@ -140,8 +140,29 @@ export default function EndOfYearEmail({ userName }: EndOfYearEmailProps) {
             <br />
             Warm regards,
             <br />
-            Erik
+            Erik Visser
           </Text>
+
+          <Hr style={divider} />
+
+          <Text style={text}>Share Daily Questions with your network:</Text>
+
+          <Container style={socialContainer}>
+            <a
+              href="https://www.linkedin.com/sharing/share-offsite/?url=https://dailyquestions.app"
+              target="_blank"
+              style={socialButton}
+            >
+              Share on LinkedIn
+            </a>
+            <a
+              href="https://twitter.com/intent/tweet?text=Check%20out%20Daily%20Questions%20-%20a%20free%20app%20to%20help%20you%20reflect%20and%20grow%20daily%20https://dailyquestions.app"
+              target="_blank"
+              style={socialButton}
+            >
+              Share on X
+            </a>
+          </Container>
         </Container>
       </Body>
     </Html>
@@ -201,4 +222,21 @@ const listItemDescription = {
   lineHeight: '1.5',
   margin: '0 0 12px 16px',
   paddingLeft: '12px',
+};
+
+const socialContainer = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '16px',
+  margin: '16px 0',
+};
+
+const socialButton = {
+  backgroundColor: '#f1f3f5',
+  color: '#1A1B1E',
+  padding: '8px 16px',
+  borderRadius: '4px',
+  marginRight: '4px',
+  textDecoration: 'none',
+  fontSize: '14px',
 };
