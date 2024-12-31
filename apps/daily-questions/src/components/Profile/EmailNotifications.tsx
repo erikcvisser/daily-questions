@@ -1,6 +1,6 @@
 'use client';
 
-import { Switch, Text, Group } from '@mantine/core';
+import { Switch, Text, Group, Card, Container } from '@mantine/core';
 import { updateEmailNotifications } from '@/lib/actions';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
@@ -52,19 +52,17 @@ export function EmailNotifications({
   }
 
   return (
-    <div>
-      <Group mb="xs">
-        <Text>Email Notifications</Text>
-        <Switch
-          checked={enabled}
-          onChange={(event) => handleToggle(event.currentTarget.checked)}
-          label={enabled ? 'Enabled' : 'Disabled'}
-        />
-      </Group>
-      <Text>
-        Receive daily email reminders to answer your questions at your
-        configured notification time.
-      </Text>
-    </div>
+    <Container size="lg" ml="0" p="0" miw={{ base: '100%', md: '500px' }}>
+      <Card withBorder>
+        <Group>
+          <Text>Email Notifications</Text>
+          <Switch
+            checked={enabled}
+            onChange={(event) => handleToggle(event.currentTarget.checked)}
+            label={enabled ? 'Enabled' : 'Disabled'}
+          />
+        </Group>
+      </Card>
+    </Container>
   );
 }

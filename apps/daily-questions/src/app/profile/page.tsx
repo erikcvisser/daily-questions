@@ -50,5 +50,9 @@ export default async function ProfilePage() {
     redirect('/login');
   }
 
-  return <ProfileDetails user={user} sharedOverviews={sharedOverviews} />;
+  return (
+    <>
+      <ProfileDetails user={user} sharedOverviews={sharedOverviews} />
+    </>
+  );
 }

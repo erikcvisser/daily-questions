@@ -23,6 +23,7 @@ import {
   Badge,
   Paper,
   ActionIcon,
+  Card,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import {
@@ -300,108 +301,112 @@ export function PushNotificationManager({
   }
 
   return (
-    <Container size="sm" ml="0" p="0">
-      <Stack>
-        <Group align="center">
-          <Text>Push notifications</Text>
-          <Switch
-            checked={subscriptions.length > 0}
-            onChange={
-              subscriptions.length > 0
-                ? () => {
-                    subscriptions.forEach((sub) =>
-                      unsubscribeFromPush(sub.endpoint)
-                    );
-                  }
-                : subscribeToPush
-            }
-            label={subscriptions.length > 0 ? 'Enabled' : 'Disabled'}
-            disabled={isSubscribing}
-          />
-        </Group>
-      </Stack>
-      <Stack>
-        <Title order={4} mt="md">
-          Manage Subscriptions
-        </Title>
+    <Container size="lg" ml="0" p="0" miw={{ base: '100%', md: '500px' }}>
+      <Card withBorder mb="xs">
         <Stack>
-          {subscriptions.map((sub) => {
-            const deviceUrl = new URL(sub.endpoint);
-            const isCurrentDevice = currentDeviceEndpoint === sub.endpoint;
+          <Group align="center">
+            <Text>Push notifications</Text>
+            <Switch
+              checked={subscriptions.length > 0}
+              onChange={
+                subscriptions.length > 0
+                  ? () => {
+                      subscriptions.forEach((sub) =>
+                        unsubscribeFromPush(sub.endpoint)
+                      );
+                    }
+                  : subscribeToPush
+              }
+              label={subscriptions.length > 0 ? 'Enabled' : 'Disabled'}
+              disabled={isSubscribing}
+            />
+          </Group>
+        </Stack>
+        <Stack>
+          <Text fw={500} mt="xs">
+            Manage Subscriptions
+          </Text>
+          <Stack>
+            {subscriptions.map((sub) => {
+              const deviceUrl = new URL(sub.endpoint);
+              const isCurrentDevice = currentDeviceEndpoint === sub.endpoint;
 
-            return (
-              <Paper key={sub.endpoint} p="xs" withBorder>
-                <Group justify="space-between">
-                  <Group>
-                    {/fcm\.googleapis\.com|apple|android\.googleapis\.com/i.test(
-                      deviceUrl.hostname
-                    ) ? (
-                      <IconDeviceMobile size="1.2rem" stroke={1.5} />
-                    ) : (
-                      <IconDeviceLaptop size="1.2rem" stroke={1.5} />
-                    )}
-                    <Text size="sm" c="dimmed">
-                      {(() => {
-                        switch (true) {
-                          case /fcm\.googleapis\.com/i.test(deviceUrl.hostname):
-                            return 'Android Device';
-                          case /apple/i.test(deviceUrl.hostname):
-                            return 'iOS Device';
-                          case /mozilla/i.test(deviceUrl.hostname):
-                            return 'Firefox Browser';
-                          case /chrome/i.test(deviceUrl.hostname):
-                            return 'Chrome Browser';
-                          default:
-                            return 'Web Browser';
-                        }
-                      })()}
-                    </Text>
-                    {isCurrentDevice && (
-                      <Badge size="sm" variant="light">
-                        Current Device
-                      </Badge>
-                    )}
+              return (
+                <Paper key={sub.endpoint} p="xs" withBorder>
+                  <Group justify="space-between">
+                    <Group>
+                      {/fcm\.googleapis\.com|apple|android\.googleapis\.com/i.test(
+                        deviceUrl.hostname
+                      ) ? (
+                        <IconDeviceMobile size="1.2rem" stroke={1.5} />
+                      ) : (
+                        <IconDeviceLaptop size="1.2rem" stroke={1.5} />
+                      )}
+                      <Text size="sm" c="dimmed">
+                        {(() => {
+                          switch (true) {
+                            case /fcm\.googleapis\.com/i.test(
+                              deviceUrl.hostname
+                            ):
+                              return 'Android Device';
+                            case /apple/i.test(deviceUrl.hostname):
+                              return 'iOS Device';
+                            case /mozilla/i.test(deviceUrl.hostname):
+                              return 'Firefox Browser';
+                            case /chrome/i.test(deviceUrl.hostname):
+                              return 'Chrome Browser';
+                            default:
+                              return 'Web Browser';
+                          }
+                        })()}
+                      </Text>
+                      {isCurrentDevice && (
+                        <Badge size="sm" variant="light">
+                          Current Device
+                        </Badge>
+                      )}
+                    </Group>
+                    <Group gap="xs">
+                      <ActionIcon
+                        color="red"
+                        variant="subtle"
+                        onClick={() => unsubscribeFromPush(sub.endpoint)}
+                        size="sm"
+                      >
+                        <IconTrash size="1rem" />
+                      </ActionIcon>
+                    </Group>
                   </Group>
-                  <Group gap="xs">
-                    <ActionIcon
-                      color="red"
-                      variant="subtle"
-                      onClick={() => unsubscribeFromPush(sub.endpoint)}
-                      size="sm"
-                    >
-                      <IconTrash size="1rem" />
-                    </ActionIcon>
-                  </Group>
-                </Group>
-              </Paper>
-            );
-          })}
-          {!currentDeviceEndpoint && (
-            <Button
-              variant="light"
-              onClick={subscribeToPush}
-              leftSection={<IconDeviceLaptop size="1rem" />}
-            >
-              Subscribe This Device
+                </Paper>
+              );
+            })}
+            {!currentDeviceEndpoint && (
+              <Button
+                variant="light"
+                onClick={subscribeToPush}
+                leftSection={<IconDeviceLaptop size="1rem" />}
+              >
+                Subscribe This Device
+              </Button>
+            )}
+          </Stack>
+        </Stack>
+        {user.email === 'erikcvisser@gmail.com' && (
+          <Stack>
+            <Text fw={500} mt="xs">
+              Send Test Notification
+            </Text>
+            <TextInput
+              placeholder="Enter notification message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <Button onClick={sendTestNotification} w="fit-content">
+              Send Test Notification
             </Button>
-          )}
-        </Stack>
-      </Stack>
-      {user.email === 'erikcvisser@gmail.com' && (
-        <Stack>
-          <Title order={4} mt="md">
-            Send Test Notification
-          </Title>
-          <TextInput
-            placeholder="Enter notification message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Button onClick={sendTestNotification} w="fit-content">
-            Send Test Notification
-          </Button>
-        </Stack>
-      )}
+          </Stack>
+        )}
+      </Card>
     </Container>
   );
 }

@@ -283,15 +283,14 @@ export default function ProfileDetails({
           </Group>
         )}
         <Stack>
+          <EmailNotifications
+            initialEnabled={user.emailNotificationsEnabled}
+            userEmail={user.email}
+          />
           <PushNotificationManager
             user={user}
             notificationTime={notificationTime}
             onNotificationTimeChange={handleNotificationTimeChange}
-          />
-          <Divider my="md" />
-          <EmailNotifications
-            initialEnabled={user.emailNotificationsEnabled}
-            userEmail={user.email}
           />
         </Stack>
         <Divider my="xl" />
@@ -444,7 +443,9 @@ export default function ProfileDetails({
             </Button>
           </Group>
         </Modal>
-
+        <Text mb="md">
+          Delete your account and all your data. This action cannot be undone.
+        </Text>
         <Button onClick={() => setShowDeleteModal(true)} color="red" mb="xl">
           Delete Account
         </Button>
