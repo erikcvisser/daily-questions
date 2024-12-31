@@ -9,9 +9,7 @@ export function shouldShowQuestion(question: Question, date: Date): boolean {
     const weekNumber = getWeek(date, { weekStartsOn: 0 });
 
     // Check if this week matches the frequency interval
-    console.log(weekNumber);
     const isMatchingWeek = weekNumber % (question.frequencyInterval || 1) === 0;
-    console.log(isMatchingWeek);
 
     // Check if today is the configured day of the week
     const isMatchingDay = date.getDay() === question.dayOfWeek;

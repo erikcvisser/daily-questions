@@ -17,6 +17,8 @@ import {
 } from './queue';
 import crypto from 'crypto';
 import { emailQueue } from './emailQueue';
+import { render } from '@react-email/render';
+import EndOfYearEmail from '../emails/EndOfYearEmail';
 
 webpush.setVapidDetails(
   'mailto:mail@dailyquestions.app',
@@ -553,6 +555,7 @@ export async function subscribeUser(sub: any) {
       }
     }
 
+    revalidatePath('/profile');
     return { success: true };
   } catch (error) {
     console.error('Error subscribing user:', error);
@@ -604,6 +607,7 @@ export async function unsubscribeUser(endpoint?: string) {
       );
     }
 
+    revalidatePath('/profile');
     return { success: true };
   } catch (error) {
     console.error('Error unsubscribing:', error);
@@ -679,7 +683,7 @@ export async function updateEmailNotifications(enabled: boolean) {
         tz: user.timezone,
       });
     }
-
+    revalidatePath('/profile');
     return { success: true };
   } catch (error) {
     console.error('Error updating email notifications:', error);
@@ -1274,5 +1278,65 @@ export async function acceptSharedOverview(sharedOverviewId: string) {
       error:
         error instanceof Error ? error.message : 'An unexpected error occurred',
     };
+  }
+}
+
+export async function sendEndOfYearEmailToAllUsers() {
+  const session = await auth();
+  if (session?.user?.email !== 'erikcvisser@gmail.com') {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Get all active users
+    // const users = await prisma.user.findMany({
+    //   where: {
+    //     emailVerified: {
+    //       not: null,
+    //     },
+    //   },
+    //   select: {
+    //     email: true,
+    //     name: true,
+    //   },
+    // });
+
+    const resend = new Resend(process.env.AUTH_RESEND_KEY);
+
+    const users = [{ email: 'erikcvisser@gmail.com', name: 'Erik' }];
+    const results = await Promise.all(
+      users.map(async (user) => {
+        try {
+          const html = await render(
+            EndOfYearEmail({
+              userName: user.name || 'there',
+            })
+          );
+
+          await resend.emails.send({
+            from: 'Erik from Daily Questions <mail@dailyquestions.app>',
+            to: user.email!,
+            subject: 'Wishing you a reflective 2025 full of growth and joy!',
+            html: html,
+          });
+
+          return { email: user.email, success: true };
+        } catch (error) {
+          console.error(`Failed to send to ${user.email}:`, error);
+          return { email: user.email, success: false, error };
+        }
+      })
+    );
+
+    const successful = results.filter((r) => r.success).length;
+    const failed = results.filter((r) => !r.success).length;
+
+    return {
+      success: true,
+      message: `Sent ${successful} emails successfully. ${failed} failed.`,
+    };
+  } catch (error) {
+    console.error('Bulk email sending failed:', error);
+    throw new Error('Failed to send marketing emails');
   }
 }

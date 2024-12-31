@@ -23,6 +23,7 @@ import {
   Category,
   PushSubscription,
 } from '@prisma/client';
+import { AdminControls } from './AdminControls';
 
 interface AdminProps {
   users: (User & {
@@ -59,6 +60,7 @@ export function Admin({
           <TabsTab value="library-questions">Library Questions</TabsTab>
           <TabsTab value="categories">Categories</TabsTab>
           <TabsTab value="queue">Queue</TabsTab>
+          <TabsTab value="admin-controls">Other</TabsTab>
         </TabsList>
 
         <TabsPanel value="users">
@@ -78,6 +80,10 @@ export function Admin({
 
         <TabsPanel value="queue">
           <QueueDashboard />
+        </TabsPanel>
+
+        <TabsPanel value="admin-controls">
+          <AdminControls />
         </TabsPanel>
       </Tabs>
     </Container>
