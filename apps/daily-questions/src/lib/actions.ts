@@ -1289,11 +1289,6 @@ export async function sendEndOfYearEmailToAllUsers() {
 
   try {
     const users = await prisma.user.findMany({
-      where: {
-        emailVerified: {
-          not: null,
-        },
-      },
       select: {
         email: true,
         name: true,
