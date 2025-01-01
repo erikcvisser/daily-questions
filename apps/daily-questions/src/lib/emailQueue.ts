@@ -18,8 +18,37 @@ emailQueue.process('daily-email', async (job) => {
       where: { id: userId },
     });
 
-    if (!user?.email || !user.emailNotificationsEnabled) {
-      console.log('User email not found or notifications disabled');
+    if (
+      !user?.email ||
+      !user.emailNotificationsEnabled ||
+      !user.notificationTime
+    ) {
+      console.log(
+        'User email not found, notifications disabled, or notification time not set'
+      );
+      return;
+    }
+
+    // Check if current time is within 2 minutes of notification time
+    const [configuredHour, configuredMinute] = user.notificationTime
+      .split(':')
+      .map(Number);
+    const userDateTime = new Date(
+      new Date().toLocaleString('en-US', { timeZone: timezone })
+    );
+    const currentHour = userDateTime.getHours();
+    const currentMinute = userDateTime.getMinutes();
+
+    const configuredTotalMinutes = configuredHour * 60 + configuredMinute;
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
+    const timeDifferenceMinutes = Math.abs(
+      configuredTotalMinutes - currentTotalMinutes
+    );
+
+    if (timeDifferenceMinutes > 2) {
+      console.log(
+        'Current time not within 2 minutes of notification time, skipping email'
+      );
       return;
     }
 
