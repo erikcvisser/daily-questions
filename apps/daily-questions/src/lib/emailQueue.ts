@@ -11,7 +11,7 @@ export const emailQueue = new Queue(
 
 // Process the email notifications
 emailQueue.process('daily-email', async (job) => {
-  const { userId, localTime, timezone } = job.data;
+  const { userId } = job.data;
 
   try {
     const user = await prisma.user.findUnique({
@@ -29,12 +29,12 @@ emailQueue.process('daily-email', async (job) => {
       return;
     }
 
-    // Check if current time is within 2 minutes of notification time
+    // Check if current time is within 2 minutes of notification time using user's configured timezone
     const [configuredHour, configuredMinute] = user.notificationTime
       .split(':')
       .map(Number);
     const userDateTime = new Date(
-      new Date().toLocaleString('en-US', { timeZone: timezone })
+      new Date().toLocaleString('en-US', { timeZone: user.timezone })
     );
     const currentHour = userDateTime.getHours();
     const currentMinute = userDateTime.getMinutes();
@@ -53,7 +53,7 @@ emailQueue.process('daily-email', async (job) => {
     }
 
     // Check if user already submitted today
-    const userTz = timezone;
+    const userTz = user.timezone;
     const todayInTz = new Date(
       new Date().toLocaleString('en-US', { timeZone: userTz })
     );
