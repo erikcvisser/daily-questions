@@ -104,7 +104,7 @@ export default async function OverviewContent({
       submissions={submissions}
       personalTarget={personalTarget}
       sharedOverviews={sharedOverviews}
-      currentViewUserId={viewUserId}
+      currentViewUserId={targetUserId}
     />
   );
 }

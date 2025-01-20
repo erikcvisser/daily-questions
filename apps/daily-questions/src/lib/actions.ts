@@ -1360,3 +1360,169 @@ export async function sendEndOfYearEmailToAllUsers() {
     throw new Error('Failed to send marketing emails');
   }
 }
+
+interface QuestionAnalysis {
+  questionId: string;
+  title: string;
+  averageScore: number;
+  answerCount: number;
+  trend: 'improving' | 'declining' | 'stable';
+}
+
+interface AnalysisResult {
+  topQuestions: QuestionAnalysis[];
+  bottomQuestions: QuestionAnalysis[];
+  periodStart: Date;
+  periodEnd: Date;
+}
+
+export async function analyzeQuestions(params: {
+  userId: string;
+  topCount: number;
+  bottomCount: number;
+  startDate: Date;
+  endDate: Date;
+}): Promise<AnalysisResult> {
+  const { userId, topCount, bottomCount, startDate, endDate } = params;
+
+  // Get all submissions in the date range
+  const submissions = await prisma.submission.findMany({
+    where: {
+      userId,
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      answers: {
+        include: {
+          question: true,
+        },
+      },
+    },
+    orderBy: {
+      date: 'asc',
+    },
+  });
+
+  // Calculate scores for each question
+  const questionStats = new Map<
+    string,
+    {
+      scores: number[];
+      title: string;
+      firstHalfScores: number[];
+      secondHalfScores: number[];
+    }
+  >();
+
+  submissions.forEach((submission, index) => {
+    submission.answers.forEach((answer) => {
+      if (!questionStats.has(answer.questionId)) {
+        questionStats.set(answer.questionId, {
+          scores: [],
+          title: answer.question.title,
+          firstHalfScores: [],
+          secondHalfScores: [],
+        });
+      }
+
+      const stats = questionStats.get(answer.questionId)!;
+      const isSuccess = calculateAnswerSuccess(answer);
+      const score = isSuccess ? 1 : 0;
+      stats.scores.push(score);
+
+      // Split scores into first and second half for trend analysis
+      if (index < submissions.length / 2) {
+        stats.firstHalfScores.push(score);
+      } else {
+        stats.secondHalfScores.push(score);
+      }
+    });
+  });
+
+  // Convert to array and calculate averages
+  const analysisResults: QuestionAnalysis[] = Array.from(
+    questionStats.entries()
+  ).map(([questionId, stats]) => {
+    const averageScore =
+      stats.scores.length > 0
+        ? stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length
+        : 0;
+
+    const firstHalfAvg =
+      stats.firstHalfScores.length > 0
+        ? stats.firstHalfScores.reduce((a, b) => a + b, 0) /
+          stats.firstHalfScores.length
+        : 0;
+    const secondHalfAvg =
+      stats.secondHalfScores.length > 0
+        ? stats.secondHalfScores.reduce((a, b) => a + b, 0) /
+          stats.secondHalfScores.length
+        : 0;
+
+    // Determine trend
+    let trend: 'improving' | 'declining' | 'stable';
+    const difference = secondHalfAvg - firstHalfAvg;
+    if (difference > 0.1) {
+      trend = 'improving';
+    } else if (difference < -0.1) {
+      trend = 'declining';
+    } else {
+      trend = 'stable';
+    }
+
+    return {
+      questionId,
+      title: stats.title,
+      averageScore,
+      answerCount: stats.scores.length,
+      trend,
+    };
+  });
+
+  // Sort by average score
+  const sortedResults = analysisResults.sort(
+    (a, b) => b.averageScore - a.averageScore
+  );
+
+  return {
+    topQuestions: sortedResults.slice(0, topCount),
+    bottomQuestions: sortedResults.slice(-bottomCount).reverse(),
+    periodStart: startDate,
+    periodEnd: endDate,
+  };
+}
+
+function calculateAnswerSuccess(answer: {
+  answer: string;
+  question: {
+    type: string;
+    targetBool?: boolean | null;
+    targetInt?: number | null;
+    targetRating?: number | null;
+  };
+}): boolean {
+  const { answer: answerValue, question } = answer;
+
+  switch (question.type) {
+    case 'BOOLEAN':
+      return question.targetBool === (answerValue === 'true');
+    case 'INTEGER':
+      if (question.targetInt === undefined || question.targetInt === null) {
+        return false;
+      }
+      return parseInt(answerValue) >= question.targetInt;
+    case 'RATING':
+      if (
+        question.targetRating === undefined ||
+        question.targetRating === null
+      ) {
+        return false;
+      }
+      return parseInt(answerValue) >= question.targetRating;
+    default:
+      return false;
+  }
+}

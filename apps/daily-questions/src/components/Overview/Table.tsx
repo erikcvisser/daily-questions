@@ -113,7 +113,7 @@ export default function SubmissionsTable({
           Export data to Excel
         </Button>
       </Group>
-      <Table>
+      <Table mb="lg">
         <Table.Thead>
           <Table.Tr>
             <Table.Th w="100px">Date</Table.Th>
@@ -128,6 +128,7 @@ export default function SubmissionsTable({
       </Table>
       <Group justify="center" mb="xl">
         <Pagination
+          mb="xl"
           value={activePage}
           onChange={setActivePage}
           total={totalPages}

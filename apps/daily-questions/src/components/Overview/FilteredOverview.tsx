@@ -1,15 +1,15 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import {
   MultiSelect,
   Flex,
   Box,
   Space,
   ComboboxData,
-  Skeleton,
   Button,
   Select,
+  Group,
 } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import CalendarComp from './Calendar';
@@ -21,8 +21,9 @@ import {
   Question,
   SharedOverviewStatus,
 } from '@prisma/client';
-import { IconShare } from '@tabler/icons-react';
+import { IconShare, IconChartBar } from '@tabler/icons-react';
 import { ShareModal } from './ShareModal';
+import { AnalysisModal } from './AnalysisModal';
 
 // Define the extended types to include relationships
 type SubmissionWithAnswers = Submission & {
@@ -42,34 +43,6 @@ type SharedOverviewWithOwner = {
   status: SharedOverviewStatus;
 };
 
-function LoadingCalendar() {
-  return (
-    <Box w={{ base: '100%', md: 300 }} miw={300}>
-      <Skeleton h={300} />
-    </Box>
-  );
-}
-
-function LoadingSummary() {
-  return (
-    <Box>
-      <Skeleton height={220} mb="sm" />
-    </Box>
-  );
-}
-
-function LoadingTable() {
-  return (
-    <>
-      <Skeleton height={40} mb="sm" /> {/* Table header */}
-      {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} height={60} mb="sm" />
-      ))}
-      <Skeleton height={40} width={200} mx="auto" /> {/* Pagination */}
-    </>
-  );
-}
-
 interface FilteredOverviewProps {
   submissions: SubmissionWithAnswers[];
   personalTarget: number;
@@ -87,6 +60,7 @@ export function FilteredOverview({
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const isFiltered = selectedQuestions.length > 0;
   const [shareModalOpened, setShareModalOpened] = useState(false);
+  const [analysisModalOpened, setAnalysisModalOpened] = useState(false);
 
   const uniqueQuestions = Object.values(
     submissions
@@ -142,12 +116,21 @@ export function FilteredOverview({
         ) : (
           <div />
         )}
-        <Button
-          leftSection={<IconShare size={16} />}
-          onClick={() => setShareModalOpened(true)}
-        >
-          Share Overview
-        </Button>
+        <Group>
+          <Button
+            variant="light"
+            leftSection={<IconChartBar size={16} />}
+            onClick={() => setAnalysisModalOpened(true)}
+          >
+            Analyze
+          </Button>
+          <Button
+            leftSection={<IconShare size={16} />}
+            onClick={() => setShareModalOpened(true)}
+          >
+            Share Overview
+          </Button>
+        </Group>
       </Flex>
 
       <Box mb="md">
@@ -168,34 +151,34 @@ export function FilteredOverview({
         align={{ base: 'stretch', md: 'flex-start' }}
       >
         <Box w={{ base: '100%', md: 300 }} miw={'300px'}>
-          <Suspense fallback={<LoadingCalendar />}>
-            <CalendarComp
-              submissions={filteredSubmissions}
-              personalTarget={personalTarget}
-            />
-          </Suspense>
+          <CalendarComp
+            submissions={filteredSubmissions}
+            personalTarget={personalTarget}
+          />
         </Box>
         <Box style={{ flex: 1 }}>
-          <Suspense fallback={<LoadingSummary />}>
-            <SummarySection
-              submissions={filteredSubmissions}
-              personalTarget={personalTarget}
-            />
-          </Suspense>
+          <SummarySection
+            submissions={filteredSubmissions}
+            personalTarget={personalTarget}
+          />
         </Box>
       </Flex>
 
       <Space h="md" />
-      <Suspense fallback={<LoadingTable />}>
-        <SubmissionsTable
-          submissions={filteredSubmissions}
-          isFiltered={isFiltered}
-        />
-      </Suspense>
+      <SubmissionsTable
+        submissions={filteredSubmissions}
+        isFiltered={isFiltered}
+      />
 
       <ShareModal
         opened={shareModalOpened}
         onClose={() => setShareModalOpened(false)}
+      />
+
+      <AnalysisModal
+        opened={analysisModalOpened}
+        onClose={() => setAnalysisModalOpened(false)}
+        userId={currentViewUserId || ''}
       />
     </>
   );

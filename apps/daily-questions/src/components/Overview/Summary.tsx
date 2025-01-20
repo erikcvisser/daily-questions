@@ -1,20 +1,29 @@
+'use client';
+
 import { Paper, Text, Flex } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
 import { Submission } from '@prisma/client';
+import { useState, useEffect } from 'react';
 
-export async function SummarySection({
+export function SummarySection({
   submissions,
   personalTarget,
 }: {
   submissions: Submission[];
   personalTarget: number;
 }) {
+  const [weeklyData, setWeeklyData] = useState<
+    { week: string; daysMetTarget: number }[]
+  >([]);
   const streak = calculateStreak(submissions);
   const maxStreak = calculateMaxStreak(submissions);
-  const weeklyData = await calculateWeeklyData(
-    submissions,
-    personalTarget * 100
-  );
+
+  useEffect(() => {
+    calculateWeeklyData(submissions, personalTarget * 100).then((data) => {
+      setWeeklyData(data);
+    });
+  }, [submissions, personalTarget]);
+
   return (
     <Flex direction={{ base: 'column', sm: 'row' }} gap="md">
       <Paper
