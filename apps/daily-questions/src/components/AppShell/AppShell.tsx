@@ -113,7 +113,7 @@ export function BasicAppShell({
           </Grid>
         </AppShellHeader>
         <AppShellNavbar p="md" zIndex={20}>
-          <Links session={session} toggleMobile={toggleMobile} />
+          <Links session={session ?? null} toggleMobile={toggleMobile} />
         </AppShellNavbar>
         <AppShellMain>{children}</AppShellMain>
       </AppShell>

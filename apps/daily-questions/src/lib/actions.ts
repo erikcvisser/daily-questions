@@ -221,7 +221,7 @@ async function calculateScorePercentage(answers: { questionId: string; answer: s
   return totalQuestions > 0 ? (exceededTarget / totalQuestions) * 100 : null;
 }
 
-export async function submitQuestionnaire(formData: { answers: Record<string, string | number | boolean> }) {
+export async function submitQuestionnaire(formData: { answers: Record<string, string | number | boolean>; date: string | Date }) {
   const session = await auth();
   const answers = [];
   for (const key in formData.answers) {
@@ -248,7 +248,7 @@ export async function submitQuestionnaire(formData: { answers: Record<string, st
   redirect('/overview');
 }
 
-export async function updateQuestionnaire(id: string, formData: { answers: Record<string, string | number | boolean> }) {
+export async function updateQuestionnaire(id: string, formData: { answers: Record<string, string | number | boolean>; date: string | Date }) {
   const session = await auth();
   const answers = [];
   for (const key in formData.answers) {
@@ -439,7 +439,14 @@ export async function updateUserDetails(data: {
   }
 }
 
-export async function createLibraryQuestion(formData: Record<string, unknown>) {
+export async function createLibraryQuestion(formData: {
+  title: string;
+  type: QuestionType;
+  targetBool?: string;
+  targetInt?: string;
+  targetRating?: string;
+  categoryId: string;
+}) {
   const { title, type, targetBool, targetInt, targetRating, categoryId } =
     formData;
 
@@ -448,8 +455,8 @@ export async function createLibraryQuestion(formData: Record<string, unknown>) {
       title,
       type,
       targetBool: targetBool === 'true',
-      targetInt: parseInt(targetInt),
-      targetRating: parseInt(targetRating),
+      targetInt: targetInt ? parseInt(targetInt) : null,
+      targetRating: targetRating ? parseInt(targetRating) : null,
       categoryId,
     },
   });
@@ -458,7 +465,14 @@ export async function createLibraryQuestion(formData: Record<string, unknown>) {
   return newLibraryQuestion;
 }
 
-export async function updateLibraryQuestion(id: string, formData: Record<string, unknown>) {
+export async function updateLibraryQuestion(id: string, formData: {
+  title: string;
+  type: QuestionType;
+  targetBool?: string;
+  targetInt?: string;
+  targetRating?: string;
+  categoryId: string;
+}) {
   const { title, type, targetBool, targetInt, targetRating, categoryId } =
     formData;
 
@@ -468,8 +482,8 @@ export async function updateLibraryQuestion(id: string, formData: Record<string,
       title,
       type,
       targetBool: targetBool === 'true',
-      targetInt: parseInt(targetInt),
-      targetRating: parseInt(targetRating),
+      targetInt: targetInt ? parseInt(targetInt) : null,
+      targetRating: targetRating ? parseInt(targetRating) : null,
       categoryId,
     },
   });
@@ -663,7 +677,7 @@ export async function getQueueData() {
   ]);
 
   const formatJob = (job: {
-    id: string;
+    id: string | number;
     data: unknown;
     timestamp: number;
     processedOn?: number;
@@ -671,7 +685,7 @@ export async function getQueueData() {
     failedReason?: string;
     opts?: { repeat?: unknown };
   }) => ({
-    id: job.id,
+    id: String(job.id),
     data: job.data,
     timestamp: new Date(job.timestamp).toLocaleString(),
     processedOn: job.processedOn
@@ -734,18 +748,22 @@ export async function getBullQueueData() {
       notificationQueue.getDelayed(),
     ]);
 
-    return {
-      jobs: jobs.map((job) => ({
-        id: job.id,
+    const jobsWithState = await Promise.all(
+      jobs.map(async (job) => ({
+        id: String(job.id),
         name: job.name,
         data: job.data,
-        state: job.getState(),
+        state: await job.getState(),
         timestamp: job.timestamp,
-      })),
+      }))
+    );
+
+    return {
+      jobs: jobsWithState,
       repeatableJobs,
       jobCounts,
       delayedJobs: delayedJobs.map((job) => ({
-        id: job.id,
+        id: String(job.id),
         data: job.data,
         delay: job.timestamp,
       })),

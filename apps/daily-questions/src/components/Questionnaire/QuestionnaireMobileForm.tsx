@@ -163,16 +163,25 @@ export default function QuestionnaireMobileForm({
   };
 
   const renderQuestion = (item: Question, index: number) => {
-    const formProps = {
-      ...form.getInputProps(`answers.${item.id}`),
-      onChange: (value: string | number | boolean | null) => {
-        form.getInputProps(`answers.${item.id}`).onChange(value);
-        handleInputChange(index);
-      },
+    const inputProps = form.getInputProps(`answers.${item.id}`);
+    const onValueChange = (value: string | number | boolean | null) => {
+      inputProps.onChange(value);
+      handleInputChange(index);
     };
 
     const commonProps = {
-      ...formProps,
+      ...inputProps,
+      onChange: onValueChange,
+      radius: 'md',
+      style: { minHeight: '200px' },
+    };
+
+    const textareaProps = {
+      ...inputProps,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        inputProps.onChange(e.currentTarget.value);
+        handleInputChange(index);
+      },
       radius: 'md',
       style: { minHeight: '200px' },
     };
@@ -221,7 +230,7 @@ export default function QuestionnaireMobileForm({
             autosize
             size="md"
             minRows={3}
-            {...commonProps}
+            {...textareaProps}
           />
         );
         break;

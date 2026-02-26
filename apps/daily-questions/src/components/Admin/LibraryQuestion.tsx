@@ -34,10 +34,11 @@ export default function LibraryQuestionManager({
     });
 
     try {
+      const typedData = formDataObject as Parameters<typeof createLibraryQuestion>[0];
       if (editingQuestion) {
-        await updateLibraryQuestion(editingQuestion.id, formDataObject);
+        await updateLibraryQuestion(editingQuestion.id, typedData);
       } else {
-        await createLibraryQuestion(formDataObject);
+        await createLibraryQuestion(typedData);
       }
       setEditingQuestion(null);
       // Instead of reloading the page, update the state

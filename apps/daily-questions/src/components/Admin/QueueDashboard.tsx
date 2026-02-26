@@ -17,23 +17,7 @@ import {
 } from '@mantine/core';
 import { getBullQueueData, removeBullJob } from '@/lib/actions';
 
-interface QueueJob {
-  id: string;
-  key?: string;
-  cron?: string;
-  next?: string;
-  data: Record<string, unknown>;
-  state?: string;
-  delay?: number;
-  timestamp?: number;
-}
-
-interface QueueData {
-  repeatableJobs: QueueJob[];
-  delayedJobs: QueueJob[];
-  jobs: QueueJob[];
-  counts: Record<string, number>;
-}
+type QueueData = Awaited<ReturnType<typeof getBullQueueData>>;
 
 export function QueueDashboard() {
   const [queueData, setQueueData] = useState<QueueData | null>(null);

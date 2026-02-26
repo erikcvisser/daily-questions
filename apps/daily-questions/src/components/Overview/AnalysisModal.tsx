@@ -38,21 +38,7 @@ export function AnalysisModal({ opened, onClose, userId }: AnalysisModalProps) {
   const [relativePeriod, setRelativePeriod] = useState<RelativePeriod>('month');
   const [startDate, setStartDate] = useState<DateValue>(null);
   const [endDate, setEndDate] = useState<DateValue>(null);
-  interface QuestionStat {
-    questionId: string;
-    title: string;
-    averageScore: number;
-    answerCount: number;
-    trend: 'up' | 'down' | 'neutral';
-  }
-
-  interface AnalysisResults {
-    topQuestions: QuestionStat[];
-    bottomQuestions: QuestionStat[];
-    overallScore: number;
-    totalAnswers: number;
-  }
-
+  type AnalysisResults = Awaited<ReturnType<typeof analyzeQuestions>>;
   const [results, setResults] = useState<AnalysisResults | null>(null);
 
   const handleAnalyze = () => {
