@@ -1,0 +1,16 @@
+node_modules
+.next
+.nx
+.git
+.gitignore
+.env
+.env.*
+*.dump
+
+apps/daily-questions-e2e
+apps/daily_questions_ios
+
+**/.DS_Store
+**/Thumbs.db
+**/*.md
+!prisma/**
