@@ -2,15 +2,28 @@ import Queue from 'bull';
 import { Resend } from 'resend';
 import prisma from './prisma';
 
-const resend = new Resend(process.env.AUTH_RESEND_KEY);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.AUTH_RESEND_KEY);
+  }
+  return _resend;
+}
 
-export const emailQueue = new Queue(
-  'email-notifications',
-  process.env.AUTH_REDIS_URL ?? ''
-);
+let _emailQueue: Queue.Queue | null = null;
+export function getEmailQueue() {
+  if (!_emailQueue) {
+    _emailQueue = new Queue(
+      'email-notifications',
+      process.env.AUTH_REDIS_URL ?? ''
+    );
+    _emailQueue.process('daily-email', processDailyEmail);
+  }
+  return _emailQueue;
+}
 
-// Process the email notifications
-emailQueue.process('daily-email', async (job) => {
+
+async function processDailyEmail(job: Queue.Job) {
   const { userId } = job.data;
 
   try {
@@ -29,7 +42,6 @@ emailQueue.process('daily-email', async (job) => {
       return;
     }
 
-    // Check if current time is within 2 minutes of notification time using user's configured timezone
     const [configuredHour, configuredMinute] = user.notificationTime
       .split(':')
       .map(Number);
@@ -52,7 +64,6 @@ emailQueue.process('daily-email', async (job) => {
       return;
     }
 
-    // Check if user already submitted today
     const userTz = user.timezone;
     const todayInTz = new Date(
       new Date().toLocaleString('en-US', { timeZone: userTz })
@@ -77,8 +88,7 @@ emailQueue.process('daily-email', async (job) => {
       return;
     }
 
-    // Send the email
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Daily Questions <mail@dailyquestions.app>',
       to: user.email,
       subject: 'Time for Your Daily Reflection',
@@ -95,4 +105,4 @@ emailQueue.process('daily-email', async (job) => {
     console.error('Email notification error:', error);
     throw error;
   }
-});
+}

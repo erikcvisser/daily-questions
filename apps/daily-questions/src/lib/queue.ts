@@ -1,7 +1,76 @@
 import Queue from 'bull';
 import prisma from './prisma';
 
+let _notificationQueue: Queue.Queue | null = null;
+let _initialized = false;
+
+function getNotificationQueue() {
+  if (!_notificationQueue) {
+    _notificationQueue = new Queue(
+      'notifications',
+      process.env.AUTH_REDIS_URL ?? ''
+    );
+
+    _notificationQueue.process('daily-notification', async (job) => {
+      const { userId, timezone } = job.data;
+
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          include: { deviceTokens: true },
+        });
+
+        if (!user || user.deviceTokens.length === 0) {
+          return;
+        }
+
+        const userTz = timezone;
+        const todayInTz = new Date(
+          new Date().toLocaleString('en-US', { timeZone: userTz })
+        );
+        todayInTz.setHours(0, 0, 0, 0);
+
+        const tomorrowInTz = new Date(todayInTz);
+        tomorrowInTz.setDate(tomorrowInTz.getDate() + 1);
+
+        const existingSubmission = await prisma.submission.findFirst({
+          where: {
+            userId,
+            date: {
+              gte: todayInTz,
+              lt: tomorrowInTz,
+            },
+          },
+        });
+
+        if (existingSubmission) {
+          console.log('User already submitted today, skipping notification');
+          return;
+        }
+
+        const { sendPushToUser } = await import('./fcm');
+        await sendPushToUser(userId);
+      } catch (error) {
+        console.error('Error processing notification:', error);
+        throw error;
+      }
+    });
+
+    _notificationQueue.on('completed', (job) => {
+      console.log(`Job ${job.id} completed`);
+    });
+
+    _notificationQueue.on('failed', (job, err) => {
+      console.error(`Job ${job.id} failed:`, err);
+    });
+  }
+  return _notificationQueue;
+}
+
 async function initializeQueue() {
+  if (_initialized) return;
+  _initialized = true;
+
   try {
     const users = await prisma.user.findMany({
       where: {
@@ -26,67 +95,18 @@ async function initializeQueue() {
   }
 }
 
-export const notificationQueue = new Queue(
-  'notifications',
-  process.env.AUTH_REDIS_URL ?? ''
-);
-
-initializeQueue();
-
-notificationQueue.process('daily-notification', async (job) => {
-  const { userId, timezone } = job.data;
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { deviceTokens: true },
-    });
-
-    if (!user || user.deviceTokens.length === 0) {
-      return;
-    }
-
-    const userTz = timezone;
-    const todayInTz = new Date(
-      new Date().toLocaleString('en-US', { timeZone: userTz })
-    );
-    todayInTz.setHours(0, 0, 0, 0);
-
-    const tomorrowInTz = new Date(todayInTz);
-    tomorrowInTz.setDate(tomorrowInTz.getDate() + 1);
-
-    const existingSubmission = await prisma.submission.findFirst({
-      where: {
-        userId,
-        date: {
-          gte: todayInTz,
-          lt: tomorrowInTz,
-        },
-      },
-    });
-
-    if (existingSubmission) {
-      console.log('User already submitted today, skipping notification');
-      return;
-    }
-
-    const { sendPushToUser } = await import('./fcm');
-    await sendPushToUser(userId);
-  } catch (error) {
-    console.error('Error processing notification:', error);
-    throw error;
-  }
-});
+export { getNotificationQueue };
 
 export async function removeExistingUserJobs(userId: string) {
-  const repeatableJobs = await notificationQueue.getRepeatableJobs();
+  const queue = getNotificationQueue();
+  const repeatableJobs = await queue.getRepeatableJobs();
   const jobsToRemove = repeatableJobs.filter(
     (job) =>
       job.name === 'daily-notification' && job.key?.includes(userId)
   );
 
   for (const job of jobsToRemove) {
-    await notificationQueue.removeRepeatableByKey(job.key);
+    await queue.removeRepeatableByKey(job.key);
   }
 }
 
@@ -114,7 +134,7 @@ export async function scheduleUserNotification(
 
   const cronExpression = `${minutes} ${hours} * * *`;
 
-  await notificationQueue.add(
+  await getNotificationQueue().add(
     'daily-notification',
     {
       userId,
@@ -132,11 +152,12 @@ export async function scheduleUserNotification(
 }
 
 export async function getQueueStatus() {
+  const queue = getNotificationQueue();
   const [waiting, active, completed, failed] = await Promise.all([
-    notificationQueue.getWaiting(),
-    notificationQueue.getActive(),
-    notificationQueue.getCompleted(),
-    notificationQueue.getFailed(),
+    queue.getWaiting(),
+    queue.getActive(),
+    queue.getCompleted(),
+    queue.getFailed(),
   ]);
 
   return {
@@ -148,7 +169,8 @@ export async function getQueueStatus() {
 }
 
 export async function getQueueJobs() {
-  const jobs = await notificationQueue.getJobs([
+  const queue = getNotificationQueue();
+  const jobs = await queue.getJobs([
     'waiting',
     'active',
     'completed',
@@ -167,10 +189,4 @@ export async function getQueueJobs() {
   );
 }
 
-notificationQueue.on('completed', (job) => {
-  console.log(`Job ${job.id} completed`);
-});
-
-notificationQueue.on('failed', (job, err) => {
-  console.error(`Job ${job.id} failed:`, err);
-});
+export { initializeQueue };

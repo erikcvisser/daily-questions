@@ -73,3 +73,5 @@ apps/daily_questions_ios/.flutter-plugins-dependencies
 
 # Firebase config (contains secrets)
 **/GoogleService-Info.plist
+
+.playwright-mcp

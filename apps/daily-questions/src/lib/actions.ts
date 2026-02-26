@@ -10,12 +10,12 @@ import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
 import {
-  notificationQueue,
+  getNotificationQueue,
   scheduleUserNotification,
   removeExistingUserJobs,
 } from './queue';
 import crypto from 'crypto';
-import { emailQueue } from './emailQueue';
+import { getEmailQueue } from './emailQueue';
 import { render } from '@react-email/render';
 import EndOfYearEmail from '../emails/EndOfYearEmail';
 
@@ -538,7 +538,7 @@ async function scheduleUserEmailNotification(
 
   const jobId = `email:${userId}`;
 
-  await emailQueue.add(
+  await getEmailQueue().add(
     'daily-email',
     {
       userId,
@@ -575,7 +575,7 @@ export async function updateEmailNotifications(enabled: boolean) {
         user?.notificationTime?.split(':').map(Number) || [];
       const cronPattern = `${minutes} ${hours} * * *`;
 
-      await emailQueue.removeRepeatable('daily-email', {
+      await getEmailQueue().removeRepeatable('daily-email', {
         cron: cronPattern,
         tz: user.timezone,
       });
@@ -624,7 +624,7 @@ export async function scheduleNotification(time: string) {
     );
 
     if (user.emailNotificationsEnabled) {
-      await emailQueue.removeRepeatable('daily-email', {
+      await getEmailQueue().removeRepeatable('daily-email', {
         cron: `${minutes} ${hours} * * *`,
         tz: user.timezone,
       });
@@ -668,12 +668,13 @@ export async function initializeQueue() {
 }
 
 export async function getQueueData() {
+  const queue = getNotificationQueue();
   const [waiting, active, completed, failed, delayed] = await Promise.all([
-    notificationQueue.getWaiting(),
-    notificationQueue.getActive(),
-    notificationQueue.getCompleted(),
-    notificationQueue.getFailed(),
-    notificationQueue.getDelayed(),
+    queue.getWaiting(),
+    queue.getActive(),
+    queue.getCompleted(),
+    queue.getFailed(),
+    queue.getDelayed(),
   ]);
 
   const formatJob = (job: {
@@ -741,11 +742,12 @@ export async function submitFeedback(feedback: string) {
 export async function getBullQueueData() {
   'use server';
   try {
+    const queue = getNotificationQueue();
     const [jobs, repeatableJobs, jobCounts, delayedJobs] = await Promise.all([
-      notificationQueue.getJobs(['active', 'waiting', 'completed', 'failed']),
-      notificationQueue.getRepeatableJobs(),
-      notificationQueue.getJobCounts(),
-      notificationQueue.getDelayed(),
+      queue.getJobs(['active', 'waiting', 'completed', 'failed']),
+      queue.getRepeatableJobs(),
+      queue.getJobCounts(),
+      queue.getDelayed(),
     ]);
 
     const jobsWithState = await Promise.all(
@@ -780,10 +782,11 @@ export async function removeBullJob(
 ) {
   'use server';
   try {
+    const queue = getNotificationQueue();
     if (type === 'repeatable') {
-      await notificationQueue.removeRepeatableByKey(jobId);
+      await queue.removeRepeatableByKey(jobId);
     } else {
-      const job = await notificationQueue.getJob(jobId);
+      const job = await queue.getJob(jobId);
       if (job) await job.remove();
     }
     return { success: true };
