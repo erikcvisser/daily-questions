@@ -1,5 +1,5 @@
 import { Question } from '@prisma/client';
-import { startOfWeek, getWeek, isLastDayOfMonth, endOfMonth } from 'date-fns';
+import { getWeek, isLastDayOfMonth, endOfMonth } from 'date-fns';
 
 export function shouldShowQuestion(question: Question, date: Date): boolean {
   if (question.frequency === 'DAILY') return true;

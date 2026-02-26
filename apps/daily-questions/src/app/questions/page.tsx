@@ -1,4 +1,4 @@
-import { Button, Container, Title, Group, Stack, Space } from '@mantine/core';
+import { Button, Container, Title, Group, Stack } from '@mantine/core';
 import { Suspense } from 'react';
 import QuestionPageContent from './content';
 import Link from 'next/link';

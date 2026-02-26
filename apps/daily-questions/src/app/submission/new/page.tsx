@@ -1,5 +1,5 @@
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
-import { Container, Space, Title, Stack } from '@mantine/core';
+import { Container, Title, Stack } from '@mantine/core';
 
 export default async function Index() {
   return (

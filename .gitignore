@@ -46,6 +46,7 @@ Thumbs.db
 out
 .vercel
 
+.env
 .env.local
 
 # Serwist
