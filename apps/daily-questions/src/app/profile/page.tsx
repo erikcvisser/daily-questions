@@ -34,7 +34,6 @@ export default async function ProfilePage() {
           },
         },
       },
-      pushSubscriptions: true,
     },
   });
   const sharedOverviews = await prisma.sharedOverview.findMany({

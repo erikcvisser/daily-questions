@@ -52,3 +52,23 @@ out
 **/public/sw*
 **/public/swe-worker*
 **/public/sw.js
+**/**/sw.js
+sw.js
+apps/daily-questions/public/sw.js
+public/sw.js
+
+localhost*
+
+# Flutter
+apps/daily_questions_ios/.dart_tool/
+apps/daily_questions_ios/build/
+apps/daily_questions_ios/ios/Pods/
+apps/daily_questions_ios/ios/Podfile.lock
+apps/daily_questions_ios/ios/.symlinks/
+apps/daily_questions_ios/ios/Flutter/Generated.xcconfig
+apps/daily_questions_ios/ios/Flutter/flutter_export_environment.sh
+apps/daily_questions_ios/.flutter-plugins
+apps/daily_questions_ios/.flutter-plugins-dependencies
+
+# Firebase config (contains secrets)
+**/GoogleService-Info.plist

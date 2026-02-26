@@ -21,7 +21,6 @@ import {
   Question,
   LibraryQuestion,
   Category,
-  PushSubscription,
 } from '@prisma/client';
 import { AdminControls } from './AdminControls';
 
@@ -29,7 +28,6 @@ interface AdminProps {
   users: (User & {
     submissions: Submission[];
     questions: Question[];
-    pushSubscriptions: PushSubscription[];
   })[];
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];

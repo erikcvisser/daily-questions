@@ -25,6 +25,7 @@ model User {
   submissions   Submission[]
   targetScore   Float @default(0.60)
   pushSubscriptions PushSubscription[]
+  deviceTokens     DeviceToken[]
   notificationTime String?  // Store as HH:mm format
   timezone         String   @default("Europe/Amsterdam")
   emailNotificationsEnabled Boolean @default(false)
@@ -183,6 +184,20 @@ model PushSubscription {
 
   @@unique([userId, endpoint])
   @@index([userId])
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  platform  String
+  userId    String
+  timezone  String   @default("Europe/Amsterdam")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("device_tokens")
 }
 
 model SharedOverview {

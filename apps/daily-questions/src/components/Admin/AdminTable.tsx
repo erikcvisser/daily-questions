@@ -1,6 +1,6 @@
 'use client';
 import { Table } from '@mantine/core';
-import { Question, Submission, User, PushSubscription } from '@prisma/client';
+import { Question, Submission, User } from '@prisma/client';
 import { useState } from 'react';
 
 type SortConfig = {
@@ -8,11 +8,9 @@ type SortConfig = {
     | keyof (User & {
         submissions: Submission[];
         questions: Question[];
-        pushSubscriptions: PushSubscription[];
       })
     | 'submissionCount'
-    | 'lastSubmission'
-    | 'pushSubCount';
+    | 'lastSubmission';
   direction: 'asc' | 'desc';
 };
 
@@ -22,7 +20,6 @@ export function AdminTable({
   users: (User & {
     submissions: Submission[];
     questions: Question[];
-    pushSubscriptions: PushSubscription[];
   })[];
 }) {
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -39,10 +36,6 @@ export function AdminTable({
       case 'lastSubmission':
         aValue = a.submissions[0]?.createdAt || new Date(0);
         bValue = b.submissions[0]?.createdAt || new Date(0);
-        break;
-      case 'pushSubCount':
-        aValue = a.pushSubscriptions.length;
-        bValue = b.pushSubscriptions.length;
         break;
       case 'emailNotificationsEnabled':
         aValue = a.emailNotificationsEnabled ? 'Yes' : 'No';
@@ -120,14 +113,6 @@ export function AdminTable({
               (sortConfig.direction === 'asc' ? '↑' : '↓')}
           </Table.Th>
           <Table.Th
-            onClick={() => handleSort('pushSubCount')}
-            style={{ cursor: 'pointer' }}
-          >
-            # PushSubs{' '}
-            {sortConfig?.key === 'pushSubCount' &&
-              (sortConfig.direction === 'asc' ? '↑' : '↓')}
-          </Table.Th>
-          <Table.Th
             onClick={() => handleSort('emailNotificationsEnabled')}
             style={{ cursor: 'pointer' }}
           >
@@ -146,7 +131,6 @@ export function AdminTable({
             <Table.Td>{user.questions.length}</Table.Td>
             <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>
             <Table.Td>{user.submissions.length}</Table.Td>
-            <Table.Td>{user.pushSubscriptions.length}</Table.Td>
             <Table.Td>{user.emailNotificationsEnabled ? 'Yes' : 'No'}</Table.Td>
           </Table.Tr>
         ))}

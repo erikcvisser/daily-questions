@@ -12,15 +12,12 @@ import Link from 'next/link';
 export default async function InternalHome() {
   const session = await auth();
 
-  const [userQuestions, submissions, pushSubscriptions] = session?.user
+  const [userQuestions, submissions] = session?.user
     ? await Promise.all([
         prisma.question.findMany({ where: { userId: session.user.id } }),
         prisma.submission.findMany({ where: { userId: session.user.id } }),
-        prisma.pushSubscription.findMany({
-          where: { userId: session.user.id },
-        }),
       ])
-    : [[], [], []];
+    : [[], []];
 
   // Check if there's a submission for today
   const today = new Date().toISOString().split('T')[0];
@@ -40,18 +37,6 @@ export default async function InternalHome() {
             <Text ta="center">
               Great job! Come back tomorrow for your next reflection.
             </Text>
-
-            {pushSubscriptions.length === 0 && (
-              <Text ta="center">
-                Want to receive daily reminders so that you don&apos;t forget to
-                reflect?
-                <br />
-                <Link href="/profile">
-                  Click here for instructions on how to install the app and
-                  enable push notifications
-                </Link>
-              </Text>
-            )}
             <Button
               color="blue"
               component={Link}

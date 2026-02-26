@@ -9,22 +9,15 @@ import { auth, signIn } from '@/lib/auth';
 import { CreateUserInput, createUserSchema } from '@/lib/definitions';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
-import webpush from 'web-push';
 import {
   notificationQueue,
   scheduleUserNotification,
-  removeExistingJobs,
+  removeExistingUserJobs,
 } from './queue';
 import crypto from 'crypto';
 import { emailQueue } from './emailQueue';
 import { render } from '@react-email/render';
 import EndOfYearEmail from '../emails/EndOfYearEmail';
-
-webpush.setVapidDetails(
-  'mailto:mail@dailyquestions.app',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
 
 const CreateQuestion = createQuestionSchema;
 export async function createQuestion(formData: any) {
@@ -514,122 +507,6 @@ export async function deleteCategory(id: string) {
   revalidatePath('/admin');
 }
 
-export async function subscribeUser(sub: any) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  try {
-    // Check if this subscription already exists
-    const existingSub = await prisma.pushSubscription.findFirst({
-      where: {
-        userId: session.user.id,
-        endpoint: sub.endpoint,
-      },
-    });
-
-    if (!existingSub) {
-      const newSub = await prisma.pushSubscription.create({
-        data: {
-          endpoint: sub.endpoint,
-          p256dh: sub.keys.p256dh,
-          auth: sub.keys.auth,
-          userId: session.user.id,
-          timezone: sub.timezone,
-        },
-      });
-
-      // Schedule notification if user has notification time set
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-      });
-
-      if (user?.notificationTime) {
-        await scheduleUserNotification(
-          session.user.id,
-          user.notificationTime,
-          newSub.id,
-          newSub.timezone
-        );
-      }
-    }
-
-    revalidatePath('/profile');
-    return { success: true };
-  } catch (error) {
-    console.error('Error subscribing user:', error);
-    return { success: false, error: 'Failed to subscribe user' };
-  }
-}
-
-export async function unsubscribeUser(endpoint?: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  try {
-    if (endpoint) {
-      // Get subscription ID before deleting
-      const subscription = await prisma.pushSubscription.findFirst({
-        where: {
-          userId: session.user.id,
-          endpoint: endpoint,
-        },
-      });
-
-      if (subscription) {
-        // Remove Bull jobs first
-        await removeExistingJobs(subscription.id);
-
-        // Then delete the subscription
-        await prisma.pushSubscription.delete({
-          where: { id: subscription.id },
-        });
-      }
-    } else {
-      // Unsubscribe all devices
-      const subscriptions = await prisma.pushSubscription.findMany({
-        where: {
-          userId: session.user.id,
-        },
-      });
-
-      // Remove all Bull jobs and subscriptions
-      await Promise.all(
-        subscriptions.map(async (sub) => {
-          await removeExistingJobs(sub.id);
-          await prisma.pushSubscription.delete({
-            where: { id: sub.id },
-          });
-        })
-      );
-    }
-
-    revalidatePath('/profile');
-    return { success: true };
-  } catch (error) {
-    console.error('Error unsubscribing:', error);
-    return { success: false, error: 'Failed to unsubscribe' };
-  }
-}
-
-export async function getSubscriptions() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const subscription = await prisma.pushSubscription.findMany({
-    where: {
-      userId: session.user.id,
-    },
-  });
-
-  return subscription;
-}
-
 async function scheduleUserEmailNotification(
   userId: string,
   time: string,
@@ -698,7 +575,6 @@ export async function scheduleNotification(time: string) {
   }
 
   try {
-    // Validate time format
     const [hours, minutes] = time.split(':').map(Number);
     if (
       isNaN(hours) ||
@@ -711,7 +587,6 @@ export async function scheduleNotification(time: string) {
       throw new Error('Invalid time format. Expected HH:mm');
     }
 
-    // Format time to ensure HH:mm format
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
       .toString()
       .padStart(2, '0')}`;
@@ -721,22 +596,13 @@ export async function scheduleNotification(time: string) {
       data: { notificationTime: formattedTime },
     });
 
-    // Schedule push notifications
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { userId: session.user.id },
-    });
+    await removeExistingUserJobs(session.user.id);
+    await scheduleUserNotification(
+      session.user.id,
+      formattedTime,
+      user.timezone
+    );
 
-    for (const subscription of subscriptions) {
-      await removeExistingJobs(subscription.id);
-      await scheduleUserNotification(
-        session.user.id,
-        formattedTime,
-        subscription.id,
-        subscription.timezone
-      );
-    }
-
-    // Schedule email notification if enabled
     if (user.emailNotificationsEnabled) {
       await emailQueue.removeRepeatable('daily-email', {
         cron: `${minutes} ${hours} * * *`,
@@ -763,25 +629,19 @@ export async function scheduleNotification(time: string) {
 }
 
 export async function initializeQueue() {
-  const subscriptions = await prisma.pushSubscription.findMany({
-    include: {
-      user: true,
-    },
+  const users = await prisma.user.findMany({
     where: {
-      user: {
-        NOT: { notificationTime: null },
-      },
+      NOT: { notificationTime: null },
+      deviceTokens: { some: {} },
     },
   });
 
-  // Schedule notifications for each subscription
-  for (const subscription of subscriptions) {
-    if (subscription.user.notificationTime) {
+  for (const user of users) {
+    if (user.notificationTime) {
       await scheduleUserNotification(
-        subscription.user.id,
-        subscription.user.notificationTime,
-        subscription.id,
-        subscription.timezone
+        user.id,
+        user.notificationTime,
+        user.timezone
       );
     }
   }
@@ -847,91 +707,6 @@ export async function submitFeedback(feedback: string) {
   } catch (error) {
     console.error('Error sending feedback:', error);
     return { success: false, error: 'Failed to send feedback' };
-  }
-}
-
-export async function updateSubscriptionTimezone(
-  endpoint: string,
-  timezone: string
-) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  try {
-    const subscription = await prisma.pushSubscription.findUnique({
-      where: { userId_endpoint: { userId: session.user.id, endpoint } },
-    });
-
-    if (!subscription) {
-      throw new Error('Subscription not found');
-    }
-
-    // Update timezone and reschedule notification
-    await prisma.pushSubscription.update({
-      where: { userId_endpoint: { userId: session.user.id, endpoint } },
-      data: { timezone },
-    });
-
-    // Reschedule notification with new timezone
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (user?.notificationTime) {
-      await scheduleUserNotification(
-        session.user.id,
-        user.notificationTime,
-        subscription.id,
-        timezone
-      );
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating timezone:', error);
-    return { success: false, error: 'Failed to update timezone' };
-  }
-}
-
-export async function sendNotification(
-  title: string,
-  message: string,
-  url?: string
-) {
-  const subscriptions = await getSubscriptions();
-  if (!subscriptions || subscriptions.length === 0) {
-    throw new Error('No subscriptions available');
-  }
-
-  try {
-    const notificationPayload = JSON.stringify({
-      title,
-      body: message,
-      icon: '/android-chrome-192x192.png',
-      url: url || '/',
-      scheduledTime: new Date().toISOString(), // Immediate notification
-    });
-
-    const sendPromises = subscriptions.map((subscription) =>
-      webpush.sendNotification(
-        {
-          endpoint: subscription.endpoint,
-          keys: {
-            auth: subscription.auth,
-            p256dh: subscription.p256dh,
-          },
-        },
-        notificationPayload
-      )
-    );
-
-    await Promise.all(sendPromises);
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending push notification:', error);
-    return { success: false, error: 'Failed to send notification' };
   }
 }
 

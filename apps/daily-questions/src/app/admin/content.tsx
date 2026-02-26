@@ -19,7 +19,6 @@ export default async function AdminContent() {
     prisma.user.findMany({
       include: {
         submissions: { orderBy: { date: 'desc' } },
-        pushSubscriptions: true,
         questions: true,
       },
       orderBy: { createdAt: 'desc' },

@@ -26,7 +26,6 @@ import {
 import { TimeInput } from '@mantine/dates';
 import { IconAlertCircle, IconX } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
-import { PushNotificationManager } from '@/components/Profile/PushNotifications';
 import { notifications } from '@mantine/notifications';
 import InstallPrompt from '@/components/Profile/InstallPrompt';
 import { User, SharedOverview } from '@prisma/client';
@@ -40,7 +39,6 @@ interface ProfileDetailsProps {
     sharedWithMe: (SharedOverview & {
       owner: { name: string | null; email: string | null };
     })[];
-    pushSubscriptions: { id: string }[];
   };
   sharedOverviews: (SharedOverview & {
     owner: User;
@@ -267,11 +265,10 @@ export default function ProfileDetails({
           Notifications
         </Title>
         <Text mb="md">
-          Configure push or email notifications, as reminders to answers your
-          daily questions.
+          Configure email notifications as reminders to answer your daily
+          questions. For push notifications, use the iOS app.
         </Text>
-        {(user.emailNotificationsEnabled ||
-          user.pushSubscriptions.length > 0) && (
+        {user.emailNotificationsEnabled && (
           <Group align="center" mt="md" mb="md">
             <Text>Daily notification time:</Text>
             <TimeInput
@@ -286,11 +283,6 @@ export default function ProfileDetails({
           <EmailNotifications
             initialEnabled={user.emailNotificationsEnabled}
             userEmail={user.email}
-          />
-          <PushNotificationManager
-            user={user}
-            notificationTime={notificationTime}
-            onNotificationTimeChange={handleNotificationTimeChange}
           />
         </Stack>
         <Divider my="xl" />
