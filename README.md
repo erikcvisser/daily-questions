@@ -71,29 +71,30 @@ pnpm nx e2e daily-questions-e2e
 
 ## Deployment
 
-### Web — GitHub Actions + Coolify
+### Web — Coolify (Nixpacks)
 
-The web app is deployed automatically on every push to `main` that touches relevant paths (`apps/daily-questions/**`, `prisma/**`, `package.json`, `Dockerfile`). The pipeline can also be triggered manually via workflow dispatch.
+The web app is built and deployed by Coolify using Nixpacks. A GitHub webhook triggers a new build on every push to `main`.
 
-**Pipeline flow:**
+**CI (GitHub Actions)** runs lint and typecheck on push/PR as a quality gate — it does not build or deploy.
+
+**Deploy flow:**
 
 ```
 Push to main
-  └─ Lint (ESLint via Nx)
-       └─ Build Docker image (multi-stage, node:20-alpine)
-            └─ Push to GitHub Container Registry (ghcr.io)
-                 └─ Trigger Coolify webhook
-                      └─ Coolify pulls image & deploys
+  ├─ GitHub Actions: lint + typecheck
+  └─ GitHub webhook → Coolify
+       └─ Nixpacks build (prisma generate + nx build)
+            └─ Start (prisma migrate deploy + next start)
 ```
 
-**What happens at startup:**
+**Coolify build/start commands:**
 
-1. The container runs `prisma migrate deploy` to apply any pending database migrations.
-2. Next.js starts in standalone mode on port 3000.
+| Field | Command |
+|-------|---------|
+| Build | `npx prisma generate && npx nx build daily-questions` |
+| Start | `npx prisma migrate deploy && cd apps/daily-questions && npx next start -H 0.0.0.0 -p 3000` |
 
-**Required GitHub Secrets:**
-
-`DATABASE_URL`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, `NEXTAUTH_URL`, `AUTH_MICROSOFT_ENTRA_ID_ID`, `AUTH_MICROSOFT_ENTRA_ID_SECRET`, `AUTH_REDIS_URL`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `COOLIFY_WEBHOOK_URL`
+All environment variables (`POSTGRES_PRISMA_URL`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, etc.) are configured in Coolify's Environment tab. The database is accessible on the same network, so Prisma can reach it during both build and startup.
 
 ### iOS — Flutter + App Store
 
