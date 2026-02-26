@@ -1,82 +1,122 @@
-# DailyQuestions
+# Daily Questions
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A personal growth and reflection app based on Marshall Goldsmith's Daily Questions methodology. Users create custom questions, answer them on a daily/weekly/monthly cadence, and track progress over time to stay aligned with their goals and values.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+**Live at [dailyquestions.app](https://dailyquestions.app)**
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Tech Stack
 
-## Finish your CI setup
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 14 (App Router), React 18, Mantine v7, Tailwind CSS |
+| Backend | Node.js 20, Prisma, NextAuth v5 |
+| Database | PostgreSQL |
+| Cache / Queues | Redis (ioredis, Bull) |
+| Mobile | Flutter (WebView wrapper with native push notifications) |
+| Analytics | PostHog |
+| Monorepo | Nx 19 |
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/L6mbyxyUI2)
+## Project Structure
 
-
-## Run tasks
-
-To run the dev server for your app, use:
-
-```sh
-npx nx dev daily-questions
+```
+apps/
+  daily-questions/        # Next.js web application
+  daily-questions-e2e/    # Playwright end-to-end tests
+  daily_questions_ios/    # Flutter iOS app (WebView + Firebase push)
+prisma/
+  schema.prisma           # Database schema
+  migrations/             # Prisma migration history
 ```
 
-To create a production bundle:
+## Features
 
-```sh
-npx nx build daily-questions
+- **Custom questions** with multiple answer types (integer, boolean, free text, rating)
+- **Configurable frequency** — daily, weekly, or monthly
+- **Scoring & analytics** with charts and calendar overview
+- **Shared overviews** to share progress with others
+- **Question library** with curated templates and categories
+- **Push notifications** on web (VAPID) and iOS (Firebase Cloud Messaging)
+- **OAuth login** via Google, Microsoft Entra ID, and magic link (Resend)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL
+- Redis
+
+### Setup
+
+```bash
+npm install
+npx prisma generate
+npx prisma migrate dev
 ```
 
-To see all available targets to run for a project, run:
+Copy `.env.example` to `.env` and fill in the required values (database URL, auth secrets, Redis URL, Firebase credentials, etc.).
 
-```sh
-npx nx show project daily-questions
-```
-        
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Development
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/next:app demo
+```bash
+pnpm nx dev daily-questions
 ```
 
-To generate a new library, use:
+### Testing
 
-```sh
-npx nx g @nx/react:lib mylib
+```bash
+pnpm nx lint daily-questions
+pnpm nx e2e daily-questions-e2e
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+## Deployment
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Web — GitHub Actions + Coolify
 
+The web app is deployed automatically on every push to `main` that touches relevant paths (`apps/daily-questions/**`, `prisma/**`, `package.json`, `Dockerfile`). The pipeline can also be triggered manually via workflow dispatch.
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Pipeline flow:**
 
-## Install Nx Console
+```
+Push to main
+  └─ Lint (ESLint via Nx)
+       └─ Build Docker image (multi-stage, node:20-alpine)
+            └─ Push to GitHub Container Registry (ghcr.io)
+                 └─ Trigger Coolify webhook
+                      └─ Coolify pulls image & deploys
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+**What happens at startup:**
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. The container runs `prisma migrate deploy` to apply any pending database migrations.
+2. Next.js starts in standalone mode on port 3000.
 
-## Useful links
+**Required GitHub Secrets:**
 
-Learn more:
+`DATABASE_URL`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, `NEXTAUTH_URL`, `AUTH_MICROSOFT_ENTRA_ID_ID`, `AUTH_MICROSOFT_ENTRA_ID_SECRET`, `AUTH_REDIS_URL`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`, `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `COOLIFY_WEBHOOK_URL`
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### iOS — Flutter + App Store
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+The iOS app is a Flutter WebView wrapper that loads `dailyquestions.app` with native Firebase push notifications.
+
+**Prerequisites:**
+
+- Apple Developer account
+- Firebase project with iOS app configured
+- `GoogleService-Info.plist` in `ios/Runner/`
+- APNs authentication key (`.p8`) uploaded to Firebase Console
+
+**Build & release:**
+
+```bash
+cd apps/daily_questions_ios
+flutter build ios --release
+```
+
+Then archive and submit through Xcode or `xcrun altool` for App Store distribution.
+
+**Push notification flow:**
+
+1. iOS app registers its device token with the backend via `/api/device-token`.
+2. Backend stores the token and uses Firebase Admin SDK to send notifications.
+3. Tapping a notification deep-links into the WebView at the relevant path.
