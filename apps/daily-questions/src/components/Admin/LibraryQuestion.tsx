@@ -73,7 +73,7 @@ export default function LibraryQuestionManager({
         <NumberInput
           name="targetInt"
           label="Target Integer"
-          defaultValue={editingQuestion?.targetInt}
+          defaultValue={editingQuestion?.targetInt ?? undefined}
         />
         <Select
           name="targetBool"
