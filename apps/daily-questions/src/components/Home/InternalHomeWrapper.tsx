@@ -1,4 +1,13 @@
-import { Container, Stack, Group, Title, Text, Button } from '@mantine/core';
+import {
+  Container,
+  Stack,
+  Group,
+  Title,
+  Text,
+  Button,
+  Loader,
+  Center,
+} from '@mantine/core';
 import { IconClipboardList } from '@tabler/icons-react';
 import InternalHome from './InternalHome';
 import { Suspense } from 'react';
@@ -29,7 +38,7 @@ export default async function InternalHomeWrapper() {
           </Button>
         </Group>
 
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Center p="xl"><Loader /></Center>}>
           <InternalHome />
         </Suspense>
       </Stack>

@@ -285,6 +285,13 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
               <Button type="submit" loading={submitting}>
                 {submitting ? 'Signing In...' : 'Sign In'}
               </Button>
+              <Button
+                variant="subtle"
+                size="xs"
+                onClick={() => setShowForgotPassword(true)}
+              >
+                Forgot password?
+              </Button>
             </Stack>
           </form>
         ) : mode === 'register' ? (

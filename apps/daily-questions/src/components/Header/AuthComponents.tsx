@@ -3,7 +3,6 @@
 import { Modal, NavLink, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { CombiForm } from '@/components/Authenticate/CombiForm';
-import Link from 'next/link';
 import { IconLogin2 } from '@tabler/icons-react';
 
 export function LoginLinks({
@@ -51,7 +50,7 @@ export function LoginLinkUnstyled() {
       >
         <CombiForm />
       </Modal>
-      <UnstyledButton component={Link} href="#" onClick={openLogin}>
+      <UnstyledButton onClick={openLogin}>
         Sign in
       </UnstyledButton>
     </>

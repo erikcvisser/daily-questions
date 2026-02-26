@@ -291,8 +291,8 @@ export default function ProfileDetails({
           Invite accountability partner
         </Title>
         <Text mb="md">
-          Invite a friend or partner to hold you accountable. He/she will be
-          able able to see your submissions, and help you stay strong!
+          Invite a friend or partner to hold you accountable. They will be
+          able to see your submissions and help you stay strong!
         </Text>
 
         <Container size="sm" ml="0" p="0">

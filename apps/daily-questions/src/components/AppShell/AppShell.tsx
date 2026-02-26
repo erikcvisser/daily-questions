@@ -80,7 +80,7 @@ export function BasicAppShell({
                     src="/android-chrome-192x192.png"
                     width={32}
                     height={32}
-                    alt={''}
+                    alt="Daily Questions logo"
                   />
                   <Text p={16} size="xl" fw={'bold'}>
                     Daily Questions

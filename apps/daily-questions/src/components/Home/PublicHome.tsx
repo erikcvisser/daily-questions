@@ -108,6 +108,9 @@ export default function PublicHome() {
       {/* Key Benefits */}
       <Container size="lg" mt="xl">
         <SectionDivider />
+        <Title order={3} ta="center" mb="md">
+          Key Benefits
+        </Title>
         <SimpleGrid
           spacing="lg"
           verticalSpacing="lg"
@@ -173,6 +176,7 @@ export default function PublicHome() {
               component={Link}
               href="https://marshallgoldsmith.com/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Learn More
             </Button>
@@ -199,6 +203,7 @@ export default function PublicHome() {
               component={Link}
               href="https://marshallgoldsmith.com/book-page-triggers/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Learn More
             </Button>

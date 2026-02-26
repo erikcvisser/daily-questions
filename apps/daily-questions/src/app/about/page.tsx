@@ -13,7 +13,6 @@ import {
   Group,
   Button,
   SimpleGrid,
-  Skeleton,
   Divider,
   Progress,
   Stack,
@@ -23,7 +22,13 @@ import { ButtonModal } from '@/components/Authenticate/ButtonModal';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import {} from '@mantine/core';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description:
+    'Learn about Daily Questions - a personal growth platform inspired by Marshall Goldsmith\'s "Triggers".',
+};
 
 const SectionDivider = () => <Divider my="xl" variant="dashed" />;
 
@@ -254,9 +259,6 @@ export default async function AboutPage() {
         </Timeline>
       </Container>
 
-      <Container size="lg" mt="xl">
-        <SectionDivider />
-      </Container>
       {/* Benefits of Daily Questions */}
       <Container size="lg" mt="xl">
         <SectionDivider />
@@ -265,7 +267,7 @@ export default async function AboutPage() {
         </Title>
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" fw={700} color="blue">
+            <Text size="xl" fw={700} c="blue">
               1
             </Text>
             <Title order={4} mt="md">
@@ -278,7 +280,7 @@ export default async function AboutPage() {
           </Card>
 
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" fw={700} color="blue">
+            <Text size="xl" fw={700} c="blue">
               2
             </Text>
             <Title order={4} mt="md">
@@ -290,7 +292,7 @@ export default async function AboutPage() {
           </Card>
 
           <Card shadow="sm" padding="lg" style={{ textAlign: 'center' }}>
-            <Text size="xl" fw={700} color="blue">
+            <Text size="xl" fw={700} c="blue">
               3
             </Text>
             <Title order={4} mt="md">
@@ -312,9 +314,7 @@ export default async function AboutPage() {
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
           <Card shadow="sm" padding="lg">
             <Group>
-              <Avatar src={null} alt="User 1" radius="xl">
-                <Skeleton height={40} circle />
-              </Avatar>
+              <Avatar color="blue" radius="xl">TR</Avatar>
               <Text fw={500}>Taylor R.</Text>
             </Group>
             <Text mt="sm">
@@ -325,9 +325,7 @@ export default async function AboutPage() {
           </Card>
           <Card shadow="sm" padding="lg">
             <Group>
-              <Avatar src={null} alt="User 2" radius="xl">
-                <Skeleton height={40} circle />
-              </Avatar>
+              <Avatar color="teal" radius="xl">ML</Avatar>
               <Text fw={500}>Morgan L.</Text>
             </Group>
             <Text mt="sm">
@@ -371,6 +369,7 @@ export default async function AboutPage() {
               component={Link}
               href="https://marshallgoldsmith.com/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Learn More
             </Button>
@@ -397,6 +396,7 @@ export default async function AboutPage() {
               component={Link}
               href="https://marshallgoldsmith.com/book-page-triggers/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Learn More
             </Button>
