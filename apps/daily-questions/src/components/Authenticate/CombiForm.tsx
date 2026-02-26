@@ -90,11 +90,12 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           email: values.email,
         });
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(message);
       posthog.capture('user_login_error', {
         method: 'credentials',
-        error: error.message,
+        error: message,
         email: values.email,
       });
     } finally {
@@ -140,11 +141,12 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           email: values.email,
         });
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(message);
       posthog.capture('user_registration_error', {
         method: 'credentials',
-        error: error.message,
+        error: message,
         email: values.email,
       });
     } finally {

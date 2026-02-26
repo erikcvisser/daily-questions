@@ -165,7 +165,7 @@ export default function QuestionnaireMobileForm({
   const renderQuestion = (item: Question, index: number) => {
     const formProps = {
       ...form.getInputProps(`answers.${item.id}`),
-      onChange: (value: any) => {
+      onChange: (value: string | number | boolean | null) => {
         form.getInputProps(`answers.${item.id}`).onChange(value);
         handleInputChange(index);
       },

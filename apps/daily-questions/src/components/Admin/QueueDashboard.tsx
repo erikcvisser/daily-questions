@@ -17,8 +17,26 @@ import {
 } from '@mantine/core';
 import { getBullQueueData, removeBullJob } from '@/lib/actions';
 
+interface QueueJob {
+  id: string;
+  key?: string;
+  cron?: string;
+  next?: string;
+  data: Record<string, unknown>;
+  state?: string;
+  delay?: number;
+  timestamp?: number;
+}
+
+interface QueueData {
+  repeatableJobs: QueueJob[];
+  delayedJobs: QueueJob[];
+  jobs: QueueJob[];
+  counts: Record<string, number>;
+}
+
 export function QueueDashboard() {
-  const [queueData, setQueueData] = useState<any>(null);
+  const [queueData, setQueueData] = useState<QueueData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -103,7 +121,7 @@ export function QueueDashboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {queueData?.repeatableJobs?.map((job: any) => (
+            {queueData?.repeatableJobs?.map((job) => (
               <Table.Tr key={job.key}>
                 <Table.Td>{job.id}</Table.Td>
                 <Table.Td>
@@ -140,7 +158,7 @@ export function QueueDashboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {queueData?.delayedJobs?.map((job: any) => (
+            {queueData?.delayedJobs?.map((job) => (
               <Table.Tr key={job.id}>
                 <Table.Td>{job.id}</Table.Td>
                 <Table.Td>
@@ -178,7 +196,7 @@ export function QueueDashboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {queueData?.jobs?.map((job: any) => (
+            {queueData?.jobs?.map((job) => (
               <Table.Tr key={job.id}>
                 <Table.Td>{job.id}</Table.Td>
                 <Table.Td>

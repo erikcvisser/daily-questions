@@ -49,7 +49,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (
           !user ||
-          !(await bcrypt.compare(String(credentials.password), user.password!))
+          !user.password ||
+          !(await bcrypt.compare(String(credentials.password), user.password))
         ) {
           return null;
         }
@@ -104,7 +105,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     jwt: ({ token, user }) => {
       if (user) {
-        const u = user as unknown as any;
+        const u = user as unknown as { id?: string; targetScore?: number };
         return {
           ...token,
           id: u.id as string | undefined,

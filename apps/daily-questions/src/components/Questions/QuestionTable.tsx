@@ -49,7 +49,7 @@ function SortableTableRow({
   setSelectedRows: React.Dispatch<React.SetStateAction<string[]>>;
   deleteQuestionAction: (question: Question) => void;
   archiveQuestionAction: (question: Question) => void;
-  router: any;
+  router: ReturnType<typeof useRouter>;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: question.id });

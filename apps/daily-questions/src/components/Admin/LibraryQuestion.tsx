@@ -23,7 +23,7 @@ export default function LibraryQuestionManager({
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];
 }) {
-  const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
+  const [editingQuestion, setEditingQuestion] = useState<(LibraryQuestion & { category: Category }) | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

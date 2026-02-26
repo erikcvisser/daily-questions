@@ -28,7 +28,7 @@ async function initializeQueue() {
 
 export const notificationQueue = new Queue(
   'notifications',
-  process.env.AUTH_REDIS_URL!
+  process.env.AUTH_REDIS_URL ?? ''
 );
 
 initializeQueue();

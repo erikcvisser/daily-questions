@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         email: user.email,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
@@ -36,7 +36,11 @@ export async function POST(req: Request) {
       );
     }
 
-    if (error.code === 'P2002') {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
       return NextResponse.json(
         {
           status: 'fail',
@@ -49,7 +53,8 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         status: 'error',
-        message: error.message || 'Internal Server Error',
+        message:
+          error instanceof Error ? error.message : 'Internal Server Error',
       },
       { status: 500 }
     );

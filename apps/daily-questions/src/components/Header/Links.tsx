@@ -20,7 +20,7 @@ export function Links({
   session,
   toggleMobile,
 }: {
-  session: any;
+  session: { user?: { name?: string | null; email?: string | null } } | null;
   toggleMobile: () => void;
 }) {
   const pathname = usePathname();

@@ -27,7 +27,7 @@ export function BasicAppShell({
   children,
   session,
 }: {
-  children: any;
+  children: React.ReactNode;
   session: Session | undefined;
 }) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);

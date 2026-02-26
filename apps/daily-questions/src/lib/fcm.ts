@@ -53,10 +53,11 @@ export async function sendPushToUser(userId: string) {
     deviceTokens.map(async (dt) => {
       try {
         await firebaseAdmin.messaging().send({ ...message, token: dt.token });
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const code = error instanceof Error && 'code' in error ? (error as { code: string }).code : '';
         if (
-          error.code === 'messaging/registration-token-not-registered' ||
-          error.code === 'messaging/invalid-registration-token'
+          code === 'messaging/registration-token-not-registered' ||
+          code === 'messaging/invalid-registration-token'
         ) {
           await prisma.deviceToken.delete({ where: { id: dt.id } });
           console.log(`Removed invalid device token: ${dt.id}`);

@@ -20,7 +20,7 @@ import { render } from '@react-email/render';
 import EndOfYearEmail from '../emails/EndOfYearEmail';
 
 const CreateQuestion = createQuestionSchema;
-export async function createQuestion(formData: any) {
+export async function createQuestion(formData: Record<string, unknown>) {
   const session = await auth();
   const {
     title,
@@ -66,7 +66,7 @@ export async function createQuestion(formData: any) {
   redirect('/questions');
 }
 
-export async function updateQuestion(id: string, formData: any) {
+export async function updateQuestion(id: string, formData: Record<string, unknown>) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
@@ -180,7 +180,7 @@ export async function archiveQuestion(question: Question) {
   redirect('/questions');
 }
 
-async function calculateScorePercentage(answers: any[]) {
+async function calculateScorePercentage(answers: { questionId: string; answer: string }[]) {
   let totalQuestions = 0;
   let exceededTarget = 0;
 
@@ -221,7 +221,7 @@ async function calculateScorePercentage(answers: any[]) {
   return totalQuestions > 0 ? (exceededTarget / totalQuestions) * 100 : null;
 }
 
-export async function submitQuestionnaire(formData: any) {
+export async function submitQuestionnaire(formData: { answers: Record<string, string | number | boolean> }) {
   const session = await auth();
   const answers = [];
   for (const key in formData.answers) {
@@ -248,7 +248,7 @@ export async function submitQuestionnaire(formData: any) {
   redirect('/overview');
 }
 
-export async function updateQuestionnaire(id: string, formData: any) {
+export async function updateQuestionnaire(id: string, formData: { answers: Record<string, string | number | boolean> }) {
   const session = await auth();
   const answers = [];
   for (const key in formData.answers) {
@@ -367,11 +367,17 @@ export async function registerUser(formData: CreateUserInput) {
     });
 
     return { success: true };
-  } catch (error: any) {
-    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002' &&
+      'meta' in error &&
+      (error as { meta?: { target?: string[] } }).meta?.target?.includes('email')
+    ) {
       throw new Error('Email already exists');
     }
-    throw new Error(error.message || 'An unexpected error occurred');
+    throw new Error(error instanceof Error ? error.message : 'An unexpected error occurred');
   }
 }
 
@@ -427,13 +433,13 @@ export async function updateUserDetails(data: {
 
     revalidatePath('/profile');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating user details:', error);
     return { success: false, error: 'Failed to update user details' };
   }
 }
 
-export async function createLibraryQuestion(formData: any) {
+export async function createLibraryQuestion(formData: Record<string, unknown>) {
   const { title, type, targetBool, targetInt, targetRating, categoryId } =
     formData;
 
@@ -452,7 +458,7 @@ export async function createLibraryQuestion(formData: any) {
   return newLibraryQuestion;
 }
 
-export async function updateLibraryQuestion(id: string, formData: any) {
+export async function updateLibraryQuestion(id: string, formData: Record<string, unknown>) {
   const { title, type, targetBool, targetInt, targetRating, categoryId } =
     formData;
 
@@ -656,7 +662,15 @@ export async function getQueueData() {
     notificationQueue.getDelayed(),
   ]);
 
-  const formatJob = (job: any) => ({
+  const formatJob = (job: {
+    id: string;
+    data: unknown;
+    timestamp: number;
+    processedOn?: number;
+    finishedOn?: number;
+    failedReason?: string;
+    opts?: { repeat?: unknown };
+  }) => ({
     id: job.id,
     data: job.data,
     timestamp: new Date(job.timestamp).toLocaleString(),
@@ -923,7 +937,7 @@ export async function shareOverview(recipientEmail: string) {
     });
 
     // Create share record
-    const share = await prisma.sharedOverview.create({
+    await prisma.sharedOverview.create({
       data: {
         ownerId: session.user.id,
         email: recipientEmail.toLowerCase(),
@@ -1110,7 +1124,7 @@ export async function sendEndOfYearEmailToAllUsers() {
 
           await resend.emails.send({
             from: 'Erik from Daily Questions <mail@dailyquestions.app>',
-            to: user.email!,
+            to: user.email as string,
             subject: 'Wishing you a reflective 2025 full of growth and joy!',
             html: html,
           });
@@ -1203,7 +1217,8 @@ export async function analyzeQuestions(params: {
         });
       }
 
-      const stats = questionStats.get(answer.questionId)!;
+      const stats = questionStats.get(answer.questionId);
+      if (!stats) return;
       const isSuccess = calculateAnswerSuccess(answer);
       const score = isSuccess ? 1 : 0;
       stats.scores.push(score);

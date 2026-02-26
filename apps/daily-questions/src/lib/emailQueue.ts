@@ -6,7 +6,7 @@ const resend = new Resend(process.env.AUTH_RESEND_KEY);
 
 export const emailQueue = new Queue(
   'email-notifications',
-  process.env.AUTH_REDIS_URL!
+  process.env.AUTH_REDIS_URL ?? ''
 );
 
 // Process the email notifications

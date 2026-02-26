@@ -8,9 +8,6 @@ import {
   Image,
   Grid,
   GridCol,
-  Avatar,
-  Skeleton,
-  Group,
   Divider,
 } from '@mantine/core';
 import { ButtonModal } from '../Authenticate/ButtonModal';

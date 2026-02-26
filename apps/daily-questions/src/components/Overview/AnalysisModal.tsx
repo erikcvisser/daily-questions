@@ -38,7 +38,22 @@ export function AnalysisModal({ opened, onClose, userId }: AnalysisModalProps) {
   const [relativePeriod, setRelativePeriod] = useState<RelativePeriod>('month');
   const [startDate, setStartDate] = useState<DateValue>(null);
   const [endDate, setEndDate] = useState<DateValue>(null);
-  const [results, setResults] = useState<any>(null);
+  interface QuestionStat {
+    questionId: string;
+    title: string;
+    averageScore: number;
+    answerCount: number;
+    trend: 'up' | 'down' | 'neutral';
+  }
+
+  interface AnalysisResults {
+    topQuestions: QuestionStat[];
+    bottomQuestions: QuestionStat[];
+    overallScore: number;
+    totalAnswers: number;
+  }
+
+  const [results, setResults] = useState<AnalysisResults | null>(null);
 
   const handleAnalyze = () => {
     setLoading(true);
@@ -227,7 +242,7 @@ export function AnalysisModal({ opened, onClose, userId }: AnalysisModalProps) {
                     Top Performing Questions
                   </Text>
                   <Stack gap="xs">
-                    {results.topQuestions.map((q: any) => (
+                    {results.topQuestions.map((q) => (
                       <Group key={q.questionId} justify="space-between">
                         <Text size="sm" style={{ flex: 1 }}>
                           {q.title}
@@ -249,7 +264,7 @@ export function AnalysisModal({ opened, onClose, userId }: AnalysisModalProps) {
                     Bottom Performing Questions
                   </Text>
                   <Stack gap="xs">
-                    {results.bottomQuestions.map((q: any) => (
+                    {results.bottomQuestions.map((q) => (
                       <Group key={q.questionId} justify="space-between">
                         <Text size="sm" style={{ flex: 1 }}>
                           {q.title}
