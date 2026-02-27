@@ -12,9 +12,11 @@ function getFirebaseAdmin() {
         // Handle JSON-encoded strings (e.g. wrapped in quotes with escaped \n)
         privateKey = JSON.parse(rawKey);
       } catch {
-        // Not JSON-encoded, just replace literal \n
+        // Replace literal \n with actual newlines
         privateKey = rawKey.replace(/\\n/g, '\n');
       }
+      // Debug: log key format to help diagnose PEM issues
+      console.error(`[FCM] Key length: ${privateKey?.length}, starts: ${privateKey?.substring(0, 30)}, has real newlines: ${privateKey?.includes('\n')}, has literal backslash-n: ${privateKey?.includes('\\n')}`);
     }
 
     if (!projectId || !clientEmail || !privateKey) {
