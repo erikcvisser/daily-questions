@@ -21,6 +21,7 @@ import {
   Question,
   LibraryQuestion,
   Category,
+  DeviceToken,
 } from '@prisma/client';
 import { AdminControls } from './AdminControls';
 
@@ -28,6 +29,7 @@ interface AdminProps {
   users: (User & {
     submissions: Submission[];
     questions: Question[];
+    deviceTokens: DeviceToken[];
   })[];
   libraryQuestions: (LibraryQuestion & { category: Category })[];
   categories: Category[];

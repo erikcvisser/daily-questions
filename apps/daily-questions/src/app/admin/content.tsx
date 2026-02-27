@@ -20,6 +20,7 @@ export default async function AdminContent() {
       include: {
         submissions: { orderBy: { date: 'desc' } },
         questions: true,
+        deviceTokens: true,
       },
       orderBy: { createdAt: 'desc' },
     }),

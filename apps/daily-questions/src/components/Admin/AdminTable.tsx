@@ -1,6 +1,6 @@
 'use client';
 import { Table } from '@mantine/core';
-import { Question, Submission, User } from '@prisma/client';
+import { DeviceToken, Question, Submission, User } from '@prisma/client';
 import { useState } from 'react';
 
 type SortConfig = {
@@ -10,7 +10,8 @@ type SortConfig = {
         questions: Question[];
       })
     | 'submissionCount'
-    | 'lastSubmission';
+    | 'lastSubmission'
+    | 'hasIos';
   direction: 'asc' | 'desc';
 };
 
@@ -20,6 +21,7 @@ export function AdminTable({
   users: (User & {
     submissions: Submission[];
     questions: Question[];
+    deviceTokens: DeviceToken[];
   })[];
 }) {
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -40,6 +42,14 @@ export function AdminTable({
       case 'emailNotificationsEnabled':
         aValue = a.emailNotificationsEnabled ? 'Yes' : 'No';
         bValue = b.emailNotificationsEnabled ? 'Yes' : 'No';
+        break;
+      case 'hasIos':
+        aValue = a.deviceTokens.some((t) => t.platform === 'ios') ? 1 : 0;
+        bValue = b.deviceTokens.some((t) => t.platform === 'ios') ? 1 : 0;
+        break;
+      case 'pushNotificationsEnabled':
+        aValue = a.pushNotificationsEnabled ? 1 : 0;
+        bValue = b.pushNotificationsEnabled ? 1 : 0;
         break;
       default:
         aValue = a[sortConfig.key];
@@ -120,6 +130,22 @@ export function AdminTable({
             {sortConfig?.key === 'emailNotificationsEnabled' &&
               (sortConfig.direction === 'asc' ? '↑' : '↓')}
           </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('hasIos')}
+            style={{ cursor: 'pointer' }}
+          >
+            iOS{' '}
+            {sortConfig?.key === 'hasIos' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
+          <Table.Th
+            onClick={() => handleSort('pushNotificationsEnabled')}
+            style={{ cursor: 'pointer' }}
+          >
+            Push Not{' '}
+            {sortConfig?.key === 'pushNotificationsEnabled' &&
+              (sortConfig.direction === 'asc' ? '↑' : '↓')}
+          </Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -132,6 +158,12 @@ export function AdminTable({
             <Table.Td>{formatDate(user.submissions[0]?.createdAt)}</Table.Td>
             <Table.Td>{user.submissions.length}</Table.Td>
             <Table.Td>{user.emailNotificationsEnabled ? 'Yes' : 'No'}</Table.Td>
+            <Table.Td>
+              {user.deviceTokens.some((t) => t.platform === 'ios')
+                ? 'Yes'
+                : 'No'}
+            </Table.Td>
+            <Table.Td>{user.pushNotificationsEnabled ? 'Yes' : 'No'}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>
