@@ -5,7 +5,17 @@ function getFirebaseAdmin() {
   if (!admin.apps.length) {
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const rawKey = process.env.FIREBASE_PRIVATE_KEY;
+    let privateKey: string | undefined;
+    if (rawKey) {
+      try {
+        // Handle JSON-encoded strings (e.g. wrapped in quotes with escaped \n)
+        privateKey = JSON.parse(rawKey);
+      } catch {
+        // Not JSON-encoded, just replace literal \n
+        privateKey = rawKey.replace(/\\n/g, '\n');
+      }
+    }
 
     if (!projectId || !clientEmail || !privateKey) {
       return null;

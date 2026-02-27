@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   deleteAccount,
@@ -65,6 +65,11 @@ export default function ProfileDetails({
   const [pushNotificationTime, setPushNotificationTime] = useState(
     user.pushNotificationTime || user.notificationTime || '20:00'
   );
+  const [isMobileApp, setIsMobileApp] = useState(false);
+
+  useEffect(() => {
+    setIsMobileApp(/DailyQuestionsIOS/i.test(navigator.userAgent));
+  }, []);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -296,7 +301,7 @@ export default function ProfileDetails({
           Configure reminders to answer your daily questions.
         </Text>
 
-        {user._count.deviceTokens > 0 && (
+        {isMobileApp ? (
           <>
             <Text fw={500} mb="xs">Push Notifications</Text>
             <Stack>
@@ -316,9 +321,16 @@ export default function ProfileDetails({
               )}
             </Stack>
           </>
+        ) : (
+          <>
+            <Text fw={500} mb="xs">Push Notifications</Text>
+            <Text c="dimmed" size="sm" mb="md">
+              Install and open the mobile app to configure push notifications for your device.
+            </Text>
+          </>
         )}
 
-        <Text fw={500} mb="xs" mt={user._count.deviceTokens > 0 ? 'md' : undefined}>
+        <Text fw={500} mb="xs" mt="md">
           Email Notifications
         </Text>
         <Stack>
