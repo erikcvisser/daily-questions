@@ -31,8 +31,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -51,6 +49,12 @@
 		<string>remote-notification</string>
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Daily Questions may use tracking to improve your experience and deliver relevant content.</string>
+	<key>UIRequiresFullScreen</key>
 	<true/>
 </dict>
 </plist>
