@@ -11,6 +11,7 @@ import { Notifications } from '@mantine/notifications';
 import { theme } from '@/components/theme';
 import { BasicAppShell } from '@/components/AppShell/AppShell';
 import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import type { Metadata, Viewport } from 'next';
 import { CSPostHogProvider } from './providers';
 
@@ -73,8 +74,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isIOSApp = userAgent.includes('DailyQuestionsIOS');
+
   return (
-    <html lang="en">
+    <html lang="en" className={isIOSApp ? 'ios-app' : undefined}>
       <CSPostHogProvider>
         <head>
           <ColorSchemeScript />

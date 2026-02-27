@@ -2,3 +2,23 @@
   touch-action: pan-x pan-y;
   height: 100%;
 }
+
+/* iOS App WebView: make content feel native */
+html.ios-app {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html.ios-app,
+html.ios-app body {
+  overscroll-behavior: none;
+}
+
+html.ios-app input,
+html.ios-app textarea,
+html.ios-app [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}

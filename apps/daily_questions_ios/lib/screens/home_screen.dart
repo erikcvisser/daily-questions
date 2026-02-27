@@ -39,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _initWebView() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xFFFFFFFF))
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (_) {
@@ -46,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           onPageFinished: (url) {
             if (mounted) setState(() => _isLoading = false);
+            _controller.runJavaScript(
+              "document.documentElement.classList.add('ios-app');",
+            );
             _checkAuthState(url);
             if (_pendingDeepLink != null) {
               _controller.loadRequest(Uri.parse('$_baseUrl$_pendingDeepLink'));
