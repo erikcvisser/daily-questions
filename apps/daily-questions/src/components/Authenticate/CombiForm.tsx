@@ -156,11 +156,19 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
 
   const handleGoogleSignIn = () => {
     posthog.capture('auth_provider_selected', { provider: 'google' });
+    if (navigator.userAgent.includes('DailyQuestionsIOS')) {
+      window.location.href = '/api/auth/mobile-signin?provider=google';
+      return;
+    }
     signIn('google', { callbackUrl });
   };
 
   const handleMicrosoftSignIn = () => {
     posthog.capture('auth_provider_selected', { provider: 'microsoft' });
+    if (navigator.userAgent.includes('DailyQuestionsIOS')) {
+      window.location.href = '/api/auth/mobile-signin?provider=microsoft-entra-id';
+      return;
+    }
     signIn('microsoft-entra-id', { callbackUrl });
   };
 

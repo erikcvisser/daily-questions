@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:app_links/app_links.dart';
 import '../services/push_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +15,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final WebViewController _controller;
   final PushService _pushService = PushService();
+  late final AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
   bool _isLoading = true;
   String? _pendingDeepLink;
 
@@ -22,6 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _initWebView();
     _initPush();
+    _initDeepLinks();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
   }
 
   void _initWebView() {
@@ -42,6 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           onNavigationRequest: (request) {
             final uri = Uri.parse(request.url);
+
+            // Intercept mobile OAuth — open in Safari
+            if (uri.host == 'dailyquestions.app' &&
+                uri.path == '/api/auth/mobile-signin') {
+              launchUrl(uri, mode: LaunchMode.externalApplication);
+              return NavigationDecision.prevent;
+            }
+
             if (uri.host == 'dailyquestions.app' || uri.host == 'localhost') {
               return NavigationDecision.navigate;
             }
@@ -51,6 +71,30 @@ class _HomeScreenState extends State<HomeScreen> {
       )
       ..setUserAgent('DailyQuestionsIOS/1.0')
       ..loadRequest(Uri.parse(_baseUrl));
+  }
+
+  void _initDeepLinks() {
+    _appLinks = AppLinks();
+
+    // Handle link when app is already running
+    _linkSubscription = _appLinks.uriLinkStream.listen(_handleAuthCallback);
+
+    // Handle link when app was cold-started from link
+    _appLinks.getInitialLink().then((uri) {
+      if (uri != null) _handleAuthCallback(uri);
+    });
+  }
+
+  void _handleAuthCallback(Uri uri) {
+    if (uri.scheme == 'dailyquestions' && uri.host == 'auth') {
+      final token = uri.queryParameters['token'];
+      if (token != null) {
+        // Load mobile-session endpoint which sets the cookie and redirects
+        _controller.loadRequest(Uri.parse(
+          '$_baseUrl/api/auth/mobile-session?token=${Uri.encodeComponent(token)}',
+        ));
+      }
+    }
   }
 
   Future<void> _initPush() async {

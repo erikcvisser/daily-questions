@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   webview_flutter: ^4.10.0
+  url_launcher: ^6.2.0
+  app_links: ^6.0.0
   firebase_core: ^3.8.1
   firebase_messaging: ^15.1.6
 
