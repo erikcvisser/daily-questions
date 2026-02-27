@@ -34,15 +34,24 @@ export async function POST(req: Request) {
       },
     });
 
+    // Set default push notification time if not yet configured
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
     });
 
-    if (user?.notificationTime) {
+    if (user && !user.pushNotificationTime && user.notificationTime) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { pushNotificationTime: user.notificationTime },
+      });
+    }
+
+    const pushTime = user?.pushNotificationTime || user?.notificationTime;
+    if (pushTime && user?.pushNotificationsEnabled) {
       await removeExistingUserJobs(session.user.id);
       await scheduleUserNotification(
         session.user.id,
-        user.notificationTime,
+        pushTime,
         timezone || user.timezone
       );
     }

@@ -34,6 +34,9 @@ export default async function ProfilePage() {
           },
         },
       },
+      _count: {
+        select: { deviceTokens: true },
+      },
     },
   });
   const sharedOverviews = await prisma.sharedOverview.findMany({

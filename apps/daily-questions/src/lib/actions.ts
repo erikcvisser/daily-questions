@@ -588,7 +588,7 @@ export async function updateEmailNotifications(enabled: boolean) {
   }
 }
 
-export async function scheduleNotification(time: string) {
+export async function scheduleEmailNotificationTime(time: string) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
@@ -616,13 +616,6 @@ export async function scheduleNotification(time: string) {
       data: { notificationTime: formattedTime },
     });
 
-    await removeExistingUserJobs(session.user.id);
-    await scheduleUserNotification(
-      session.user.id,
-      formattedTime,
-      user.timezone
-    );
-
     if (user.emailNotificationsEnabled) {
       await getEmailQueue().removeRepeatable('daily-email', {
         cron: `${minutes} ${hours} * * *`,
@@ -637,13 +630,97 @@ export async function scheduleNotification(time: string) {
 
     return { success: true };
   } catch (error) {
-    console.error('Error scheduling notification:', error);
+    console.error('Error scheduling email notification:', error);
     return {
       success: false,
       error:
         error instanceof Error
           ? error.message
-          : 'Failed to schedule notification',
+          : 'Failed to schedule email notification',
+    };
+  }
+}
+
+export async function updatePushNotifications(enabled: boolean) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { pushNotificationsEnabled: enabled },
+    });
+
+    if (enabled) {
+      const time = user.pushNotificationTime || user.notificationTime;
+      if (time) {
+        await removeExistingUserJobs(session.user.id);
+        await scheduleUserNotification(
+          session.user.id,
+          time,
+          user.timezone
+        );
+      }
+    } else {
+      await removeExistingUserJobs(session.user.id);
+    }
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating push notifications:', error);
+    return { success: false, error: 'Failed to update push notifications' };
+  }
+}
+
+export async function schedulePushNotificationTime(time: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const [hours, minutes] = time.split(':').map(Number);
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      throw new Error('Invalid time format. Expected HH:mm');
+    }
+
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
+
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { pushNotificationTime: formattedTime },
+    });
+
+    if (user.pushNotificationsEnabled) {
+      await removeExistingUserJobs(session.user.id);
+      await scheduleUserNotification(
+        session.user.id,
+        formattedTime,
+        user.timezone
+      );
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error scheduling push notification:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to schedule push notification',
     };
   }
 }

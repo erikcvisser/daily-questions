@@ -30,6 +30,8 @@ model User {
   notificationTime String?  // Store as HH:mm format
   timezone         String   @default("Europe/Amsterdam")
   emailNotificationsEnabled Boolean @default(false)
+  pushNotificationsEnabled  Boolean @default(true)
+  pushNotificationTime      String?
   resetToken       String?   @unique
   resetTokenExpiry DateTime?
   sharedByMe      SharedOverview[] @relation("SharedByUser")

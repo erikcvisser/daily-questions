@@ -6,7 +6,8 @@ import {
   updateUserDetails,
   revokeSharedOverview,
   acceptSharedOverview,
-  scheduleNotification,
+  scheduleEmailNotificationTime,
+  schedulePushNotificationTime,
 } from '@/lib/actions';
 import {
   Text,
@@ -30,6 +31,7 @@ import { notifications } from '@mantine/notifications';
 import InstallPrompt from '@/components/Profile/InstallPrompt';
 import { User, SharedOverview } from '@prisma/client';
 import { EmailNotifications } from '@/components/Profile/EmailNotifications';
+import { PushNotifications } from '@/components/Profile/PushNotifications';
 
 interface ProfileDetailsProps {
   user: User & {
@@ -39,6 +41,7 @@ interface ProfileDetailsProps {
     sharedWithMe: (SharedOverview & {
       owner: { name: string | null; email: string | null };
     })[];
+    _count: { deviceTokens: number };
   };
   sharedOverviews: (SharedOverview & {
     owner: User;
@@ -56,8 +59,11 @@ export default function ProfileDetails({
   const [targetScore, setTargetScore] = useState(user.targetScore * 100);
   const [error, setError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [notificationTime, setNotificationTime] = useState(
+  const [emailNotificationTime, setEmailNotificationTime] = useState(
     user.notificationTime || '20:00'
+  );
+  const [pushNotificationTime, setPushNotificationTime] = useState(
+    user.pushNotificationTime || user.notificationTime || '20:00'
   );
 
   const handleDeleteAccount = async () => {
@@ -158,23 +164,45 @@ export default function ProfileDetails({
     }
   };
 
-  const handleNotificationTimeChange = async (newTime: string) => {
+  const handleEmailTimeChange = async (newTime: string) => {
     try {
-      const result = await scheduleNotification(newTime);
+      const result = await scheduleEmailNotificationTime(newTime);
       if (result.success) {
-        setNotificationTime(newTime);
+        setEmailNotificationTime(newTime);
       } else {
         notifications.show({
           title: 'Error',
-          message: 'Failed to update notification time',
+          message: 'Failed to update email notification time',
           color: 'red',
         });
       }
     } catch (error) {
-      console.error('Failed to update notification time:', error);
+      console.error('Failed to update email notification time:', error);
       notifications.show({
         title: 'Error',
-        message: 'Failed to update notification time',
+        message: 'Failed to update email notification time',
+        color: 'red',
+      });
+    }
+  };
+
+  const handlePushTimeChange = async (newTime: string) => {
+    try {
+      const result = await schedulePushNotificationTime(newTime);
+      if (result.success) {
+        setPushNotificationTime(newTime);
+      } else {
+        notifications.show({
+          title: 'Error',
+          message: 'Failed to update push notification time',
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update push notification time:', error);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update push notification time',
         color: 'red',
       });
     }
@@ -265,25 +293,50 @@ export default function ProfileDetails({
           Notifications
         </Title>
         <Text mb="md">
-          Configure email notifications as reminders to answer your daily
-          questions. For push notifications, use the iOS app.
+          Configure reminders to answer your daily questions.
         </Text>
-        {user.emailNotificationsEnabled && (
-          <Group align="center" mt="md" mb="md">
-            <Text>Daily notification time:</Text>
-            <TimeInput
-              value={notificationTime}
-              onChange={(event) =>
-                handleNotificationTimeChange(event.currentTarget.value)
-              }
-            />
-          </Group>
+
+        {user._count.deviceTokens > 0 && (
+          <>
+            <Text fw={500} mb="xs">Push Notifications</Text>
+            <Stack>
+              <PushNotifications
+                initialEnabled={user.pushNotificationsEnabled}
+              />
+              {user.pushNotificationsEnabled && (
+                <Group align="center" mt="xs" mb="md">
+                  <Text>Daily push notification time:</Text>
+                  <TimeInput
+                    value={pushNotificationTime}
+                    onChange={(event) =>
+                      handlePushTimeChange(event.currentTarget.value)
+                    }
+                  />
+                </Group>
+              )}
+            </Stack>
+          </>
         )}
+
+        <Text fw={500} mb="xs" mt={user._count.deviceTokens > 0 ? 'md' : undefined}>
+          Email Notifications
+        </Text>
         <Stack>
           <EmailNotifications
             initialEnabled={user.emailNotificationsEnabled}
             userEmail={user.email}
           />
+          {user.emailNotificationsEnabled && (
+            <Group align="center" mt="xs" mb="md">
+              <Text>Daily email notification time:</Text>
+              <TimeInput
+                value={emailNotificationTime}
+                onChange={(event) =>
+                  handleEmailTimeChange(event.currentTarget.value)
+                }
+              />
+            </Group>
+          )}
         </Stack>
         <Divider my="xl" />
 

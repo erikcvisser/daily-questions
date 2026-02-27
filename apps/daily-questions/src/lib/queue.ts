@@ -20,7 +20,7 @@ function getNotificationQueue() {
           include: { deviceTokens: true },
         });
 
-        if (!user || user.deviceTokens.length === 0) {
+        if (!user || user.deviceTokens.length === 0 || !user.pushNotificationsEnabled) {
           return;
         }
 
@@ -74,18 +74,19 @@ async function initializeQueue() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        NOT: { notificationTime: null },
+        pushNotificationsEnabled: true,
         deviceTokens: { some: {} },
+        OR: [
+          { pushNotificationTime: { not: null } },
+          { notificationTime: { not: null } },
+        ],
       },
     });
 
     for (const user of users) {
-      if (user.notificationTime) {
-        await scheduleUserNotification(
-          user.id,
-          user.notificationTime,
-          user.timezone
-        );
+      const time = user.pushNotificationTime || user.notificationTime;
+      if (time) {
+        await scheduleUserNotification(user.id, time, user.timezone);
       }
     }
 
