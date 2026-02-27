@@ -1,16 +1,23 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+
+async function getOrigin() {
+  const h = await headers();
+  const proto = h.get('x-forwarded-proto') || 'https';
+  const host = h.get('x-forwarded-host') || h.get('host') || 'dailyquestions.app';
+  return { origin: `${proto}://${host}`, isSecure: proto === 'https' };
+}
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get('token');
+  const token = new URL(request.url).searchParams.get('token');
+  const { origin, isSecure } = await getOrigin();
 
   if (token) {
-    const isSecure = url.protocol === 'https:';
     const cookieName = isSecure
       ? '__Secure-authjs.session-token'
       : 'authjs.session-token';
 
-    const response = NextResponse.redirect(new URL('/overview', url.origin));
+    const response = NextResponse.redirect(new URL('/overview', origin));
     response.cookies.set(cookieName, token, {
       httpOnly: true,
       secure: isSecure,
@@ -20,5 +27,5 @@ export async function GET(request: Request) {
     return response;
   }
 
-  return NextResponse.redirect(new URL('/login', url.origin));
+  return NextResponse.redirect(new URL('/login', origin));
 }
