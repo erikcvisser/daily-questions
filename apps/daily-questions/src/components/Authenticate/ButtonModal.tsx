@@ -25,7 +25,14 @@ export function ButtonModal({
 
   return (
     <>
-      <Button variant={variant} size={size} mt={mt} mb={mb} onClick={open}>
+      <Button
+        variant={variant}
+        size={size}
+        mt={mt}
+        mb={mb}
+        onClick={open}
+        style={{ whiteSpace: 'normal', maxWidth: '100%' }}
+      >
         {buttonText}
       </Button>
 

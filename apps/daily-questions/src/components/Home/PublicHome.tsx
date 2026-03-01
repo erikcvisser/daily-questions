@@ -60,7 +60,7 @@ export default function PublicHome() {
             Goldsmith&apos;s &quot;Triggers&quot;
           </Text>
           <ButtonModal
-            buttonText="Sign up or sign in to gt started - It's Free!"
+            buttonText="Register or sign in to get started for free"
             modalTitle="Sign in or sign up"
           />
         </Container>
@@ -263,7 +263,7 @@ export default function PublicHome() {
         <Title order={2}>Ready to Start Your Journey?</Title>
         <ButtonModal
           mb="xl"
-          buttonText="Sign up or sign in to gt started - It's Free!"
+          buttonText="Register or sign in to get started for free"
           modalTitle="Sign in or sign up"
         />
       </Container>
