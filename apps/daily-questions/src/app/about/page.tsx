@@ -22,6 +22,7 @@ import { ButtonModal } from '@/components/Authenticate/ButtonModal';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
+import { SupportForm } from '@/components/SupportForm';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -463,6 +464,20 @@ export default async function AboutPage() {
               </Text>
             </GridCol>
           </Grid>
+        </Card>
+      </Container>
+
+      {/* Support & Contact */}
+      <Container size="sm" mt="xl">
+        <SectionDivider />
+        <Title order={2} ta="center" mb="xs">
+          Support & Contact
+        </Title>
+        <Text ta="center" c="dimmed" mb="lg">
+          Have questions or need help? We&apos;re here for you.
+        </Text>
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <SupportForm />
         </Card>
       </Container>
 
