@@ -75,3 +75,4 @@ apps/daily_questions_ios/.flutter-plugins-dependencies
 **/GoogleService-Info.plist
 
 .playwright-mcp
+.worktrees
