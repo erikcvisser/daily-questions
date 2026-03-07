@@ -59,10 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onNavigationRequest: (request) {
             final uri = Uri.parse(request.url);
 
-            // Intercept mobile OAuth — open in Safari
+            // Intercept mobile OAuth — open in SFSafariViewController
             if (uri.host == 'dailyquestions.app' &&
                 uri.path == '/api/auth/mobile-signin') {
-              launchUrl(uri, mode: LaunchMode.externalApplication);
+              launchUrl(uri, mode: LaunchMode.inAppBrowserView);
               return NavigationDecision.prevent;
             }
 
