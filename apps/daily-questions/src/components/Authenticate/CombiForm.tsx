@@ -10,6 +10,7 @@ import {
   IconBrandGoogleFilled,
   IconMail,
   IconBrandAzure,
+  IconBrandApple,
 } from '@tabler/icons-react';
 import {
   Button,
@@ -170,6 +171,15 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
       return;
     }
     signIn('microsoft-entra-id', { callbackUrl });
+  };
+
+  const handleAppleSignIn = () => {
+    posthog.capture('auth_provider_selected', { provider: 'apple' });
+    if (navigator.userAgent.includes('DailyQuestionsIOS')) {
+      window.location.href = '/api/auth/mobile-signin?provider=apple';
+      return;
+    }
+    signIn('apple', { callbackUrl });
   };
 
   const handleMagicLinkSignIn = async (
@@ -385,6 +395,15 @@ export function CombiForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
           fullWidth
         >
           Continue with Microsoft
+        </Button>
+
+        <Button
+          onClick={handleAppleSignIn}
+          variant="outline"
+          leftSection={<IconBrandApple />}
+          fullWidth
+        >
+          Continue with Apple
         </Button>
 
         <form onSubmit={handleMagicLinkSignIn}>
