@@ -1248,6 +1248,33 @@ export async function sendEndOfYearEmailToAllUsers() {
   }
 }
 
+export async function sendSupportMessage(formData: {
+  name: string;
+  email: string;
+  message: string;
+}) {
+  const { name, email, message } = formData;
+
+  if (!name || !email || !message) {
+    return { success: false, error: 'All fields are required' };
+  }
+
+  try {
+    const resend = new Resend(process.env.AUTH_RESEND_KEY);
+    await resend.emails.send({
+      from: 'Daily Questions <mail@dailyquestions.app>',
+      to: 'mail@dailyquestions.app',
+      replyTo: email,
+      subject: `Support request from ${name}`,
+      text: `Support Request\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send support email:', error);
+    return { success: false, error: 'Failed to send message' };
+  }
+}
+
 interface QuestionAnalysis {
   questionId: string;
   title: string;
