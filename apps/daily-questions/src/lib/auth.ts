@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
+import Apple from 'next-auth/providers/apple';
 import Resend from 'next-auth/providers/resend';
 import bcrypt from 'bcryptjs';
 import { identifyPostHogUser } from '@/app/providers';
@@ -64,6 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     Google({ allowDangerousEmailAccountLinking: true }),
+    Apple({ allowDangerousEmailAccountLinking: true }),
   ],
   callbacks: {
     authorized: async ({ auth, request: { nextUrl } }) => {
