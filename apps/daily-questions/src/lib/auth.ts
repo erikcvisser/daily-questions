@@ -11,31 +11,43 @@ import crypto from 'crypto';
 import { identifyPostHogUser } from '@/app/providers';
 
 function generateAppleClientSecret(): string {
-  const teamId = process.env.APPLE_TEAM_ID!;
-  const clientId = process.env.APPLE_ID!;
-  const keyId = process.env.APPLE_KEY_ID!;
-  const privateKey = process.env.APPLE_PRIVATE_KEY!;
+  const teamId = process.env.APPLE_TEAM_ID;
+  const clientId = process.env.APPLE_ID;
+  const keyId = process.env.APPLE_KEY_ID;
+  const rawKey = process.env.APPLE_PRIVATE_KEY;
 
-  const now = Math.floor(Date.now() / 1000);
+  if (!teamId || !clientId || !keyId || !rawKey) {
+    return '';
+  }
 
-  const header = Buffer.from(JSON.stringify({ alg: 'ES256', kid: keyId }))
-    .toString('base64url');
+  try {
+    // Handle escaped newlines from environment variables
+    const privateKey = rawKey.replace(/\\n/g, '\n');
 
-  const payload = Buffer.from(JSON.stringify({
-    iss: teamId,
-    iat: now,
-    exp: now + 15777000, // ~6 months
-    aud: 'https://appleid.apple.com',
-    sub: clientId,
-  })).toString('base64url');
+    const now = Math.floor(Date.now() / 1000);
 
-  const signature = crypto.sign(
-    'SHA256',
-    Buffer.from(`${header}.${payload}`),
-    { key: privateKey, dsaEncoding: 'ieee-p1363' }
-  ).toString('base64url');
+    const header = Buffer.from(JSON.stringify({ alg: 'ES256', kid: keyId }))
+      .toString('base64url');
 
-  return `${header}.${payload}.${signature}`;
+    const payload = Buffer.from(JSON.stringify({
+      iss: teamId,
+      iat: now,
+      exp: now + 15777000, // ~6 months
+      aud: 'https://appleid.apple.com',
+      sub: clientId,
+    })).toString('base64url');
+
+    const signature = crypto.sign(
+      'SHA256',
+      Buffer.from(`${header}.${payload}`),
+      { key: privateKey, dsaEncoding: 'ieee-p1363' }
+    ).toString('base64url');
+
+    return `${header}.${payload}.${signature}`;
+  } catch (e) {
+    console.error('Failed to generate Apple client secret:', e);
+    return '';
+  }
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
