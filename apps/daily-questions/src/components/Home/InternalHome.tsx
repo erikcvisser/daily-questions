@@ -4,6 +4,7 @@ import {
   IconInfoSquare,
   IconCheck,
 } from '@tabler/icons-react';
+import AddStarterQuestionsButton from './AddStarterQuestionsButton';
 import Questionnaire from '@/components/Questionnaire/Questionnaire';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
@@ -58,13 +59,22 @@ export default async function InternalHome() {
         <Stack align="center" gap="md">
           <IconInfoSquare size={48} />
           <Text size="lg" fw={500} ta="center">
-            No questions configured yet
+            Welcome to Daily Questions
           </Text>
-          <Text c="dimmed" ta="center">
-            Set up your daily questions to start your reflection journey.
+          <Text c="dimmed" ta="center" maw={400}>
+            Answer a few reflection questions daily to track your personal
+            growth. Start with our recommended starter questions, or create
+            your own.
           </Text>
-          <Button color="blue" component={Link} href="/questions/new">
-            Configure Questions
+          <AddStarterQuestionsButton />
+          <Button
+            variant="subtle"
+            color="gray"
+            component={Link}
+            href="/questions/new"
+            size="sm"
+          >
+            Or create your own questions
           </Button>
         </Stack>
       )}

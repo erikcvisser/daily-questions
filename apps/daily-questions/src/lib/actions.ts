@@ -324,6 +324,38 @@ export async function copyLibraryQuestions(questionIds: string[]) {
   redirect('/questions');
 }
 
+export async function addStarterQuestions() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const starterCategory = await prisma.category.findUnique({
+    where: { name: 'Starter' },
+    include: { libraryQuestions: true },
+  });
+
+  if (!starterCategory || starterCategory.libraryQuestions.length === 0) {
+    throw new Error('Starter questions not found');
+  }
+
+  await prisma.question.createMany({
+    data: starterCategory.libraryQuestions.map((libQ) => ({
+      title: libQ.title,
+      type: libQ.type,
+      status: 'ACTIVE' as QuestionStatus,
+      userId: session.user!.id!,
+      libraryQuestionId: libQ.id,
+      targetBool: libQ.type === 'BOOLEAN' ? libQ.targetBool : undefined,
+      targetInt: libQ.type === 'INTEGER' ? libQ.targetInt : undefined,
+      targetRating: libQ.type === 'RATING' ? libQ.targetRating : undefined,
+    })),
+  });
+
+  revalidatePath('/');
+  redirect('/');
+}
+
 export async function updateQuestionPositions(updatedQuestions: Question[]) {
   const updatePromises = updatedQuestions.map((question) =>
     prisma.question.update({
