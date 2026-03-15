@@ -318,7 +318,6 @@ export default function QuestionnaireMobileForm({
           height="calc(100vh - 250px)"
           draggable
           withControls={false}
-          withIndicators
           initialSlide={1}
           onSlideChange={handleSlideChange}
           styles={{

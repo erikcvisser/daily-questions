@@ -27,7 +27,7 @@ export default async function InternalHome() {
   );
 
   return (
-    <Card shadow="sm" padding="xs" withBorder mb={'xl'} p={{ base: 'xs', sm: 'lg' }}>
+    <Card shadow="sm" padding="xs" withBorder mb={'xl'} p={{ base: 4, sm: 'lg' }} mih={{ base: 'calc(100vh - 200px)', sm: 'auto' }}>
       {userQuestions.length > 0 ? (
         submittedToday ? (
           <Stack align="center" gap="md">
