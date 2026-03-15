@@ -58,7 +58,7 @@ export default async function Questionnaire({
       <Stack visibleFrom="sm">
         <QuestionnaireForm questions={questions} submission={submission} />
       </Stack>
-      <Stack hiddenFrom="sm" p={0} maw="100%">
+      <Stack hiddenFrom="sm" p={0} maw="100%" h="100%">
         <QuestionnaireMobileForm
           questions={questions}
           submission={submission}

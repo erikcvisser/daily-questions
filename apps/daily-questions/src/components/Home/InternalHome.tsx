@@ -27,7 +27,7 @@ export default async function InternalHome() {
   );
 
   return (
-    <Card shadow="sm" padding="xs" withBorder mb={'xl'} p={{ base: 'sm', sm: 'lg' }} mih={{ base: 'calc(100vh - 180px)', sm: 'auto' }}>
+    <Card shadow="sm" padding="xs" withBorder mb={'xl'} p={{ base: 'sm', sm: 'lg' }} h={{ base: 'calc(100vh - 180px)', sm: 'auto' }} style={{ display: 'flex', flexDirection: 'column' }}>
       {userQuestions.length > 0 ? (
         submittedToday ? (
           <Stack align="center" gap="md">
@@ -48,12 +48,14 @@ export default async function InternalHome() {
             </Button>
           </Stack>
         ) : (
-          <>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
             <Text size="lg" fw={500} mb="md" visibleFrom="sm">
               Ready for today&apos;s reflection?
             </Text>
-            <Questionnaire />
-          </>
+            <div style={{ flex: 1 }}>
+              <Questionnaire />
+            </div>
+          </div>
         )
       ) : (
         <Stack align="center" gap="md">
