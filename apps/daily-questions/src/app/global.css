@@ -22,3 +22,14 @@ html.ios-app [contenteditable="true"] {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Rating card active state */
+.mantine-Radio-card {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.mantine-Radio-card[data-checked] {
+  background-color: var(--mantine-color-blue-filled);
+  border-color: var(--mantine-color-blue-filled);
+  color: white;
+}
