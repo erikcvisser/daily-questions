@@ -8,7 +8,6 @@ import {
   NumberInput,
   Radio,
   RadioGroup,
-  Select,
   Stack,
   Text,
   Textarea,
@@ -128,13 +127,10 @@ export default function QuestionnaireMobileForm({
         const currentIndex = embla.selectedScrollSnap();
         setTimeout(() => {
           const input = document.querySelector(
-            `[data-slide="${currentIndex}"] input:not([type="hidden"]), [data-slide="${currentIndex}"] textarea, [data-slide="${currentIndex}"] .mantine-Select-input`
+            `[data-slide="${currentIndex}"] input:not([type="hidden"]):not([type="radio"]), [data-slide="${currentIndex}"] textarea`
           );
           if (input instanceof HTMLElement) {
             input.focus();
-            if (input.classList.contains('mantine-Select-input')) {
-              input.click();
-            }
           }
         }, 2500);
       };
@@ -236,24 +232,33 @@ export default function QuestionnaireMobileForm({
         break;
       case 'RATING':
         questionComponent = (
-          <Select
+          <RadioGroup
             data-slide={index + 1}
             key={`question-${item.id}`}
             label={item.title}
-            size="md"
             description="Rate from 0 to 5"
-            allowDeselect={false}
-            data={[
-              { value: '0', label: '0. Not done' },
-              { value: '1', label: '1. Marginal effort' },
-              { value: '2', label: '2. Some effort' },
-              { value: '3', label: '3. OK' },
-              { value: '4', label: '4. Very good' },
-              { value: '5', label: '5. Exceptional' },
-            ]}
             withAsterisk
+            size="sm"
             {...commonProps}
-          />
+          >
+            <Stack gap={4} mt="xs">
+              {[
+                { value: '0', label: '0. Not done' },
+                { value: '1', label: '1. Marginal effort' },
+                { value: '2', label: '2. Some effort' },
+                { value: '3', label: '3. OK' },
+                { value: '4', label: '4. Very good' },
+                { value: '5', label: '5. Exceptional' },
+              ].map((option) => (
+                <Radio.Card key={option.value} value={option.value} radius="md" p="xs">
+                  <Group wrap="nowrap">
+                    <Radio.Indicator />
+                    <Text size="sm">{option.label}</Text>
+                  </Group>
+                </Radio.Card>
+              ))}
+            </Stack>
+          </RadioGroup>
         );
         break;
     }
