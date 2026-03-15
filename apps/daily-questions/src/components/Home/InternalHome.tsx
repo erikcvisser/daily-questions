@@ -27,7 +27,7 @@ export default async function InternalHome() {
   );
 
   return (
-    <Card shadow="sm" padding="lg" withBorder mb={'xl'}>
+    <Card shadow="sm" padding="xs" withBorder mb={'xl'} p={{ base: 'xs', sm: 'lg' }}>
       {userQuestions.length > 0 ? (
         submittedToday ? (
           <Stack align="center" gap="md">

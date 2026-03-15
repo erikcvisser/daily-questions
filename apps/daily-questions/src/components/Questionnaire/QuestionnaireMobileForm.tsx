@@ -2,8 +2,8 @@
 
 import { submitQuestionnaireSchema } from '@/lib/definitions';
 import {
+  ActionIcon,
   Button,
-  Container,
   Group,
   NumberInput,
   Radio,
@@ -17,7 +17,7 @@ import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { notifications } from '@mantine/notifications';
 import { Question, Answer, Submission } from '@prisma/client';
-import { IconArrowRight, IconSend } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconSend } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { submitQuestionnaire, updateQuestionnaire } from '@/lib/actions';
 import { useSearchParams } from 'next/navigation';
@@ -251,10 +251,7 @@ export default function QuestionnaireMobileForm({
                 { value: '5', label: '5. Exceptional' },
               ].map((option) => (
                 <Radio.Card key={option.value} value={option.value} radius="md" p="xs">
-                  <Group wrap="nowrap">
-                    <Radio.Indicator />
-                    <Text size="sm">{option.label}</Text>
-                  </Group>
+                  <Text size="sm">{option.label}</Text>
                 </Radio.Card>
               ))}
             </Stack>
@@ -265,36 +262,46 @@ export default function QuestionnaireMobileForm({
 
     return (
       <Carousel.Slide key={item.id} h="100%">
-        <Container size="sm" py="sm" h="100%">
-          <Stack h="100%" justify="space-between">
-            <div>{questionComponent}</div>
-            <Group justify="space-between" mb="0">
+        <Stack h="100%" justify="space-between" py="sm">
+          <div>{questionComponent}</div>
+          <Stack gap="xs">
+            <Group justify="space-between" align="center">
+              <ActionIcon
+                variant="filled"
+                size="lg"
+                radius="xl"
+                onClick={() => embla?.scrollPrev()}
+                style={{ visibility: currentSlide === 0 ? 'hidden' : undefined }}
+              >
+                <IconChevronLeft />
+              </ActionIcon>
               <Text size="sm" c="dimmed">
                 Question {index + 2} of {questions.length + 1}
               </Text>
-              {index < questions.length - 1 ? (
-                <Button
-                  onClick={handleNext}
-                  rightSection={<IconArrowRight />}
-                  radius="md"
-                  size="lg"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  leftSection={<IconSend />}
-                  radius="md"
-                  size="lg"
-                >
-                  {submitting ? 'Saving...' : 'Save'}
-                </Button>
-              )}
+              <ActionIcon
+                variant="filled"
+                size="lg"
+                radius="xl"
+                onClick={handleNext}
+                style={{ visibility: index === questions.length - 1 ? 'hidden' : undefined }}
+              >
+                <IconChevronRight />
+              </ActionIcon>
             </Group>
+            {index === questions.length - 1 && (
+              <Button
+                type="submit"
+                disabled={submitting}
+                leftSection={<IconSend />}
+                radius="md"
+                size="lg"
+                fullWidth
+              >
+                {submitting ? 'Saving...' : 'Save'}
+              </Button>
+            )}
           </Stack>
-        </Container>
+        </Stack>
       </Carousel.Slide>
     );
   };
@@ -310,82 +317,54 @@ export default function QuestionnaireMobileForm({
           slideSize="100%"
           height="calc(100vh - 250px)"
           draggable
-          withControls
+          withControls={false}
           withIndicators
-          controlsOffset="xs"
           initialSlide={1}
           onSlideChange={handleSlideChange}
-          nextControlProps={{
-            style: {
-              visibility:
-                currentSlide === questions.length ? 'hidden' : undefined,
-
-              width: '40px',
-              marginRight: '-20px',
-              height: '40px',
-              backgroundColor: 'var(--mantine-color-blue-filled)',
-              border: 'none',
-              color: 'white',
-            },
-          }}
-          previousControlProps={{
-            style: {
-              visibility: currentSlide === 0 ? 'hidden' : undefined,
-              marginLeft: '-20px',
-            },
-          }}
           styles={{
             root: {
               maxWidth: '100%',
             },
-            control: {
-              '&[dataInactive]': {
-                opacity: 0,
-                cursor: 'default',
-              },
-              width: '40px',
-              height: '40px',
-              backgroundColor: 'var(--mantine-color-blue-filled)',
-              border: 'none',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'var(--mantine-color-blue-filled-hover)',
-              },
-            },
           }}
         >
           <Carousel.Slide h="100%">
-            <Container size="sm" py="sm" h="100%">
-              <Stack h="100%" justify="space-between">
-                <div>
-                  <DateInput
-                    label="Date"
-                    {...form.getInputProps('date')}
-                    onChange={(value) => {
-                      if (value) {
-                        form.setFieldValue('date', value);
-                        handleNext();
-                      }
-                    }}
-                    radius="md"
-                    size="md"
-                  />
-                </div>
-                <Group justify="space-between" mb="0">
-                  <Text size="sm" c="dimmed">
-                    Question 1 of {questions.length + 1}
-                  </Text>
-                  <Button
-                    onClick={handleNext}
-                    rightSection={<IconArrowRight />}
-                    radius="md"
-                    size="lg"
-                  >
-                    Next
-                  </Button>
-                </Group>
-              </Stack>
-            </Container>
+            <Stack h="100%" justify="space-between" py="sm">
+              <div>
+                <DateInput
+                  label="Date"
+                  {...form.getInputProps('date')}
+                  onChange={(value) => {
+                    if (value) {
+                      form.setFieldValue('date', value);
+                      handleNext();
+                    }
+                  }}
+                  radius="md"
+                  size="md"
+                />
+              </div>
+              <Group justify="space-between" align="center">
+                <ActionIcon
+                  variant="filled"
+                  size="lg"
+                  radius="xl"
+                  style={{ visibility: 'hidden' }}
+                >
+                  <IconChevronLeft />
+                </ActionIcon>
+                <Text size="sm" c="dimmed">
+                  Question 1 of {questions.length + 1}
+                </Text>
+                <ActionIcon
+                  variant="filled"
+                  size="lg"
+                  radius="xl"
+                  onClick={handleNext}
+                >
+                  <IconChevronRight />
+                </ActionIcon>
+              </Group>
+            </Stack>
           </Carousel.Slide>
 
           {questions.map((item, index) => renderQuestion(item, index))}
