@@ -49,7 +49,7 @@ export default async function InternalHome() {
           </Stack>
         ) : (
           <>
-            <Text size="lg" fw={500} mb="md">
+            <Text size="lg" fw={500} mb="md" visibleFrom="sm">
               Ready for today&apos;s reflection?
             </Text>
             <Questionnaire />
