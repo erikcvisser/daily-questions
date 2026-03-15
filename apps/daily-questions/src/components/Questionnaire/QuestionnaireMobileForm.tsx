@@ -250,8 +250,23 @@ export default function QuestionnaireMobileForm({
                 { value: '4', label: '4. Very good' },
                 { value: '5', label: '5. Exceptional' },
               ].map((option) => (
-                <Radio.Card key={option.value} value={option.value} radius="md" p="xs">
-                  <Text size="sm">{option.label}</Text>
+                <Radio.Card
+                  key={option.value}
+                  value={option.value}
+                  radius="md"
+                  p="xs"
+                  styles={{
+                    card: {
+                      transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                      '&[data-checked]': {
+                        backgroundColor: 'var(--mantine-color-blue-filled)',
+                        borderColor: 'var(--mantine-color-blue-filled)',
+                        color: 'white',
+                      },
+                    },
+                  }}
+                >
+                  <Text size="sm" c="inherit">{option.label}</Text>
                 </Radio.Card>
               ))}
             </Stack>
